@@ -4,6 +4,7 @@ namespace EventStore\ValueObjects\Tests\Identity;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\ValueObjects\Tests\TestCase;
 use EventStore\ValueObjects\ValueObjectInterface;
+use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
 
 class UUIDTest extends TestCase
 {
@@ -11,7 +12,7 @@ class UUIDTest extends TestCase
     {
         $uuidString = UUID::generateAsString();
 
-        $this->assertRegexp('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuidString);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuidString);
     }
 
     public function testFromNative()
@@ -35,9 +36,9 @@ class UUIDTest extends TestCase
         $this->assertFalse($uuid1->sameValueAs($mock));
     }
 
-    /** @expectedException EventStore\ValueObjects\Exception\InvalidNativeArgumentException */
     public function testInvalid()
     {
+        $this->expectException(InvalidNativeArgumentException::class);
         new UUID('invalid');
     }
 }

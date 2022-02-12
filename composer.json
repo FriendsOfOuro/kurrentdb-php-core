@@ -28,15 +28,15 @@
     "dbellettini/geteventstore-core": "self.version"
   },
   "require": {
-    "php": "~7.2",
-    "guzzlehttp/psr7": "~1.2",
+    "php": ">=7",
+    "guzzlehttp/psr7": "^2.1.0",
     "ramsey/uuid": "^3.4.1",
-    "marc-mabe/php-enum": "^3.0",
+    "marc-mabe/php-enum": "^4.6.0",
     "php-http/httplug": "^1.1"
   },
   "require-dev": {
-    "guzzlehttp/guzzle": "~6.0",
-    "phpunit/phpunit": "~7.1",
+    "guzzlehttp/guzzle": "7.4.1",
+    "phpunit/phpunit": ">=7.1",
     "kevinrob/guzzle-cache-middleware": "^0.7.1",
     "doctrine/cache": "~1.4",
     "friendsofphp/php-cs-fixer": "~2.2"
@@ -54,7 +54,10 @@
   "autoload": {
     "psr-4": {
       "EventStore\\": "src/"
-    }
+    },
+    "files": [
+      "src/missing.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

@@ -1,6 +1,8 @@
 <?php
 namespace EventStore\StreamFeed;
 
+use EventStore\StreamFeed\LinkRelation;
+
 /**
  * Class HasLinks.
  */
@@ -16,17 +18,30 @@ trait HasLinks
      *
      * @return null|string
      */
-    public function getLinkUrl(LinkRelation $relation)
-    {
+    public function getLinkUrl(LinkRelation
+        $relation,
+        array $credentials=['user'=> null, 'pass' => null]
+    ){
         $links = $this->getLinks();
 
+        $uri = null;
         foreach ($links as $link) {
             if ($link['relation'] == $relation->toNative()) {
-                return $link['uri'];
+                $uri = $link['uri'];
+                break;
             }
         }
 
-        return null;
+        if (! $uri) {
+            return $uri;
+        }
+
+        $parts = parse_url($uri);
+        $parts['user'] = $credentials['user'];
+        $parts['pass'] = $credentials['pass'];
+        $uri = \unparse_url($parts);
+
+        return $uri;
     }
 
     /**
@@ -36,6 +51,6 @@ trait HasLinks
      */
     public function hasLink(LinkRelation $relation)
     {
-        return null !== $this->getLinkUrl($relation);
+        return null !== $this->getLinkUrl($relation, $this->credentials);
     }
 }

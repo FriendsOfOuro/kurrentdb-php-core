@@ -17,10 +17,10 @@ class StreamFeedIteratorTest extends TestCase
      */
     private $es;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $httpClient = new GuzzleHttpClient();
-        $this->es = new EventStore('http://127.0.0.1:2113', $httpClient);
+        $this->es = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpClient);
     }
 
     /**

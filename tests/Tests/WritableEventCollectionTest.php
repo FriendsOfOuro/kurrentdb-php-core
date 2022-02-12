@@ -5,6 +5,7 @@ use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 use PHPUnit\Framework\TestCase;
+use \EventStore\Exception\InvalidWritableEventObjectException;
 
 /**
  * Class WritableEventCollectionTest.
@@ -43,10 +44,10 @@ class WritableEventCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException \EventStore\Exception\InvalidWritableEventObjectException
      */
     public function invalid_collection_throws_exception()
     {
+        $this->expectException(InvalidWritableEventObjectException::class);
         new WritableEventCollection(['foobar']);
     }
 }

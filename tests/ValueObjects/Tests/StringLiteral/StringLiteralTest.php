@@ -4,6 +4,7 @@ namespace EventStore\ValueObjects\Tests\StringLiteral;
 use EventStore\ValueObjects\StringLiteral\StringLiteral;
 use EventStore\ValueObjects\Tests\TestCase;
 use EventStore\ValueObjects\ValueObjectInterface;
+use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
 
 class StringLiteralTest extends TestCase
 {
@@ -35,9 +36,9 @@ class StringLiteralTest extends TestCase
         $this->assertFalse($foo1->sameValueAs($mock));
     }
 
-    /** @expectedException EventStore\ValueObjects\Exception\InvalidNativeArgumentException */
     public function testInvalidNativeArgument()
     {
+        $this->expectException(InvalidNativeArgumentException::class);
         new StringLiteral(12);
     }
 

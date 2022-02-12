@@ -65,7 +65,7 @@ final class StreamFeedIterator implements \Iterator
         return $this->innerIterator->current();
     }
 
-    public function next()
+    public function next(): void
     {
         $this->rewinded = false;
         $this->innerIterator->next();
@@ -88,12 +88,12 @@ final class StreamFeedIterator implements \Iterator
         return $this->innerIterator->current()->getEntry()->getTitle();
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->innerIterator->valid();
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         if ($this->rewinded) {
             return;
