@@ -16,7 +16,3 @@ services:
     ports:
       - '1113:1113'
       - '2113:2113'
-    # volumes:
-    #   - $PWD/docker-volumes/eventstore-data:/var/lib/eventstore-data
-    #   - $PWD/docker-volumes/eventstore-index:/var/lib/eventstore-index
-    #   - $PWD/docker-volumes/eventstore-logs:/var/log/eventstore

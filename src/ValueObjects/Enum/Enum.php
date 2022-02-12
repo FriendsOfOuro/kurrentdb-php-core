@@ -47,8 +47,6 @@ abstract class Enum extends BaseEnum implements ValueObjectInterface
 
     /**
      * Returns a native string representation of the Enum value.
-     *
-     * @return string
      */
     public function __toString(): string
     {

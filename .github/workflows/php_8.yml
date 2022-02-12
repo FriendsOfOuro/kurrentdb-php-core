@@ -6,6 +6,7 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         php-versions: ['8.0', '8.1']
     steps:
@@ -33,15 +34,20 @@ jobs:
 
       - name: Start containers
         run: docker-compose up -d && sleep 3
+        # TODO: while [ `grep 'IS MASTER' ~/eventstore.log | wc -l` -eq 0 ]; do sleep 1; done
 
-      # - name: PHP CS fixer
-      #   run: vendor/bin/php-cs-fixer fix --dry-run -v --diff
+      - name: PHP CS fixer
+        run: bin/php-cs-fixer fix --dry-run -v --diff
 
       - name: PHPUnit
-        run: bin/phpunit
+        run: bin/phpunit --coverage-clover=coverage.clover --coverage-text --testdox
 
-      # - name: Psalm
-      #   run: vendor/bin/psalm
+      # https://github.com/scrutinizer-ci/ocular/issues/51
+      - name: Upload Scrutinizer coverage
+        if: github.repository == 'FriendsOfOuro/geteventstore-php-core'
+        uses: sudo-bot/action-scrutinizer@latest
+        with:
+          cli-args: "--format=php-clover coverage.clover"
 
       - name: Stop containers
         if: always()

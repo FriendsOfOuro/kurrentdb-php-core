@@ -11,6 +11,6 @@ use EventStore\ValueObjects\Enum\Enum;
  */
 final class StreamDeletion extends Enum
 {
-    const SOFT = 'soft';
-    const HARD = 'hard';
+    public const SOFT = 'soft';
+    public const HARD = 'hard';
 }

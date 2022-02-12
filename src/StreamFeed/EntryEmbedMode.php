@@ -12,7 +12,7 @@ use EventStore\ValueObjects\Enum\Enum;
  */
 final class EntryEmbedMode extends Enum
 {
-    const NONE = 'none';
-    const RICH = 'rich';
-    const BODY = 'body';
+    public const NONE = 'none';
+    public const RICH = 'rich';
+    public const BODY = 'body';
 }

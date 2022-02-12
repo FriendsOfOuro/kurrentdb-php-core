@@ -28,18 +28,18 @@
     "dbellettini/geteventstore-core": "self.version"
   },
   "require": {
-    "php": ">=7",
+    "php": ">=7.3 <8.2",
     "guzzlehttp/psr7": "^2.1.0",
-    "ramsey/uuid": "^3.4.1",
+    "ramsey/uuid": "^4.2.3",
     "marc-mabe/php-enum": "^4.6.0",
-    "php-http/httplug": "^1.1"
+    "php-http/httplug": "^1.1.0"
   },
   "require-dev": {
-    "guzzlehttp/guzzle": "7.4.1",
-    "phpunit/phpunit": ">=7.1",
-    "kevinrob/guzzle-cache-middleware": "^0.7.1",
-    "doctrine/cache": "~1.4",
-    "friendsofphp/php-cs-fixer": "~2.2"
+    "guzzlehttp/guzzle": "^7.4.1",
+    "phpunit/phpunit": ">=7.5.20",
+    "kevinrob/guzzle-cache-middleware": "^4.0.0",
+    "doctrine/cache": "^2.1.1",
+    "friendsofphp/php-cs-fixer": ">3.3.0"
   },
   "suggest": {
     "guzzlehttp/guzzle": "Default PSR-7 implementation",

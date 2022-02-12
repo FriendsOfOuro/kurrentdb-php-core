@@ -1,11 +1,11 @@
 <?php
 namespace EventStore\Tests;
 
+use EventStore\Exception\InvalidWritableEventObjectException;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 use PHPUnit\Framework\TestCase;
-use \EventStore\Exception\InvalidWritableEventObjectException;
 
 /**
  * Class WritableEventCollectionTest.

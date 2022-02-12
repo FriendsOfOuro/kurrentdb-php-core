@@ -1,14 +1,14 @@
 <?php
 namespace EventStore\ValueObjects\Tests\StringLiteral;
 
+use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
 use EventStore\ValueObjects\StringLiteral\StringLiteral;
 use EventStore\ValueObjects\Tests\TestCase;
 use EventStore\ValueObjects\ValueObjectInterface;
-use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
 
 class StringLiteralTest extends TestCase
 {
-    public function testFromNative()
+    public function test_from_native()
     {
         $string = StringLiteral::fromNative('foo');
         $constructedString = new StringLiteral('foo');
@@ -16,13 +16,13 @@ class StringLiteralTest extends TestCase
         $this->assertTrue($string->sameValueAs($constructedString));
     }
 
-    public function testToNative()
+    public function test_to_native()
     {
         $string = new StringLiteral('foo');
         $this->assertEquals('foo', $string->toNative());
     }
 
-    public function testSameValueAs()
+    public function test_same_value_as()
     {
         $foo1 = new StringLiteral('foo');
         $foo2 = new StringLiteral('foo');
@@ -36,20 +36,20 @@ class StringLiteralTest extends TestCase
         $this->assertFalse($foo1->sameValueAs($mock));
     }
 
-    public function testInvalidNativeArgument()
+    public function test_invalid_native_argument()
     {
         $this->expectException(InvalidNativeArgumentException::class);
         new StringLiteral(12);
     }
 
-    public function testIsEmpty()
+    public function test_is_empty()
     {
         $string = new StringLiteral('');
 
         $this->assertTrue($string->isEmpty());
     }
 
-    public function testToString()
+    public function test_to_string()
     {
         $foo = new StringLiteral('foo');
         $this->assertEquals('foo', $foo->__toString());

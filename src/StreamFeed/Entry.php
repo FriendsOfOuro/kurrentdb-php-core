@@ -18,9 +18,6 @@ final class Entry
      */
     private $credentials;
 
-    /**
-     * @param array $json
-     */
     public function __construct(array $json, array $credentials)
     {
         $this->credentials = $credentials;
@@ -28,7 +25,7 @@ final class Entry
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getEventUrl()
     {

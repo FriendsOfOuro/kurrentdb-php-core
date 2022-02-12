@@ -13,9 +13,6 @@ final class WritableEventCollection implements WritableToStream
      */
     private $events = [];
 
-    /**
-     * @param array $events
-     */
     public function __construct(array $events)
     {
         $this->validateEvents($events);
@@ -32,9 +29,6 @@ final class WritableEventCollection implements WritableToStream
         }, $this->events);
     }
 
-    /**
-     * @param array $events
-     */
     private function validateEvents(array $events)
     {
         foreach ($events as $event) {

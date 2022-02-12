@@ -6,6 +6,7 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         php-versions: ['7.3', '7.4']
     steps:
@@ -34,14 +35,11 @@ jobs:
       - name: Start containers
         run: docker-compose up -d && sleep 3
 
-      # - name: PHP CS fixer
-      #   run: vendor/bin/php-cs-fixer fix --dry-run -v --diff
+      - name: PHP CS fixer
+        run: bin/php-cs-fixer fix --dry-run -v --diff
 
       - name: PHPUnit
-        run: bin/phpunit
-
-      # - name: Psalm
-      #   run: vendor/bin/psalm
+        run: bin/phpunit --testdox
 
       - name: Stop containers
         if: always()

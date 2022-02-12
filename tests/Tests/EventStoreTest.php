@@ -2,6 +2,11 @@
 namespace EventStore\Tests;
 
 use EventStore\EventStore;
+use EventStore\Exception\ConnectionFailedException;
+use EventStore\Exception\StreamDeletedException;
+use EventStore\Exception\StreamNotFoundException;
+use EventStore\Exception\UnauthorizedException;
+use EventStore\Exception\WrongExpectedVersionException;
 use EventStore\Http\GuzzleHttpClient;
 use EventStore\StreamDeletion;
 use EventStore\StreamFeed\Entry;
@@ -13,11 +18,6 @@ use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 use PHPUnit\Framework\TestCase;
 
-use \EventStore\Exception\WrongExpectedVersionException;
-use \EventStore\Exception\StreamDeletedException;
-use \EventStore\Exception\ConnectionFailedException;
-use \EventStore\Exception\StreamNotFoundException;
-use \EventStore\Exception\UnauthorizedException;
 class EventStoreTest extends TestCase
 {
     /**
@@ -308,7 +308,7 @@ class EventStoreTest extends TestCase
     {
         // I wonder how this worked one day as no $et-Baz stream is ever created
         // For now it throws logically a StreamNotFoundException
-        $this->markTestIncomplete("Find a way to create a forbidden stream: create user, change stream acl...");
+        $this->markTestIncomplete('Find a way to create a forbidden stream: create user, change stream acl...');
         // $this->expectException(UnauthorizedException::class);
         // $this->expectExceptionMessage('Tried to open stream http://admin:changeit@127.0.0.1:2113/streams/$et-Baz got 401');
         // $this->es->openStreamFeed('$et-Baz');

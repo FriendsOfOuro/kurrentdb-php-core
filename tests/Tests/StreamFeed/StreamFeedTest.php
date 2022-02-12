@@ -16,7 +16,6 @@ class StreamFeedTest extends TestCase
      * @dataProvider modeProvider
      *
      * @param EntryEmbedMode $mode
-     * @param EntryEmbedMode $expected
      */
     public function event_embed_mode_is_returned_properly(EntryEmbedMode $mode = null, EntryEmbedMode $expected)
     {
@@ -41,8 +40,6 @@ class StreamFeedTest extends TestCase
     /**
      * @dataProvider relationProvider
      * @test
-     *
-     * @param LinkRelation $relation
      */
     public function get_link_url_returns_proper_url(LinkRelation $relation)
     {

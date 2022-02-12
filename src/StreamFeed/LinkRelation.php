@@ -15,10 +15,10 @@ use EventStore\ValueObjects\Enum\Enum;
  */
 final class LinkRelation extends Enum
 {
-    const FIRST = 'first';
-    const LAST = 'last';
-    const PREVIOUS = 'previous';
-    const NEXT = 'next';
-    const METADATA = 'metadata';
-    const ALTERNATE = 'alternate';
+    public const FIRST = 'first';
+    public const LAST = 'last';
+    public const PREVIOUS = 'previous';
+    public const NEXT = 'next';
+    public const METADATA = 'metadata';
+    public const ALTERNATE = 'alternate';
 }

@@ -50,8 +50,6 @@ class StringLiteral implements ValueObjectInterface
     /**
      * Tells whether two string literals are equal by comparing their values.
      *
-     * @param ValueObjectInterface $stringLiteral
-     *
      * @return bool
      */
     public function sameValueAs(ValueObjectInterface $stringLiteral)

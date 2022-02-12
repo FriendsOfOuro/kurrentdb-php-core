@@ -30,8 +30,6 @@ final class WritableEvent implements WritableToStream
 
     /**
      * @param string $type
-     * @param array  $data
-     * @param array  $metadata
      *
      * @return WritableEvent
      */
@@ -41,10 +39,7 @@ final class WritableEvent implements WritableToStream
     }
 
     /**
-     * @param UUID   $uuid
      * @param string $type
-     * @param array  $data
-     * @param array  $metadata
      */
     public function __construct(UUID $uuid, $type, array $data, array $metadata = [])
     {

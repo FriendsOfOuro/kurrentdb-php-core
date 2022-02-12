@@ -36,7 +36,6 @@ final class Event
     /**
      * @param string $type
      * @param int    $version
-     * @param array  $data
      * @param array  $metadata
      * @param UUID   $eventId
      */

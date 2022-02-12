@@ -6,7 +6,7 @@ use EventStore\ValueObjects\Tests\TestCase;
 
 class EnumTest extends TestCase
 {
-    public function testSameValueAs()
+    public function test_same_value_as()
     {
         $stub1 = $this->createMock(Enum::class, [], [], '', false);
         $stub2 = $this->createMock(Enum::class, [], [], '', false);
@@ -18,7 +18,7 @@ class EnumTest extends TestCase
         $this->assertTrue($stub1->sameValueAs($stub2));
     }
 
-    public function testToString()
+    public function test_to_string()
     {
         $stub = $this->createMock(Enum::class, [], [], '', false);
 

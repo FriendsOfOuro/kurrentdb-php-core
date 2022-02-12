@@ -19,7 +19,7 @@ interface EventStoreInterface
      * @param StreamFeed   $streamFeed The stream feed to navigate through
      * @param LinkRelation $relation   The "direction" expressed as link relation
      *
-     * @return null|StreamFeed
+     * @return StreamFeed|null
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation);
 
