@@ -50,7 +50,7 @@ abstract class Enum extends BaseEnum implements ValueObjectInterface
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return \strval($this->toNative());
     }

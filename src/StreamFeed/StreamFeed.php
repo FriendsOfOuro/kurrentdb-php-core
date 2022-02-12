@@ -32,7 +32,7 @@ final class StreamFeed
     public function __construct(
         array $jsonFeed,
         EntryEmbedMode $embedMode = null,
-        array $credentials=['user'=> null, 'pass' => null],
+        array $credentials=['user'=> null, 'pass' => null]
     )
     {
         if (null === $embedMode) {
