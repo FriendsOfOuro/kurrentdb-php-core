@@ -29,16 +29,16 @@
   },
   "require": {
     "php": "^8.3",
-    "guzzlehttp/psr7": "^2.1.0",
-    "ramsey/uuid": "^4.2.3",
-    "marc-mabe/php-enum": "^4.6.0",
-    "php-http/httplug": "^1.1.0"
+    "guzzlehttp/psr7": "^2.8",
+    "ramsey/uuid": "^4.9",
+    "marc-mabe/php-enum": "^4.7",
+    "php-http/httplug": "^2.4"
   },
   "require-dev": {
-    "guzzlehttp/guzzle": "^7.4.1",
-    "phpunit/phpunit": ">=7.5.20",
-    "kevinrob/guzzle-cache-middleware": "^4.0.0",
-    "doctrine/cache": "^2.1.1",
+    "guzzlehttp/guzzle": "^7.10",
+    "phpunit/phpunit": "^12.3",
+    "kevinrob/guzzle-cache-middleware": "^6.0",
+    "doctrine/cache": "^2.2",
     "friendsofphp/php-cs-fixer": "^3.87",
     "rector/rector": "^2.1"
   },
