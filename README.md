@@ -8,7 +8,6 @@ PHP client for [EventStore 4.x/5.x HTTP API](http://docs.geteventstore.com/http-
 [![Open Source Helpers](https://www.codetriage.com/dbellettini/php-eventstore-client/badges/users.svg)](https://www.codetriage.com/dbellettini/php-eventstore-client)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/FriendsOfOuro/geteventstore-php-core/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/FriendsOfOuro/geteventstore-php-core/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/FriendsOfOuro/geteventstore-php-core/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/FriendsOfOuro/geteventstore-php-core/?branch=master)
-[![PHP 7](https://github.com/FriendsOfOuro/geteventstore-php-core/actions/workflows/php_7.yml/badge.svg)](https://github.com/FriendsOfOuro/geteventstore-php-core/actions/workflows/php_7.yml)
 [![PHP 8](https://github.com/FriendsOfOuro/geteventstore-php-core/actions/workflows/php_8.yml/badge.svg)](https://github.com/FriendsOfOuro/geteventstore-php-core/actions/workflows/php_8.yml)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/FriendsOfOuro/geteventstore-php-core.svg)](http://isitmaintained.com/project/FriendsOfOuro/geteventstore-php-core "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/FriendsOfOuro/geteventstore-php-core.svg)](http://isitmaintained.com/project/FriendsOfOuro/geteventstore-php-core "Percentage of issues still open")
