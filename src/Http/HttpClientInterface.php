@@ -2,9 +2,9 @@
 
 namespace EventStore\Http;
 
-use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 
-interface HttpClientInterface extends HttpClient
+interface HttpClientInterface extends ClientInterface
 {
     public function sendRequestBatch(array $requests): array;
 }

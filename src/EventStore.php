@@ -59,7 +59,7 @@ final class EventStore implements EventStoreInterface
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
      */
-    public function deleteStream($streamName, StreamDeletion $mode): void
+    public function deleteStream(string $streamName, StreamDeletion $mode): void
     {
         $request = new Request('DELETE', $this->getStreamUrl($streamName));
 
@@ -102,12 +102,10 @@ final class EventStore implements EventStoreInterface
     /**
      * Opens a stream feed for read and navigation.
      *
-     * @param string $streamName
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      */
-    public function openStreamFeed($streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
+    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
         $url = $this->getStreamUrl($streamName);
 
@@ -117,13 +115,11 @@ final class EventStore implements EventStoreInterface
     /**
      * Read a single event.
      *
-     * @param string $eventUrl
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    public function readEvent($eventUrl): Event
+    public function readEvent(string $eventUrl): Event
     {
         $request = $this->getJsonRequest($eventUrl);
         $this->sendRequest($request);
@@ -209,18 +205,12 @@ final class EventStore implements EventStoreInterface
         }
     }
 
-    /**
-     * @param string $streamName
-     */
-    public function forwardStreamFeedIterator($streamName): StreamFeedIterator
+    public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator
     {
         return StreamFeedIterator::forward($this, $streamName);
     }
 
-    /**
-     * @param string $streamName
-     */
-    public function backwardStreamFeedIterator($streamName): StreamFeedIterator
+    public function backwardStreamFeedIterator(string $streamName): StreamFeedIterator
     {
         return StreamFeedIterator::backward($this, $streamName);
     }

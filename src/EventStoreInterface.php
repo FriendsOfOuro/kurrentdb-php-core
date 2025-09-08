@@ -19,17 +19,13 @@ interface EventStoreInterface
      *
      * @param StreamFeed   $streamFeed The stream feed to navigate through
      * @param LinkRelation $relation   The "direction" expressed as link relation
-     *
-     * @return StreamFeed|null
      */
-    public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation);
+    public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed;
 
     /**
      * Get the response from the last HTTP call to the EventStore API.
-     *
-     * @return ResponseInterface
      */
-    public function getLastResponse();
+    public function getLastResponse(): ResponseInterface;
 
     /**
      * Write one or more events to a stream.
@@ -47,10 +43,8 @@ interface EventStoreInterface
      * Read a single event.
      *
      * @param string $eventUrl The url of the event
-     *
-     * @return Event
      */
-    public function readEvent($eventUrl);
+    public function readEvent(string $eventUrl): Event;
 
     /**
      * Delete a stream.
@@ -58,31 +52,19 @@ interface EventStoreInterface
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
      */
-    public function deleteStream($streamName, StreamDeletion $mode);
+    public function deleteStream(string $streamName, StreamDeletion $mode);
 
     /**
      * Open a stream feed for read and navigation.
      *
      * @param string          $streamName The stream name
      * @param ?EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
-     *
-     * @return StreamFeed
      */
-    public function openStreamFeed($streamName, ?EntryEmbedMode $embedMode = null);
+    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed;
 
-    /**
-     * @param string $streamName
-     *
-     * @return StreamFeedIterator
-     */
-    public function forwardStreamFeedIterator($streamName);
+    public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator;
 
-    /**
-     * @param string $streamName
-     *
-     * @return StreamFeedIterator
-     */
-    public function backwardStreamFeedIterator($streamName);
+    public function backwardStreamFeedIterator(string $streamName): StreamFeedIterator;
 
     /**
      * Reads a batch of events.

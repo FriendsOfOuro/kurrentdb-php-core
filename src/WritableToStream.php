@@ -7,8 +7,5 @@ namespace EventStore;
  */
 interface WritableToStream
 {
-    /**
-     * @return array
-     */
-    public function toStreamData();
+    public function toStreamData(): array;
 }
