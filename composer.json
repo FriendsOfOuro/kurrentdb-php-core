@@ -1,17 +1,17 @@
 {
-  "name": "friendsofouro/geteventstore-core",
+  "name": "friendsofouro/kurrentdb-core",
   "description": "KurrentDB client for PHP (core)",
   "license": "MIT",
   "type": "library",
   "keywords": [
     "eventsourcing",
-    "eventstore"
+    "eventstore",
+    "KurrentDB"
   ],
   "authors": [
     {
-      "name": "Davide Bellettini",
-      "email": "davide@bellettini.eu",
-      "homepage": "http://bellettini.eu/"
+      "name": "D. Bellettini",
+      "homepage": "https://bellettini.eu/"
     },
     {
       "name": "Nicolò Pignatelli",
@@ -20,7 +20,7 @@
     },
     {
       "name": "Contributors",
-      "homepage": "https://github.com/friendsofouro/geteventstore-php-core/graphs/contributors"
+      "homepage": "https://github.com/friendsofouro/kurrentdb-php-core/graphs/contributors"
     }
   ],
   "require": {
@@ -42,7 +42,8 @@
   },
   "replace": {
     "dbellettini/geteventstore-core": "self.version",
-    "dbellettini/php-eventstore-client": "self.version"
+    "dbellettini/php-eventstore-client": "self.version",
+    "friendsofouro/geteventstore-core": "self.version"
   },
   "suggest": {
     "friendsofouro/broadway-eventstore": "Integrate Event Store with Broadway",
