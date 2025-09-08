@@ -17,6 +17,12 @@ services:
       - type: volume
         source: eventstore-volume-logs
         target: /var/log/eventstore
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:2113/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
   eventstore-volume-data:
