@@ -26,6 +26,7 @@ class TestCase extends BaseTestCase
     protected function createEventStore(HttpClientInterface $httpClient): EventStore
     {
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
+
         return new EventStore($uri, $httpClient);
     }
 }

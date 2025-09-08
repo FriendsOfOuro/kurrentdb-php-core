@@ -41,7 +41,7 @@ class UUID extends StringLiteral
         $uuid_str = BaseUuid::uuid4();
 
         if (null !== $value) {
-            $pattern = '/' . BaseUuid::VALID_PATTERN . '/';
+            $pattern = '/'.BaseUuid::VALID_PATTERN.'/';
 
             if (!\preg_match($pattern, $value)) {
                 throw new InvalidNativeArgumentException($value, ['UUID string']);

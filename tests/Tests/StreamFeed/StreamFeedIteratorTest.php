@@ -25,8 +25,8 @@ class StreamFeedIteratorTest extends TestCase
         $events = iterator_to_array($iterator);
 
         $this->assertCount(1, $events);
-        $this->assertInstanceOf(Event::class, $events['0@' . $streamName]->getEvent());
-        $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
+        $this->assertInstanceOf(Event::class, $events['0@'.$streamName]->getEvent());
+        $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
     #[Test]
@@ -42,8 +42,8 @@ class StreamFeedIteratorTest extends TestCase
         $events = iterator_to_array($iterator);
 
         $this->assertCount(1, $events);
-        $this->assertInstanceOf(Event::class, $events['0@' . $streamName]->getEvent());
-        $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
+        $this->assertInstanceOf(Event::class, $events['0@'.$streamName]->getEvent());
+        $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
     #[Test]

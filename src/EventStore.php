@@ -277,7 +277,8 @@ final class EventStore implements EventStoreInterface
 
         return new StreamFeed(
             $this->lastResponseAsJson(),
-            $embedMode, [
+            $embedMode,
+            [
                 'user' => $this->urlParts['user'],
                 'pass' => $this->urlParts['pass'],
             ]
@@ -354,7 +355,7 @@ final class EventStore implements EventStoreInterface
 
         $streamUrl = $this->removeCredentialsFromUrl($streamUrl);
 
-        if (!preg_match('#^' . preg_quote($streamUrl) . '/([^/]+)$#', $locationHeaders[0], $matches)) {
+        if (!preg_match('#^'.preg_quote($streamUrl).'/([^/]+)$#', $locationHeaders[0], $matches)) {
             throw new NoExtractableEventVersionException();
         }
 

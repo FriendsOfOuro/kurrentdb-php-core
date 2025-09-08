@@ -14,16 +14,16 @@ function unparse_url(array $parsed): string
     $query = $parsed['query'] ?? null;
     $fragment = $parsed['fragment'] ?? null;
     $authority = (
-        (null !== $userinfo ? "$userinfo@" : '') .
-        ($parsed['host'] ?? '') .
+        (null !== $userinfo ? "$userinfo@" : '').
+        ($parsed['host'] ?? '').
         ($port ? ":$port" : '')
     );
 
     return
-        (\strlen($scheme) > 0 ? "$scheme:" : '') .
-        (\strlen($authority) > 0 ? "//$authority" : '') .
-        ($parsed['path'] ?? '') .
-        (null !== $query ? "?$query" : '') .
+        (\strlen($scheme) > 0 ? "$scheme:" : '').
+        (\strlen($authority) > 0 ? "//$authority" : '').
+        ($parsed['path'] ?? '').
+        (null !== $query ? "?$query" : '').
         (null !== $fragment ? "#$fragment" : '')
     ;
 }
