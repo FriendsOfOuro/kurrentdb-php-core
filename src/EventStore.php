@@ -103,6 +103,7 @@ final class EventStore implements EventStoreInterface
      *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
+     * @throws UnauthorizedException
      */
     public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
@@ -176,7 +177,7 @@ final class EventStore implements EventStoreInterface
 
         $streamUrl = $this->getStreamUrl($streamName);
         $headers = [
-            'ES-ExpectedVersion' => intval($expectedVersion),
+            'ES-ExpectedVersion' => $expectedVersion,
             'Content-Type' => 'application/vnd.eventstore.events+json',
             'Content-Length' => 0,
         ];
