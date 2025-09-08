@@ -41,7 +41,7 @@ interface EventStoreInterface
      *
      * @throws Exception\WrongExpectedVersionException
      */
-    public function writeToStream($streamName, WritableToStream $events, $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders);
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int;
 
     /**
      * Read a single event.

@@ -188,7 +188,7 @@ final class EventStore implements EventStoreInterface
         return new Event($type, $version, $data, $metadata, $eventId);
     }
 
-    public function writeToStream($streamName, WritableToStream $events, $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = [])
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int
     {
         if ($events instanceof WritableEvent) {
             $events = new WritableEventCollection([$events]);
@@ -358,11 +358,9 @@ final class EventStore implements EventStoreInterface
      *
      * http://127.0.0.1:2113/streams/newstream/13 -> 13
      *
-     * @return int
-     *
      * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(string $streamUrl)
+    private function extractStreamVersionFromLastResponse(string $streamUrl): int
     {
         $locationHeaders = $this->getLastResponse()->getHeader('Location');
 
