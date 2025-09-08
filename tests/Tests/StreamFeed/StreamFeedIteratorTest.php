@@ -116,7 +116,7 @@ class StreamFeedIteratorTest extends TestCase
 
         uksort(
             $events,
-            function (string $a, string $b) use ($sign): int|float {
+            function (string $a, string $b) use ($sign): int {
                 [$ida] = explode('@', $a);
                 [$idb] = explode('@', $b);
 

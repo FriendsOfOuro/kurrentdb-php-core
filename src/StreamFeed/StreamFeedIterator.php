@@ -130,7 +130,7 @@ final class StreamFeedIterator implements \Iterator
         $this->innerIterator = new \ArrayIterator(
             array_filter(
                 array_map(
-                    function ($entry, $event): ?EntryWithEvent {
+                    function (?Entry $entry, ?Event $event): ?EntryWithEvent {
                         if (null === $entry || null === $event) {
                             return null;
                         }
