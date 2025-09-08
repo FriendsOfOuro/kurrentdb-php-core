@@ -1,10 +1,10 @@
 <?php
 
-namespace EventStore\ValueObjects\Tests\StringLiteral;
+namespace KurrentDB\ValueObjects\Tests\StringLiteral;
 
-use EventStore\ValueObjects\StringLiteral\BasicStringLiteral;
-use EventStore\ValueObjects\Tests\TestCase;
-use EventStore\ValueObjects\ValueObjectInterface;
+use KurrentDB\ValueObjects\StringLiteral\BasicStringLiteral;
+use KurrentDB\ValueObjects\Tests\TestCase;
+use KurrentDB\ValueObjects\ValueObjectInterface;
 
 class StringLiteralTest extends TestCase
 {

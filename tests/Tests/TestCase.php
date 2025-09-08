@@ -1,11 +1,11 @@
 <?php
 
-namespace EventStore\Tests;
+namespace KurrentDB\Tests;
 
-use EventStore\EventStore;
-use EventStore\Exception\ConnectionFailedException;
-use EventStore\Http\GuzzleHttpClient;
-use EventStore\Http\HttpClientInterface;
+use KurrentDB\EventStore;
+use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Http\GuzzleHttpClient;
+use KurrentDB\Http\HttpClientInterface;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase

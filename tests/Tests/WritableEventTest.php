@@ -1,9 +1,9 @@
 <?php
 
-namespace EventStore\Tests;
+namespace KurrentDB\Tests;
 
-use EventStore\ValueObjects\Identity\UUID;
-use EventStore\WritableEvent;
+use KurrentDB\ValueObjects\Identity\UUID;
+use KurrentDB\WritableEvent;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

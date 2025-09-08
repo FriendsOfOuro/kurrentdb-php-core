@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\ValueObjects\Util;
+namespace KurrentDB\ValueObjects\Util;
 
 /**
  * Utility class for methods used all across the library.

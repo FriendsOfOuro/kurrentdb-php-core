@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\Http;
+namespace KurrentDB\Http;
 
 /**
  * Class ResponseCode

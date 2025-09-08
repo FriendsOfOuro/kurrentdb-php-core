@@ -1,8 +1,8 @@
 <?php
 
-namespace EventStore\StreamFeed;
+namespace KurrentDB\StreamFeed;
 
-use EventStore\ValueObjects\Identity\UUID;
+use KurrentDB\ValueObjects\Identity\UUID;
 
 /**
  * Class Event.

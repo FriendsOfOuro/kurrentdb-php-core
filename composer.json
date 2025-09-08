@@ -53,7 +53,7 @@
   },
   "autoload": {
     "psr-4": {
-      "EventStore\\": "src/"
+      "KurrentDB\\": "src/"
     },
     "files": [
       "src/missing.php"
@@ -61,7 +61,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "EventStore\\": "tests/"
+      "KurrentDB\\": "tests/"
     }
   },
   "config": {

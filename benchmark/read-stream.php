@@ -2,10 +2,10 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-use EventStore\EventStore;
-use EventStore\Http\GuzzleHttpClient;
-use EventStore\WritableEvent;
-use EventStore\WritableEventCollection;
+use KurrentDB\EventStore;
+use KurrentDB\Http\GuzzleHttpClient;
+use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 
 function prepare_test_stream(EventStore $es, int $length = 1, array $metadata = []): string
 {

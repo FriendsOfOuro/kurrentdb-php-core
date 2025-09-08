@@ -1,24 +1,24 @@
 <?php
 
-namespace EventStore\Tests;
+namespace KurrentDB\Tests;
 
-use EventStore\EventStore;
-use EventStore\Exception\ConnectionFailedException;
-use EventStore\Exception\StreamDeletedException;
-use EventStore\Exception\StreamNotFoundException;
-use EventStore\Exception\UnauthorizedException;
-use EventStore\Exception\WrongExpectedVersionException;
-use EventStore\Http\GuzzleHttpClient;
-use EventStore\StreamDeletion;
-use EventStore\StreamFeed\Entry;
-use EventStore\StreamFeed\EntryEmbedMode;
-use EventStore\StreamFeed\Event;
-use EventStore\StreamFeed\LinkRelation;
-use EventStore\StreamFeed\StreamFeed;
-use EventStore\StreamFeed\StreamFeedIterator;
-use EventStore\ValueObjects\Identity\UUID;
-use EventStore\WritableEvent;
-use EventStore\WritableEventCollection;
+use KurrentDB\EventStore;
+use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Exception\StreamDeletedException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\UnauthorizedException;
+use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\Http\GuzzleHttpClient;
+use KurrentDB\StreamDeletion;
+use KurrentDB\StreamFeed\Entry;
+use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedIterator;
+use KurrentDB\ValueObjects\Identity\UUID;
+use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use PHPUnit\Framework\Attributes\Test;

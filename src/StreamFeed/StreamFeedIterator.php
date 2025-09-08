@@ -1,8 +1,8 @@
 <?php
 
-namespace EventStore\StreamFeed;
+namespace KurrentDB\StreamFeed;
 
-use EventStore\EventStoreInterface;
+use KurrentDB\EventStoreInterface;
 
 final class StreamFeedIterator implements \Iterator
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace EventStore;
+namespace KurrentDB;
 
-use EventStore\ValueObjects\Identity\UUID;
+use KurrentDB\ValueObjects\Identity\UUID;
 
 /**
  * Class WritableEvent.

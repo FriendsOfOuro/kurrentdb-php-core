@@ -1,12 +1,12 @@
 <?php
 
-namespace EventStore;
+namespace KurrentDB;
 
-use EventStore\StreamFeed\EntryEmbedMode;
-use EventStore\StreamFeed\Event;
-use EventStore\StreamFeed\LinkRelation;
-use EventStore\StreamFeed\StreamFeed;
-use EventStore\StreamFeed\StreamFeedIterator;
+use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedIterator;
 use Psr\Http\Message\ResponseInterface;
 
 /**

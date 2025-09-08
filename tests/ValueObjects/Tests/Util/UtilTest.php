@@ -1,9 +1,9 @@
 <?php
 
-namespace EventStore\ValueObjects\Tests\Util;
+namespace KurrentDB\ValueObjects\Tests\Util;
 
-use EventStore\ValueObjects\Tests\TestCase;
-use EventStore\ValueObjects\Util\Util;
+use KurrentDB\ValueObjects\Tests\TestCase;
+use KurrentDB\ValueObjects\Util\Util;
 
 class UtilTest extends TestCase
 {

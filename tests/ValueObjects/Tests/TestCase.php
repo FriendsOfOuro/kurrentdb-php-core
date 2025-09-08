@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\ValueObjects\Tests;
+namespace KurrentDB\ValueObjects\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

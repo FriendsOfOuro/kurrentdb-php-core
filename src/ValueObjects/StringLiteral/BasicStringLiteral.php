@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\ValueObjects\StringLiteral;
+namespace KurrentDB\ValueObjects\StringLiteral;
 
 final readonly class BasicStringLiteral extends StringLiteral
 {

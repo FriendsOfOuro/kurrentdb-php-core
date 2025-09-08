@@ -1,11 +1,11 @@
 <?php
 
-namespace EventStore\ValueObjects\Tests\Identity;
+namespace KurrentDB\ValueObjects\Tests\Identity;
 
-use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
-use EventStore\ValueObjects\Identity\UUID;
-use EventStore\ValueObjects\Tests\TestCase;
-use EventStore\ValueObjects\ValueObjectInterface;
+use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;
+use KurrentDB\ValueObjects\Identity\UUID;
+use KurrentDB\ValueObjects\Tests\TestCase;
+use KurrentDB\ValueObjects\ValueObjectInterface;
 
 class UUIDTest extends TestCase
 {

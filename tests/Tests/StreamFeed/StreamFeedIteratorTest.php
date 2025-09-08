@@ -1,13 +1,13 @@
 <?php
 
-namespace EventStore\Tests\StreamFeed;
+namespace KurrentDB\Tests\StreamFeed;
 
-use EventStore\StreamFeed\Entry;
-use EventStore\StreamFeed\Event;
-use EventStore\StreamFeed\StreamFeedIterator;
-use EventStore\Tests\TestCase;
-use EventStore\WritableEvent;
-use EventStore\WritableEventCollection;
+use KurrentDB\StreamFeed\Entry;
+use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\StreamFeedIterator;
+use KurrentDB\Tests\TestCase;
+use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase

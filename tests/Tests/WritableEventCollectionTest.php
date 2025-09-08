@@ -1,11 +1,11 @@
 <?php
 
-namespace EventStore\Tests;
+namespace KurrentDB\Tests;
 
-use EventStore\Exception\InvalidWritableEventObjectException;
-use EventStore\ValueObjects\Identity\UUID;
-use EventStore\WritableEvent;
-use EventStore\WritableEventCollection;
+use KurrentDB\Exception\InvalidWritableEventObjectException;
+use KurrentDB\ValueObjects\Identity\UUID;
+use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

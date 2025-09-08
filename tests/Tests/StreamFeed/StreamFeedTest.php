@@ -1,10 +1,10 @@
 <?php
 
-namespace EventStore\Tests\StreamFeed;
+namespace KurrentDB\Tests\StreamFeed;
 
-use EventStore\StreamFeed\EntryEmbedMode;
-use EventStore\StreamFeed\LinkRelation;
-use EventStore\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeed;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

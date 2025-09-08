@@ -1,22 +1,22 @@
 <?php
 
-namespace EventStore;
+namespace KurrentDB;
 
-use EventStore\Exception\ConnectionFailedException;
-use EventStore\Exception\NoExtractableEventVersionException;
-use EventStore\Exception\StreamDeletedException;
-use EventStore\Exception\StreamNotFoundException;
-use EventStore\Exception\UnauthorizedException;
-use EventStore\Exception\WrongExpectedVersionException;
-use EventStore\Http\HttpClientInterface;
-use EventStore\Http\ResponseCode;
-use EventStore\StreamFeed\EntryEmbedMode;
-use EventStore\StreamFeed\Event;
-use EventStore\StreamFeed\LinkRelation;
-use EventStore\StreamFeed\StreamFeed;
-use EventStore\StreamFeed\StreamFeedIterator;
-use EventStore\StreamFeed\StreamUrl;
-use EventStore\ValueObjects\Identity\UUID;
+use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Exception\NoExtractableEventVersionException;
+use KurrentDB\Exception\StreamDeletedException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\UnauthorizedException;
+use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\Http\HttpClientInterface;
+use KurrentDB\Http\ResponseCode;
+use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedIterator;
+use KurrentDB\StreamFeed\StreamUrl;
+use KurrentDB\ValueObjects\Identity\UUID;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;

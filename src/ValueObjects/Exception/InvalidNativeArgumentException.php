@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\ValueObjects\Exception;
+namespace KurrentDB\ValueObjects\Exception;
 
 class InvalidNativeArgumentException extends \InvalidArgumentException
 {

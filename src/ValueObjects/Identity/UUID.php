@@ -1,11 +1,11 @@
 <?php
 
-namespace EventStore\ValueObjects\Identity;
+namespace KurrentDB\ValueObjects\Identity;
 
-use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
-use EventStore\ValueObjects\StringLiteral\StringLiteral;
-use EventStore\ValueObjects\Util\Util;
-use EventStore\ValueObjects\ValueObjectInterface;
+use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;
+use KurrentDB\ValueObjects\StringLiteral\StringLiteral;
+use KurrentDB\ValueObjects\Util\Util;
+use KurrentDB\ValueObjects\ValueObjectInterface;
 use Ramsey\Uuid\Uuid as BaseUuid;
 
 final readonly class UUID extends StringLiteral

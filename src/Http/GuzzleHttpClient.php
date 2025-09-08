@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\Http;
+namespace KurrentDB\Http;
 
 use Exception as PhpException;
 use GuzzleHttp\Client;

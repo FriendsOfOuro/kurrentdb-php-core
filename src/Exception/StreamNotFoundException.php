@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\Exception;
+namespace KurrentDB\Exception;
 
 /**
  * Class StreamNotFoundException.

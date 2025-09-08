@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\Http\Exception;
+namespace KurrentDB\Http\Exception;
 
 class RequestException extends \RuntimeException
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace EventStore;
+namespace KurrentDB;
 
-use EventStore\Exception\InvalidWritableEventObjectException;
+use KurrentDB\Exception\InvalidWritableEventObjectException;
 
 /**
  * Class WritableEventCollection.

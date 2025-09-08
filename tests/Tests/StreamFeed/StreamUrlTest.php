@@ -1,8 +1,8 @@
 <?php
 
-namespace EventStore\Tests\StreamFeed;
+namespace KurrentDB\Tests\StreamFeed;
 
-use EventStore\StreamFeed\StreamUrl;
+use KurrentDB\StreamFeed\StreamUrl;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

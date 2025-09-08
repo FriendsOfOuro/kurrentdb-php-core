@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore;
+namespace KurrentDB;
 
 enum StreamDeletion: string
 {

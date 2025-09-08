@@ -1,10 +1,10 @@
 <?php
 
-namespace EventStore\ValueObjects\StringLiteral;
+namespace KurrentDB\ValueObjects\StringLiteral;
 
 use Cassandra\Value;
-use EventStore\ValueObjects\Util\Util;
-use EventStore\ValueObjects\ValueObjectInterface;
+use KurrentDB\ValueObjects\Util\Util;
+use KurrentDB\ValueObjects\ValueObjectInterface;
 
 abstract readonly class StringLiteral implements ValueObjectInterface
 {

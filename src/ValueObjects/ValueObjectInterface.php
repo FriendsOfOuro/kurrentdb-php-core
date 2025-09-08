@@ -1,6 +1,6 @@
 <?php
 
-namespace EventStore\ValueObjects;
+namespace KurrentDB\ValueObjects;
 
 interface ValueObjectInterface extends \Stringable
 {
