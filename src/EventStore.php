@@ -15,6 +15,7 @@ use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\LinkRelation;
 use EventStore\StreamFeed\StreamFeed;
 use EventStore\StreamFeed\StreamFeedIterator;
+use EventStore\StreamFeed\StreamUrl;
 use EventStore\ValueObjects\Identity\UUID;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
@@ -230,7 +231,7 @@ final class EventStore implements EventStoreInterface
 
     private function getStreamUrl(string $streamName): string
     {
-        return sprintf('%s/streams/%s', $this->url, $streamName);
+        return (string) StreamUrl::fromBaseUrlAndName($this->url, $streamName);
     }
 
     private function removeCredentialsFromUrl(string $url): string
