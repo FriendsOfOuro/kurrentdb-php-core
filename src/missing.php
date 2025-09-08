@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Opposit of parse_url()
+ * Opposite of parse_url()
  * Taken from https://stackoverflow.com/questions/4354904/php-parse-url-reverse-parsed-url.
  */
 function unparse_url(array $parsed): string
