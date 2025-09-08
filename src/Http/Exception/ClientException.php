@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\Http\Exception;
 
 class ClientException extends RequestException

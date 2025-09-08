@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\StreamFeed\EntryEmbedMode;
@@ -67,7 +68,7 @@ interface EventStoreInterface
      *
      * @return StreamFeed
      */
-    public function openStreamFeed($streamName, EntryEmbedMode $embedMode = null);
+    public function openStreamFeed($streamName, ?EntryEmbedMode $embedMode = null);
 
     /**
      * @param string $streamName

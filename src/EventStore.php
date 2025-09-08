@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\Exception\ConnectionFailedException;
@@ -119,7 +120,7 @@ final class EventStore implements EventStoreInterface
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      */
-    public function openStreamFeed($streamName, EntryEmbedMode $embedMode = null): StreamFeed
+    public function openStreamFeed($streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
         $url = $this->getStreamUrl($streamName);
 
@@ -187,9 +188,6 @@ final class EventStore implements EventStoreInterface
         return new Event($type, $version, $data, $metadata, $eventId);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function writeToStream($streamName, WritableToStream $events, $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = [])
     {
         if ($events instanceof WritableEvent) {
@@ -243,7 +241,7 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
-     * @throws Exception\ConnectionFailedException
+     * @throws ConnectionFailedException
      */
     private function checkConnection(): void
     {
@@ -271,13 +269,11 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
-     * @param $streamUrl
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    private function readStreamFeed($streamUrl, EntryEmbedMode $embedMode = null): StreamFeed
+    private function readStreamFeed($streamUrl, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
         $request = $this->getJsonRequest($streamUrl);
 
@@ -362,9 +358,9 @@ final class EventStore implements EventStoreInterface
      *
      * http://127.0.0.1:2113/streams/newstream/13 -> 13
      *
-     * @throws NoExtractableEventVersionException
-     *
      * @return int
+     *
+     * @throws NoExtractableEventVersionException
      */
     private function extractStreamVersionFromLastResponse(string $streamUrl)
     {

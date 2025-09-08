@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\Http;
 
 use Http\Client\HttpClient;

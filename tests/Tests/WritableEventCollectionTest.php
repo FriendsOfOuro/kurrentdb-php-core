@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\Tests;
 
 use EventStore\Exception\InvalidWritableEventObjectException;

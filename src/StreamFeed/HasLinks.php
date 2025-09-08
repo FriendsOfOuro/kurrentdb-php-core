@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 /**
@@ -15,7 +16,7 @@ trait HasLinks
      * @return string|null
      */
     public function getLinkUrl(LinkRelation $relation,
-        array $credentials = ['user' => null, 'pass' => null]
+        array $credentials = ['user' => null, 'pass' => null],
     ) {
         $links = $this->getLinks();
 

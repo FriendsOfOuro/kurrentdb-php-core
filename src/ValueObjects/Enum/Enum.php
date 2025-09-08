@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Enum;
 
 use EventStore\ValueObjects\Util\Util;
@@ -10,8 +11,6 @@ abstract class Enum extends BaseEnum implements ValueObjectInterface
     /**
      * Returns a new Enum object from passed value matching argument.
      *
-     * @param string $value
-     *
      * @return static
      */
     public static function fromNative()
@@ -21,8 +20,6 @@ abstract class Enum extends BaseEnum implements ValueObjectInterface
 
     /**
      * Returns the PHP native value of the enum.
-     *
-     * @return mixed
      */
     public function toNative()
     {

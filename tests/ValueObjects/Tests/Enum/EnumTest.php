@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Tests\Enum;
 
 use EventStore\ValueObjects\Enum\Enum;

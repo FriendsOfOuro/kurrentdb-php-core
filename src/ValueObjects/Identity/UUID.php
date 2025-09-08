@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Identity;
 
 use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
@@ -13,8 +14,6 @@ class UUID extends StringLiteral
     protected $value;
 
     /**
-     * @param string $uuid
-     *
      * @return UUID
      *
      * @throws InvalidNativeArgumentException

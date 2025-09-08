@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 final class EntryWithEvent

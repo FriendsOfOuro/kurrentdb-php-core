@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Tests\Identity;
 
 use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;

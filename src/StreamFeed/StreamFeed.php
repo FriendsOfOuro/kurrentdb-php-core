@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 /**
@@ -23,13 +24,10 @@ final class StreamFeed
      */
     private $credentials;
 
-    /**
-     * @param EntryEmbedMode $embedMode
-     */
     public function __construct(
         array $jsonFeed,
-        EntryEmbedMode $embedMode = null,
-        array $credentials = ['user' => null, 'pass' => null]
+        ?EntryEmbedMode $embedMode = null,
+        array $credentials = ['user' => null, 'pass' => null],
     ) {
         if (null === $embedMode) {
             $embedMode = EntryEmbedMode::NONE();

@@ -18,7 +18,6 @@ return (new Config())
         'cast_spaces' => false,
         'concat_space' => ['spacing' => 'one'],
         'linebreak_after_opening_tag' => true,
-        'no_blank_lines_before_namespace' => true,
         'no_php4_constructor' => true,
         'echo_tag_syntax' => true,
         'no_useless_return' => true,

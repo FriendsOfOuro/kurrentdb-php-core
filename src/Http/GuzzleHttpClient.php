@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\Http;
 
 use Doctrine\Common\Cache\ApcCache;
@@ -24,7 +25,7 @@ final class GuzzleHttpClient implements HttpClientInterface
      */
     private $client;
 
-    public function __construct(ClientInterface $client = null)
+    public function __construct(?ClientInterface $client = null)
     {
         $this->client = $client ?: new Client([
             'handler' => new CurlMultiHandler(),
@@ -57,7 +58,7 @@ final class GuzzleHttpClient implements HttpClientInterface
                     )
                 )
             ),
-          'cache'
+            'cache'
         );
 
         $client = new Client([

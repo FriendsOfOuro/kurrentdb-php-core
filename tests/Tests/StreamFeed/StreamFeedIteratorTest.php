@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\Tests\StreamFeed;
 
 use EventStore\EventStore;

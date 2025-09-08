@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 use EventStore\ValueObjects\Identity\UUID;
@@ -36,10 +37,8 @@ final class Event
     /**
      * @param string $type
      * @param int    $version
-     * @param array  $metadata
-     * @param UUID   $eventId
      */
-    public function __construct($type, $version, array $data, array $metadata = null, UUID $eventId = null)
+    public function __construct($type, $version, array $data, ?array $metadata = null, ?UUID $eventId = null)
     {
         $this->type = $type;
         $this->version = (int) $version;

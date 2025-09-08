@@ -1,7 +1,7 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
-use ArrayIterator;
 use EventStore\EventStoreInterface;
 
 final class StreamFeedIterator implements \Iterator
@@ -27,7 +27,7 @@ final class StreamFeedIterator implements \Iterator
         $streamName,
         LinkRelation $startingRelation,
         LinkRelation $navigationRelation,
-        callable $arraySortingFunction
+        callable $arraySortingFunction,
     ) {
         $this->eventStore = $eventStore;
         $this->streamName = $streamName;
@@ -125,7 +125,7 @@ final class StreamFeedIterator implements \Iterator
         }
 
         if (empty($entries)) {
-            $this->innerIterator = new ArrayIterator([]);
+            $this->innerIterator = new \ArrayIterator([]);
 
             return;
         }
@@ -142,7 +142,7 @@ final class StreamFeedIterator implements \Iterator
             $entries
         );
 
-        $this->innerIterator = new ArrayIterator(
+        $this->innerIterator = new \ArrayIterator(
             array_filter(
                 array_map(
                     function ($entry, $event) {

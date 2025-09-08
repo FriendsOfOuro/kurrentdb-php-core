@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Util;
 
 /**
@@ -21,8 +22,6 @@ class Util
 
     /**
      * Returns full namespaced class as string.
-     *
-     * @param $object
      *
      * @return string
      */
