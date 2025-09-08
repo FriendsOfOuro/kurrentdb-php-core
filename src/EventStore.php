@@ -285,9 +285,6 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    /**
-     * @return RequestInterface
-     */
     private function getJsonRequest(string $uri): Request
     {
         return new Request(

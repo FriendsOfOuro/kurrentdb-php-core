@@ -83,4 +83,11 @@ interface EventStoreInterface
      * @return StreamFeedIterator
      */
     public function backwardStreamFeedIterator($streamName);
+
+    /**
+     * Reads a batch of events.
+     *
+     * @return Event[]
+     */
+    public function readEventBatch(array $eventUrls): array;
 }
