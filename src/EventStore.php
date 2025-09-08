@@ -29,23 +29,24 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class EventStore implements EventStoreInterface
 {
-    private readonly string $url;
+    private readonly array $urlParts;
 
-    private array|bool $urlParts;
+    private readonly array $badCodeHandlers;
 
     private ResponseInterface $lastResponse;
-
-    private array $badCodeHandlers = [];
 
     /**
      * EventStore constructor.
      *
      * @throws ConnectionFailedException
      */
-    public function __construct(string $url, private readonly HttpClientInterface $httpClient)
+    public function __construct(private readonly string $url, private readonly HttpClientInterface $httpClient)
     {
-        $this->urlParts = parse_url($url);
-        $this->url = $url;
+        $urlParts = parse_url($url);
+        if (!is_array($urlParts)) {
+            throw new \InvalidArgumentException(sprintf('URL %s is not valid', $url));
+        }
+        $this->urlParts = $urlParts;
 
         $this->checkConnection();
         $this->initBadCodeHandlers();
