@@ -8,35 +8,27 @@ use EventStore\ValueObjects\Util\Util;
 use EventStore\ValueObjects\ValueObjectInterface;
 use Ramsey\Uuid\Uuid as BaseUuid;
 
-class UUID extends StringLiteral
+final readonly class UUID extends StringLiteral
 {
-    /** @var BaseUuid */
-    protected $value;
-
     /**
      * @throws InvalidNativeArgumentException
      */
-    #[\Override]
-    public static function fromNative(): static
+    public static function fromNative(string $uuid): static
     {
-        $uuid_str = \func_get_arg(0);
-
-        return new static($uuid_str);
+        return new self($uuid);
     }
 
     /**
      * Generate a new UUID string.
-     *
-     * @return string
      */
-    public static function generateAsString()
+    public static function generateAsString(): string
     {
-        $uuid = new static();
+        $uuid = new self();
 
         return $uuid->toNative();
     }
 
-    public function __construct($value = null)
+    public function __construct(?string $value = null)
     {
         $uuid_str = BaseUuid::uuid4();
 
@@ -58,11 +50,9 @@ class UUID extends StringLiteral
      * Tells whether two UUID are equal by comparing their values.
      *
      * @param UUID $uuid
-     *
-     * @return bool
      */
     #[\Override]
-    public function sameValueAs(ValueObjectInterface $uuid)
+    public function sameValueAs(ValueObjectInterface $uuid): bool
     {
         if (false === Util::classEquals($this, $uuid)) {
             return false;

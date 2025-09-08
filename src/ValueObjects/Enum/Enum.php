@@ -9,14 +9,6 @@ use MabeEnum\Enum as BaseEnum;
 abstract class Enum extends BaseEnum implements ValueObjectInterface
 {
     /**
-     * Returns a new Enum object from passed value matching argument.
-     */
-    public static function fromNative(): static
-    {
-        return self::get(func_get_arg(0));
-    }
-
-    /**
      * Returns the PHP native value of the enum.
      */
     public function toNative(): string

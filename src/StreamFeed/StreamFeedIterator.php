@@ -8,6 +8,9 @@ final class StreamFeedIterator implements \Iterator
 {
     private ?StreamFeed $feed = null;
 
+    /**
+     * @var \ArrayIterator<EntryWithEvent>
+     */
     private \ArrayIterator $innerIterator;
 
     private readonly \Closure $arraySortingFunction;
@@ -48,7 +51,7 @@ final class StreamFeedIterator implements \Iterator
         );
     }
 
-    public function current()
+    public function current(): EntryWithEvent
     {
         return $this->innerIterator->current();
     }
@@ -71,7 +74,7 @@ final class StreamFeedIterator implements \Iterator
         }
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->innerIterator->current()->getEntry()->getTitle();
     }
