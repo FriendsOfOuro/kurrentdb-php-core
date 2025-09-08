@@ -1,12 +1,12 @@
 {
   "name": "friendsofouro/geteventstore-core",
   "description": "EventStore client for PHP (core)",
+  "license": "MIT",
   "type": "library",
   "keywords": [
     "eventsourcing",
     "eventstore"
   ],
-  "license": "MIT",
   "authors": [
     {
       "name": "Davide Bellettini",
@@ -23,34 +23,32 @@
       "homepage": "https://github.com/friendsofouro/geteventstore-php-core/graphs/contributors"
     }
   ],
-  "replace": {
-    "dbellettini/php-eventstore-client": "self.version",
-    "dbellettini/geteventstore-core": "self.version"
-  },
   "require": {
     "php": "^8.3",
     "guzzlehttp/psr7": "^2.8",
-    "ramsey/uuid": "^4.9",
     "marc-mabe/php-enum": "^4.7",
-    "php-http/httplug": "^2.4"
+    "php-http/httplug": "^2.4",
+    "ramsey/uuid": "^4.9"
   },
   "require-dev": {
-    "guzzlehttp/guzzle": "^7.10",
-    "phpunit/phpunit": "^12.3",
-    "kevinrob/guzzle-cache-middleware": "^6.0",
+    "ergebnis/composer-normalize": "^2.48",
     "friendsofphp/php-cs-fixer": "^3.87",
+    "guzzlehttp/guzzle": "^7.10",
+    "kevinrob/guzzle-cache-middleware": "^6.0",
+    "phpunit/phpunit": "^12.3",
     "rector/rector": "^2.1",
     "symfony/cache": "^7.3"
   },
+  "replace": {
+    "dbellettini/geteventstore-core": "self.version",
+    "dbellettini/php-eventstore-client": "self.version"
+  },
   "suggest": {
+    "friendsofouro/broadway-eventstore": "Integrate Event Store with Broadway",
+    "friendsofouro/geteventstore-bundle": "Integrate Event Store with Symfony 2",
     "guzzlehttp/guzzle": "Default PSR-7 implementation",
     "kevinrob/guzzle-cache-middleware": "Cache HTTP requests",
-    "symfony/cache": "Use Symfony to cache HTTP requests",
-    "friendsofouro/broadway-eventstore": "Integrate Event Store with Broadway",
-    "friendsofouro/geteventstore-bundle": "Integrate Event Store with Symfony 2"
-  },
-  "config": {
-    "bin-dir": "bin"
+    "symfony/cache": "Use Symfony to cache HTTP requests"
   },
   "autoload": {
     "psr-4": {
@@ -64,6 +62,13 @@
     "psr-4": {
       "EventStore\\": "tests/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "ergebnis/composer-normalize": true
+    },
+    "bin-dir": "bin",
+    "sort-packages": true
   },
   "extra": {
     "branch-alias": {
