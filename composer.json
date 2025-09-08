@@ -38,14 +38,14 @@
     "guzzlehttp/guzzle": "^7.10",
     "phpunit/phpunit": "^12.3",
     "kevinrob/guzzle-cache-middleware": "^6.0",
-    "doctrine/cache": "^2.2",
     "friendsofphp/php-cs-fixer": "^3.87",
-    "rector/rector": "^2.1"
+    "rector/rector": "^2.1",
+    "symfony/cache": "^7.3"
   },
   "suggest": {
     "guzzlehttp/guzzle": "Default PSR-7 implementation",
     "kevinrob/guzzle-cache-middleware": "Cache HTTP requests",
-    "doctrine/cache": "Use Doctrine to cache HTTP requests",
+    "symfony/cache": "Use Symfony to cache HTTP requests",
     "friendsofouro/broadway-eventstore": "Integrate Event Store with Broadway",
     "friendsofouro/geteventstore-bundle": "Integrate Event Store with Symfony 2"
   },

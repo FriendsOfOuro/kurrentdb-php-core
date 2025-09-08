@@ -22,7 +22,8 @@ function prepare_test_stream(EventStore $es, int $length = 1, array $metadata = 
     return $streamName;
 }
 
-$es = new EventStore('http://127.0.0.1:2113', GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
+$url = getenv('EVENTSTORE_URI') ?: 'http://127.0.0.1:2113';
+$es = new EventStore($url, GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
 
 $streamName = prepare_test_stream($es, $count = 1000);
 

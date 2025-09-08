@@ -2,9 +2,6 @@
 
 namespace EventStore\Http;
 
-use Doctrine\Common\Cache\ApcCache;
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\FilesystemCache;
 use Exception as PhpException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -14,10 +11,13 @@ use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Pool;
 use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PublicCacheStrategy;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 final readonly class GuzzleHttpClient implements HttpClientInterface
 {
@@ -30,32 +30,26 @@ final readonly class GuzzleHttpClient implements HttpClientInterface
         ]);
     }
 
-    public static function withFilesystemCache($path): self
+    public static function withFilesystemCache(string $path): self
     {
-        return self::withDoctrineCache(
-            new FilesystemCache($path)
+        return self::withPsr6Cache(
+            new FilesystemAdapter(directory: $path)
         );
     }
 
     public static function withApcCache(): self
     {
-        return self::withDoctrineCache(
-            new ApcCache()
+        return self::withPsr6Cache(
+            new ApcuAdapter()
         );
     }
 
-    public static function withDoctrineCache(Cache $doctrineCache): self
+    public static function withPsr6Cache(CacheItemPoolInterface $pool): self
     {
         $stack = new HandlerStack(new CurlMultiHandler());
 
         $stack->push(
-            new CacheMiddleware(
-                new PublicCacheStrategy(
-                    new DoctrineCacheStorage(
-                        $doctrineCache
-                    )
-                )
-            ),
+            new CacheMiddleware(new PublicCacheStrategy(new Psr6CacheStorage($pool))),
             'cache'
         );
 
