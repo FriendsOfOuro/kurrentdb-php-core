@@ -1,7 +1,8 @@
 <?php
 
-namespace EventStore\StreamFeed;
+namespace EventStore\Tests\StreamFeed;
 
+use EventStore\StreamFeed\StreamUrl;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
