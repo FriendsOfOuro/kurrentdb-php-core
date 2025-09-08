@@ -35,7 +35,7 @@ jobs:
         run: composer install --no-interaction
 
       - name: Start containers
-        run: docker-compose up -d && sleep 3
+        run: docker compose up -d && sleep 3
         # TODO: while [ `grep 'IS MASTER' ~/eventstore.log | wc -l` -eq 0 ]; do sleep 1; done
 
       - name: PHP CS fixer
@@ -51,4 +51,4 @@ jobs:
 
       - name: Stop containers
         if: always()
-        run: docker-compose down
+        run: docker compose down

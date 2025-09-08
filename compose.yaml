@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   eventstore.db:
     image: eventstore/eventstore:release-5.0.8
