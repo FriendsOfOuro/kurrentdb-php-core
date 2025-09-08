@@ -31,3 +31,7 @@ test-coverage:
 .PHONY: test
 test:
 	$(PHP) bin/phpunit --testdox
+
+.PHONY: benchmark
+benchmark:
+	$(PHP) php benchmark/read-stream.php
