@@ -6,7 +6,6 @@ use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\ValueObjects\Tests\TestCase;
 use EventStore\ValueObjects\ValueObjectInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 
 class UUIDTest extends TestCase
 {
