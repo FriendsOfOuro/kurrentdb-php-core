@@ -178,7 +178,7 @@ final class EventStore implements EventStoreInterface
         $streamUrl = $this->getStreamUrl($streamName);
         $headers = [
             'ES-ExpectedVersion' => $expectedVersion,
-            'Content-Type' => 'application/vnd.eventstore.events+json',
+            'Content-Type' => 'application/vnd.kurrent.events+json',
             'Content-Length' => 0,
         ];
 
@@ -281,7 +281,7 @@ final class EventStore implements EventStoreInterface
             'GET',
             $uri,
             [
-                'Accept' => 'application/vnd.eventstore.atom+json',
+                'Accept' => 'application/vnd.kurrent.atom+json',
             ]
         );
     }
