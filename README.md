@@ -8,7 +8,7 @@ PHP client for [KurrentDB HTTP API](https://docs.kurrent.io/server/v25.0/http-ap
 Metapackage
 -----------
 The easiest way to install this package is through the metapackage:
-https://github.com/FriendsOfOuro/geteventstore-php
+https://github.com/FriendsOfOuro/kurrentdb-php
 
 Disclaimer
 ----------
