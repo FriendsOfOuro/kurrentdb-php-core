@@ -2,26 +2,16 @@
 
 namespace EventStore\Tests\StreamFeed;
 
-use EventStore\EventStore;
-use EventStore\Http\GuzzleHttpClient;
 use EventStore\StreamFeed\Entry;
 use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\StreamFeedIterator;
+use EventStore\Tests\TestCase;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
 class StreamFeedIteratorTest extends TestCase
 {
-    private EventStore $es;
-
-    protected function setUp(): void
-    {
-        $httpClient = new GuzzleHttpClient();
-        $this->es = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpClient);
-    }
-
     #[Test]
     public function it_should_iterate_single_event_asc(): void
     {

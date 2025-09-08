@@ -35,15 +35,16 @@ jobs:
         run: composer install --no-interaction
 
       - name: Start containers
-        run: docker compose up -d && sleep 3
-        # TODO: while [ `grep 'IS MASTER' ~/eventstore.log | wc -l` -eq 0 ]; do sleep 1; done
+        run: |
+          export PHP_VERSION=${{ matrix.php-versions }}
+          make up install
 
       - name: PHP CS fixer
-        run: bin/php-cs-fixer fix --dry-run -v --diff
+        run: cs-fixer-ci
 
       - name: PHPUnit
-        run: bin/phpunit --coverage-text --testdox
+        run: make test-coverage
 
       - name: Stop containers
         if: always()
-        run: docker compose down
+        run: make down

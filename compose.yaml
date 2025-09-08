@@ -24,6 +24,22 @@ services:
       retries: 10
       start_period: 30s
 
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      eventstore.db:
+        condition: service_healthy
+    environment:
+      - EVENTSTORE_URI=http://admin:changeit@eventstore.db:2113
+    command: tail -f /dev/null
+
 volumes:
   eventstore-volume-data:
   eventstore-volume-logs:

@@ -18,23 +18,12 @@ use EventStore\StreamFeed\StreamFeedIterator;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlMultiHandler;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
 
 class EventStoreTest extends TestCase
 {
-    private EventStore $es;
-
-    /**
-     * @throws ConnectionFailedException
-     */
-    protected function setUp(): void
-    {
-        $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
-        $httpClient = new GuzzleHttpClient();
-        $this->es = new EventStore($uri, $httpClient);
-    }
-
     #[Test]
     public function client_successfully_connects_to_event_store(): void
     {
@@ -338,12 +327,12 @@ class EventStoreTest extends TestCase
     #[Test]
     public function it_can_process_the_all_stream_with_a_forward_iterator(): void
     {
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'auth' => ['admin', 'changeit'],
-            'handler' => new \GuzzleHttp\Handler\CurlMultiHandler(),
+            'handler' => new CurlMultiHandler(),
         ]);
         $httpClient = new GuzzleHttpClient($client);
-        $this->es = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpClient);
+        $this->es = $this->createEventStore($httpClient);
 
         $this->prepareTestStream(1);
         $streamName = rawurlencode('$all');
