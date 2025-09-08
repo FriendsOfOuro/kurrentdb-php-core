@@ -40,7 +40,7 @@ jobs:
           make up install
 
       - name: PHP CS fixer
-        run: cs-fixer-ci
+        run: make cs-fixer-ci
 
       - name: PHPUnit
         run: make test-coverage
