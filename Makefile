@@ -32,6 +32,10 @@ test-coverage:
 test:
 	$(PHP) bin/phpunit --testdox
 
+.PHONY: phpstan
+phpstan:
+	$(PHP) bin/phpstan analyse -v
+
 .PHONY: benchmark
 benchmark:
 	$(PHP) php benchmark/read-stream.php

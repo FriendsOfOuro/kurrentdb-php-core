@@ -35,6 +35,7 @@
     "friendsofphp/php-cs-fixer": "^3.87",
     "guzzlehttp/guzzle": "^7.10",
     "kevinrob/guzzle-cache-middleware": "^6.0",
+    "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^12.3",
     "rector/rector": "^2.1",
     "symfony/cache": "^7.3"
