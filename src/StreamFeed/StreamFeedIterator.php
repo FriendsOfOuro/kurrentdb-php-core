@@ -49,14 +49,14 @@ final class StreamFeedIterator implements \Iterator
 
     public static function backward(EventStoreInterface $eventStore, $streamName)
     {
+        static $identity = fn (array $a) => $a;
+
         return new self(
             $eventStore,
             $streamName,
             LinkRelation::FIRST(),
             LinkRelation::NEXT(),
-            function (array $array) {
-                return $array;
-            }
+            $identity,
         );
     }
 

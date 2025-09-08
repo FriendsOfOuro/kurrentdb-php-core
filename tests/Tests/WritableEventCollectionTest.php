@@ -6,6 +6,7 @@ use EventStore\Exception\InvalidWritableEventObjectException;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,9 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class WritableEventCollectionTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function event_collection_is_converted_to_stream_data()
     {
         $uuid1 = new UUID();
@@ -43,9 +42,7 @@ class WritableEventCollectionTest extends TestCase
         $this->assertEquals($streamData, $eventCollection->toStreamData());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function invalid_collection_throws_exception()
     {
         $this->expectException(InvalidWritableEventObjectException::class);

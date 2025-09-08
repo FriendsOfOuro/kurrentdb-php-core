@@ -9,20 +9,11 @@ final class StreamFeed
 {
     use HasLinks;
 
-    /**
-     * @var array
-     */
-    private $json;
+    private array $json;
 
-    /**
-     * @var EntryEmbedMode
-     */
-    private $entryEmbedMode;
+    private ?EntryEmbedMode $entryEmbedMode;
 
-    /**
-     * @var array
-     */
-    private $credentials;
+    private array $credentials;
 
     public function __construct(
         array $jsonFeed,

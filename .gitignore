@@ -1,10 +1,9 @@
 *.swp
 *~
+.*.cache
 /.idea
 /bin
 /phpunit.xml
 /vendor
 php-cs-fixer.phar
-.php-cs-fixer.cache
-/.phpunit.result.cache
 /composer.lock

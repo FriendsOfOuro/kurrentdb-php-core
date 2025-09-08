@@ -1,14 +1,14 @@
 <?php
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class missingTest extends TestCase
 {
     /**
-     * @test
-     *
      * @see https://stackoverflow.com/a/31691249/2714285
      */
+    #[Test]
     public function urls_are_same_before_parse_url_and_after_unparse()
     {
         foreach ([

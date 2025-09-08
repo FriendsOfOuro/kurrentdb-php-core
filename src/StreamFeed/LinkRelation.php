@@ -7,12 +7,12 @@ use EventStore\ValueObjects\Enum\Enum;
 /**
  * Class LinkRelation.
  *
- * @static @method LinkRelation FIRST()
- * @static @method LinkRelation LAST()
- * @static @method LinkRelation PREVIOUS()
- * @static @method LinkRelation NEXT()
- * @static @method LinkRelation METADATA()
- * @static @method LinkRelation ALTERNATE()
+ * @method static LinkRelation FIRST()
+ * @method static LinkRelation LAST()
+ * @method static LinkRelation PREVIOUS()
+ * @method static LinkRelation NEXT()
+ * @method static LinkRelation METADATA()
+ * @method static LinkRelation ALTERNATE()
  */
 final class LinkRelation extends Enum
 {

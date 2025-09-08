@@ -9,6 +9,7 @@ use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\StreamFeedIterator;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class StreamFeedIteratorTest extends TestCase
@@ -24,9 +25,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->es = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpClient);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_iterate_single_event_asc()
     {
         $streamName = uniqid();
@@ -43,9 +42,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_iterate_single_event_desc()
     {
         $streamName = uniqid();
@@ -62,9 +59,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_iterate_the_second_page()
     {
         $streamLength = 21;
@@ -77,9 +72,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertCount($streamLength, $events);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_be_sorted_asc()
     {
         $streamName = $this->prepareTestStream(21);
@@ -89,9 +82,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_be_sorted_desc()
     {
         $streamName = $this->prepareTestStream(21);
@@ -101,9 +92,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator), -1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_should_optimize_http_call_on_rewind()
     {
         $streamName = $this->prepareTestStream(1);

@@ -7,9 +7,9 @@ use EventStore\ValueObjects\Enum\Enum;
 /**
  * Class EntryEmbedMode.
  *
- * @static @method EntryEmbedMode NONE()
- * @static @method EntryEmbedMode RICH()
- * @static @method EntryEmbedMode BODY()
+ * @method static EntryEmbedMode NONE()
+ * @method static EntryEmbedMode RICH()
+ * @method static EntryEmbedMode BODY()
  */
 final class EntryEmbedMode extends Enum
 {

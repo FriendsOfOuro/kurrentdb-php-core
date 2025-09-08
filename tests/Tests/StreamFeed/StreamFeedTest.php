@@ -5,6 +5,8 @@ namespace EventStore\Tests\StreamFeed;
 use EventStore\StreamFeed\EntryEmbedMode;
 use EventStore\StreamFeed\LinkRelation;
 use EventStore\StreamFeed\StreamFeed;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,11 +14,8 @@ use PHPUnit\Framework\TestCase;
  */
 class StreamFeedTest extends TestCase
 {
-    /**
-     * @test
-     *
-     * @dataProvider modeProvider
-     */
+    #[Test]
+    #[DataProvider('modeProvider')]
     public function event_embed_mode_is_returned_properly(?EntryEmbedMode $mode = null, EntryEmbedMode $expected)
     {
         $feed = new StreamFeed([], $mode);
@@ -37,11 +36,8 @@ class StreamFeedTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider relationProvider
-     *
-     * @test
-     */
+    #[Test]
+    #[DataProvider('relationProvider')]
     public function get_link_url_returns_proper_url(LinkRelation $relation)
     {
         $uri = 'http://sample.uri:12345/stream';
@@ -58,9 +54,7 @@ class StreamFeedTest extends TestCase
         $this->assertEquals($uri, $feed->getLinkUrl($relation));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_link_returns_true_on_matching_url()
     {
         $feed = new StreamFeed([
@@ -75,9 +69,7 @@ class StreamFeedTest extends TestCase
         $this->assertTrue($feed->hasLink(LinkRelation::LAST()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_link_returns_false_on_missing_url()
     {
         $feed = new StreamFeed([
@@ -92,9 +84,7 @@ class StreamFeedTest extends TestCase
         $this->assertFalse($feed->hasLink(LinkRelation::LAST()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function get_link_url_returns_null_on_missing_url()
     {
         $feed = new StreamFeed([
