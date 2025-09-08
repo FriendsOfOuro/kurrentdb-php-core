@@ -295,6 +295,11 @@ final class EventStore implements EventStoreInterface
         }
     }
 
+    /**
+     * @throws StreamDeletedException
+     * @throws StreamNotFoundException
+     * @throws UnauthorizedException
+     */
     private function ensureStatusCodeIsGood(string $streamUrl): void
     {
         $code = $this->lastResponse->getStatusCode();
