@@ -42,12 +42,7 @@ jobs:
         run: bin/php-cs-fixer fix --dry-run -v --diff
 
       - name: PHPUnit
-        run: bin/phpunit --coverage-clover=coverage.clover --coverage-text --testdox
-
-      - name: Upload Scrutinizer coverage
-        uses: sudo-bot/action-scrutinizer@latest
-        with:
-          cli-args: "--format=php-clover coverage.clover"
+        run: bin/phpunit --coverage-text --testdox
 
       - name: Stop containers
         if: always()
