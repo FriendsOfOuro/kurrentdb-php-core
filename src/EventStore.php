@@ -250,7 +250,7 @@ final class EventStore implements EventStoreInterface
     {
         $request = $this->getJsonRequest($streamUrl);
 
-        if (null !== $embedMode && $embedMode !== EntryEmbedMode::NONE) {
+        if (null !== $embedMode && EntryEmbedMode::NONE !== $embedMode) {
             $uri = Uri::withQueryValue(
                 $request->getUri(),
                 'embed',
