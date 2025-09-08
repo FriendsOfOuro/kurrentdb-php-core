@@ -33,10 +33,7 @@ final class EventStore implements EventStoreInterface
 
     private array|bool $urlParts;
 
-    /**
-     * @var ResponseInterface
-     */
-    private $lastResponse;
+    private ResponseInterface $lastResponse;
 
     private array $badCodeHandlers = [];
 
