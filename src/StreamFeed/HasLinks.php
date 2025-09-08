@@ -7,6 +7,8 @@ namespace EventStore\StreamFeed;
  */
 trait HasLinks
 {
+    private readonly array $credentials;
+
     abstract protected function getLinks(): array;
 
     public function getLinkUrl(

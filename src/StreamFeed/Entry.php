@@ -5,7 +5,7 @@ namespace EventStore\StreamFeed;
 /**
  * Class Entry.
  */
-final class Entry
+final readonly class Entry
 {
     use HasLinks;
 
