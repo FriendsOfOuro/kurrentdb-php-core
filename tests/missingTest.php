@@ -23,7 +23,7 @@ class missingTest extends TestCase
             'http://@foo:1/path/path?#',
         ] as $url) {
             $parsed1 = parse_url($url);
-            $parsed2 = parse_url(unparse_url($parsed1));
+            $parsed2 = parse_url(\unparse_url($parsed1));
 
             $this->assertEquals($parsed1, $parsed2);
         }
