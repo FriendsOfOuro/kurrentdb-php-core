@@ -1,10 +1,17 @@
 <?php
+
 namespace EventStore\Http\Exception;
+
+use GuzzleHttp\Exception\RequestException as RequestExceptionAlias;
+use Psr\Http\Message\ResponseInterface;
 
 class ClientException extends RequestException
 {
-    public function getResponse()
+    public function getResponse(): ?ResponseInterface
     {
-        return $this->getPrevious()->getResponse();
+        $previous = $this->getPrevious();
+        assert($previous instanceof RequestExceptionAlias);
+
+        return $previous->getResponse();
     }
 }

@@ -1,19 +1,13 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 use EventStore\EventStore;
 use EventStore\Http\GuzzleHttpClient;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 
-/**
- * @param int   $length
- * @param array $metadata
- *
- * @return string
- */
-function prepare_test_stream(EventStore $es, $length = 1, $metadata = [])
+function prepare_test_stream(EventStore $es, int $length = 1, array $metadata = []): string
 {
     $streamName = uniqid();
     $events = [];
@@ -28,7 +22,8 @@ function prepare_test_stream(EventStore $es, $length = 1, $metadata = [])
     return $streamName;
 }
 
-$es = new EventStore('http://127.0.0.1:2113', GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
+$url = getenv('EVENTSTORE_URI') ?: 'http://127.0.0.1:2113';
+$es = new EventStore($url, GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
 
 $streamName = prepare_test_stream($es, $count = 1000);
 
@@ -36,6 +31,7 @@ $start = microtime(true);
 
 $stream = $es->forwardStreamFeedIterator($streamName);
 foreach ($stream as $event) {
+    // do nothing on purpose
 }
 
 $end = microtime(true);
@@ -46,6 +42,7 @@ $start = microtime(true);
 
 $stream = $es->forwardStreamFeedIterator($streamName);
 foreach ($stream as $event) {
+    // do nothing on purpose
 }
 
 $end = microtime(true);

@@ -1,71 +1,52 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 /**
  * Class StreamFeed.
  */
-final class StreamFeed
+final readonly class StreamFeed
 {
     use HasLinks;
 
-    /**
-     * @var array
-     */
-    private $json;
+    private EntryEmbedMode $entryEmbedMode;
 
-    /**
-     * @var EntryEmbedMode
-     */
-    private $entryEmbedMode;
-
-    /**
-     * @param array          $jsonFeed
-     * @param EntryEmbedMode $embedMode
-     */
-    public function __construct(array $jsonFeed, EntryEmbedMode $embedMode = null)
-    {
-        if (null === $embedMode) {
-            $embedMode = EntryEmbedMode::NONE();
-        }
-
-        $this->entryEmbedMode = $embedMode;
-        $this->json = $jsonFeed;
+    public function __construct(
+        private array $json,
+        ?EntryEmbedMode $embedMode = null,
+        private array $credentials = ['user' => null, 'pass' => null],
+    ) {
+        $this->entryEmbedMode = $embedMode ?? EntryEmbedMode::NONE();
     }
 
     /**
      * @return Entry[]
      */
-    public function getEntries()
+    public function getEntries(): array
     {
         return array_map(
-            function (array $jsonEntry) {
-                return new Entry($jsonEntry);
-            },
+            fn (array $jsonEntry): Entry => new Entry($jsonEntry, $this->credentials),
             $this->json['entries']
         );
     }
 
-    /**
-     * @return EntryEmbedMode
-     */
-    public function getEntryEmbedMode()
+    public function getEntryEmbedMode(): EntryEmbedMode
     {
         return $this->entryEmbedMode;
     }
 
-    /**
-     * @return array
-     */
-    public function getJson()
+    public function getJson(): array
     {
         return $this->json;
     }
 
-    /**
-     * @return array
-     */
-    protected function getLinks()
+    protected function getLinks(): array
     {
         return $this->json['links'];
+    }
+
+    protected function getCredentials(): array
+    {
+        return $this->credentials;
     }
 }

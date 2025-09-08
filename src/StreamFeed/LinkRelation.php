@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 use EventStore\ValueObjects\Enum\Enum;
@@ -6,19 +7,19 @@ use EventStore\ValueObjects\Enum\Enum;
 /**
  * Class LinkRelation.
  *
- * @static @method LinkRelation FIRST()
- * @static @method LinkRelation LAST()
- * @static @method LinkRelation PREVIOUS()
- * @static @method LinkRelation NEXT()
- * @static @method LinkRelation METADATA()
- * @static @method LinkRelation ALTERNATE()
+ * @method static LinkRelation FIRST()
+ * @method static LinkRelation LAST()
+ * @method static LinkRelation PREVIOUS()
+ * @method static LinkRelation NEXT()
+ * @method static LinkRelation METADATA()
+ * @method static LinkRelation ALTERNATE()
  */
 final class LinkRelation extends Enum
 {
-    const FIRST = 'first';
-    const LAST = 'last';
-    const PREVIOUS = 'previous';
-    const NEXT = 'next';
-    const METADATA = 'metadata';
-    const ALTERNATE = 'alternate';
+    public const string FIRST = 'first';
+    public const string LAST = 'last';
+    public const string PREVIOUS = 'previous';
+    public const string NEXT = 'next';
+    public const string METADATA = 'metadata';
+    public const string ALTERNATE = 'alternate';
 }

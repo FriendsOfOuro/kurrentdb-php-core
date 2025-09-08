@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 use EventStore\ValueObjects\Identity\UUID;
@@ -6,85 +7,38 @@ use EventStore\ValueObjects\Identity\UUID;
 /**
  * Class Event.
  */
-final class Event
+final readonly class Event
 {
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var int
-     */
-    private $version;
-
-    /**
-     * @var array
-     */
-    private $data;
-
-    /**
-     * @var array
-     */
-    private $metadata;
-
-    /**
-     * @var UUID
-     */
-    private $eventId;
-
-    /**
-     * @param string $type
-     * @param int    $version
-     * @param array  $data
-     * @param array  $metadata
-     * @param UUID   $eventId
-     */
-    public function __construct($type, $version, array $data, array $metadata = null, UUID $eventId = null)
-    {
-        $this->type = $type;
-        $this->version = (int) $version;
-        $this->data = $data;
-        $this->metadata = $metadata;
-        $this->eventId = $eventId;
+    public function __construct(
+        private string $type,
+        private int $version,
+        private array $data,
+        private ?array $metadata = null,
+        private ?UUID $eventId = null,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return int
-     */
-    public function getVersion()
+    public function getVersion(): int
     {
         return $this->version;
     }
 
-    /**
-     * @return array
-     */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
 
-    /**
-     * @return array
-     */
-    public function getMetadata()
+    public function getMetadata(): ?array
     {
         return $this->metadata;
     }
 
-    /**
-     * @return UUID
-     */
-    public function getEventId()
+    public function getEventId(): ?UUID
     {
         return $this->eventId;
     }

@@ -1,32 +1,19 @@
 <?php
+
 namespace EventStore\Tests\StreamFeed;
 
-use EventStore\EventStore;
-use EventStore\Http\GuzzleHttpClient;
 use EventStore\StreamFeed\Entry;
 use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\StreamFeedIterator;
+use EventStore\Tests\TestCase;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase
 {
-    /**
-     * @var EventStore
-     */
-    private $es;
-
-    protected function setUp()
-    {
-        $httpClient = new GuzzleHttpClient();
-        $this->es = new EventStore('http://127.0.0.1:2113', $httpClient);
-    }
-
-    /**
-     * @test
-     */
-    public function it_should_iterate_single_event_asc()
+    #[Test]
+    public function it_should_iterate_single_event_asc(): void
     {
         $streamName = uniqid();
 
@@ -38,14 +25,12 @@ class StreamFeedIteratorTest extends TestCase
         $events = iterator_to_array($iterator);
 
         $this->assertCount(1, $events);
-        $this->assertInstanceOf(Event::class, $events['0@' . $streamName]->getEvent());
-        $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
+        $this->assertInstanceOf(Event::class, $events['0@'.$streamName]->getEvent());
+        $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
-    /**
-     * @test
-     */
-    public function it_should_iterate_single_event_desc()
+    #[Test]
+    public function it_should_iterate_single_event_desc(): void
     {
         $streamName = uniqid();
 
@@ -57,14 +42,12 @@ class StreamFeedIteratorTest extends TestCase
         $events = iterator_to_array($iterator);
 
         $this->assertCount(1, $events);
-        $this->assertInstanceOf(Event::class, $events['0@' . $streamName]->getEvent());
-        $this->assertInstanceOf(Entry::class, $events['0@' . $streamName]->getEntry());
+        $this->assertInstanceOf(Event::class, $events['0@'.$streamName]->getEvent());
+        $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
-    /**
-     * @test
-     */
-    public function it_should_iterate_the_second_page()
+    #[Test]
+    public function it_should_iterate_the_second_page(): void
     {
         $streamLength = 21;
         $streamName = $this->prepareTestStream($streamLength);
@@ -76,10 +59,8 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertCount($streamLength, $events);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_be_sorted_asc()
+    #[Test]
+    public function it_should_be_sorted_asc(): void
     {
         $streamName = $this->prepareTestStream(21);
 
@@ -88,10 +69,8 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator));
     }
 
-    /**
-     * @test
-     */
-    public function it_should_be_sorted_desc()
+    #[Test]
+    public function it_should_be_sorted_desc(): void
     {
         $streamName = $this->prepareTestStream(21);
 
@@ -100,10 +79,8 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator), -1);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_optimize_http_call_on_rewind()
+    #[Test]
+    public function it_should_optimize_http_call_on_rewind(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -118,13 +95,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertSame($response1, $response2);
     }
 
-    /**
-     * @param int   $length
-     * @param array $metadata
-     *
-     * @return string
-     */
-    private function prepareTestStream($length = 1, $metadata = [])
+    private function prepareTestStream(int $length = 1, array $metadata = []): string
     {
         $streamName = uniqid();
         $events = [];
@@ -139,17 +110,17 @@ class StreamFeedIteratorTest extends TestCase
         return $streamName;
     }
 
-    private function assertEventSorted(array $events, $sign = 1)
+    private function assertEventSorted(array $events, int $sign = 1): void
     {
         $unsorted = $events;
 
         uksort(
             $events,
-            function ($a, $b) use ($sign) {
-                list($ida) = explode('@', $a);
-                list($idb) = explode('@', $b);
+            function (string $a, string $b) use ($sign): int {
+                [$ida] = explode('@', $a);
+                [$idb] = explode('@', $b);
 
-                return $sign * ($ida - $idb);
+                return $sign * ($ida <=> $idb);
             }
         );
 

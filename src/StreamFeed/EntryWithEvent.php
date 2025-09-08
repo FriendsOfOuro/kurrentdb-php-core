@@ -1,21 +1,14 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
-final class EntryWithEvent
+final readonly class EntryWithEvent
 {
-    private $entry;
-    private $event;
-
-    public function __construct(Entry $entry, Event $event)
+    public function __construct(private Entry $entry, private Event $event)
     {
-        $this->entry = $entry;
-        $this->event = $event;
     }
 
-    /**
-     * @return Entry
-     */
-    public function getEntry()
+    public function getEntry(): Entry
     {
         return $this->entry;
     }
@@ -23,7 +16,7 @@ final class EntryWithEvent
     /**
      * return @Event.
      */
-    public function getEvent()
+    public function getEvent(): Event
     {
         return $this->event;
     }

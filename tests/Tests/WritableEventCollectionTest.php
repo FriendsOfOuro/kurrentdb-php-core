@@ -1,9 +1,12 @@
 <?php
+
 namespace EventStore\Tests;
 
+use EventStore\Exception\InvalidWritableEventObjectException;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,10 +14,8 @@ use PHPUnit\Framework\TestCase;
  */
 class WritableEventCollectionTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function event_collection_is_converted_to_stream_data()
+    #[Test]
+    public function event_collection_is_converted_to_stream_data(): void
     {
         $uuid1 = new UUID();
         $event1 = new WritableEvent($uuid1, 'Foo', ['bar']);
@@ -41,12 +42,10 @@ class WritableEventCollectionTest extends TestCase
         $this->assertEquals($streamData, $eventCollection->toStreamData());
     }
 
-    /**
-     * @test
-     * @expectedException \EventStore\Exception\InvalidWritableEventObjectException
-     */
-    public function invalid_collection_throws_exception()
+    #[Test]
+    public function invalid_collection_throws_exception(): void
     {
+        $this->expectException(InvalidWritableEventObjectException::class);
         new WritableEventCollection(['foobar']);
     }
 }

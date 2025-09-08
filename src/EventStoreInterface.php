@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\StreamFeed\EntryEmbedMode;
@@ -18,17 +19,13 @@ interface EventStoreInterface
      *
      * @param StreamFeed   $streamFeed The stream feed to navigate through
      * @param LinkRelation $relation   The "direction" expressed as link relation
-     *
-     * @return null|StreamFeed
      */
-    public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation);
+    public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed;
 
     /**
      * Get the response from the last HTTP call to the EventStore API.
-     *
-     * @return ResponseInterface
      */
-    public function getLastResponse();
+    public function getLastResponse(): ResponseInterface;
 
     /**
      * Write one or more events to a stream.
@@ -40,16 +37,14 @@ interface EventStoreInterface
      *
      * @throws Exception\WrongExpectedVersionException
      */
-    public function writeToStream($streamName, WritableToStream $events, $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders);
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int;
 
     /**
      * Read a single event.
      *
      * @param string $eventUrl The url of the event
-     *
-     * @return Event
      */
-    public function readEvent($eventUrl);
+    public function readEvent(string $eventUrl): Event;
 
     /**
      * Delete a stream.
@@ -57,29 +52,24 @@ interface EventStoreInterface
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
      */
-    public function deleteStream($streamName, StreamDeletion $mode);
+    public function deleteStream(string $streamName, StreamDeletion $mode);
 
     /**
      * Open a stream feed for read and navigation.
      *
-     * @param string         $streamName The stream name
-     * @param EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
-     *
-     * @return StreamFeed
+     * @param string          $streamName The stream name
+     * @param ?EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
      */
-    public function openStreamFeed($streamName, EntryEmbedMode $embedMode = null);
+    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed;
+
+    public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator;
+
+    public function backwardStreamFeedIterator(string $streamName): StreamFeedIterator;
 
     /**
-     * @param string $streamName
+     * Reads a batch of events.
      *
-     * @return StreamFeedIterator
+     * @return Event[]
      */
-    public function forwardStreamFeedIterator($streamName);
-
-    /**
-     * @param string $streamName
-     *
-     * @return StreamFeedIterator
-     */
-    public function backwardStreamFeedIterator($streamName);
+    public function readEventBatch(array $eventUrls): array;
 }

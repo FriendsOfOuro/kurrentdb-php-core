@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\ValueObjects\Identity;
 
 use EventStore\ValueObjects\Exception\InvalidNativeArgumentException;
@@ -7,45 +8,32 @@ use EventStore\ValueObjects\Util\Util;
 use EventStore\ValueObjects\ValueObjectInterface;
 use Ramsey\Uuid\Uuid as BaseUuid;
 
-class UUID extends StringLiteral
+final readonly class UUID extends StringLiteral
 {
-    /** @var BaseUuid */
-    protected $value;
-
     /**
-     * @param string $uuid
-     *
-     * @return UUID
-     *
      * @throws InvalidNativeArgumentException
      */
-    public static function fromNative()
+    public static function fromNative(string $uuid): static
     {
-        $uuid_str = \func_get_arg(0);
-        $uuid = new static($uuid_str);
-
-        return $uuid;
+        return new self($uuid);
     }
 
     /**
      * Generate a new UUID string.
-     *
-     * @return string
      */
-    public static function generateAsString()
+    public static function generateAsString(): string
     {
-        $uuid = new static();
-        $uuidString = $uuid->toNative();
+        $uuid = new self();
 
-        return $uuidString;
+        return $uuid->toNative();
     }
 
-    public function __construct($value = null)
+    public function __construct(?string $value = null)
     {
         $uuid_str = BaseUuid::uuid4();
 
         if (null !== $value) {
-            $pattern = '/' . BaseUuid::VALID_PATTERN . '/';
+            $pattern = '/'.BaseUuid::VALID_PATTERN.'/';
 
             if (!\preg_match($pattern, $value)) {
                 throw new InvalidNativeArgumentException($value, ['UUID string']);
@@ -60,12 +48,9 @@ class UUID extends StringLiteral
 
     /**
      * Tells whether two UUID are equal by comparing their values.
-     *
-     * @param UUID $uuid
-     *
-     * @return bool
      */
-    public function sameValueAs(ValueObjectInterface $uuid)
+    #[\Override]
+    public function sameValueAs(ValueObjectInterface $uuid): bool
     {
         if (false === Util::classEquals($this, $uuid)) {
             return false;

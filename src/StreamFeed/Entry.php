@@ -1,34 +1,21 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 /**
  * Class Entry.
  */
-final class Entry
+final readonly class Entry
 {
     use HasLinks;
 
-    /**
-     * @var array
-     */
-    private $json;
-
-    /**
-     * @param array $json
-     */
-    public function __construct(array $json)
+    public function __construct(private array $json, private array $credentials)
     {
-        $this->json = $json;
     }
 
-    /**
-     * @return null|string
-     */
-    public function getEventUrl()
+    public function getEventUrl(): ?string
     {
-        $alternate = $this->getLinkUrl(LinkRelation::ALTERNATE());
-
-        return $alternate;
+        return $this->getLinkUrl(LinkRelation::ALTERNATE(), $this->credentials);
     }
 
     public function getTitle()
@@ -36,10 +23,7 @@ final class Entry
         return $this->json['title'];
     }
 
-    /**
-     * @return array
-     */
-    protected function getLinks()
+    protected function getLinks(): array
     {
         return $this->json['links'];
     }

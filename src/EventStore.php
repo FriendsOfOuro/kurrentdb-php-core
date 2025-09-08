@@ -1,13 +1,13 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\Exception\ConnectionFailedException;
+use EventStore\Exception\NoExtractableEventVersionException;
 use EventStore\Exception\StreamDeletedException;
 use EventStore\Exception\StreamNotFoundException;
 use EventStore\Exception\UnauthorizedException;
 use EventStore\Exception\WrongExpectedVersionException;
-use EventStore\Http\Exception\ClientException;
-use EventStore\Http\Exception\RequestException;
 use EventStore\Http\HttpClientInterface;
 use EventStore\Http\ResponseCode;
 use EventStore\StreamFeed\EntryEmbedMode;
@@ -16,8 +16,10 @@ use EventStore\StreamFeed\LinkRelation;
 use EventStore\StreamFeed\StreamFeed;
 use EventStore\StreamFeed\StreamFeedIterator;
 use EventStore\ValueObjects\Identity\UUID;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use Http\Client\Exception\HttpException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -26,38 +28,26 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class EventStore implements EventStoreInterface
 {
-    /**
-     * @var string
-     */
-    private $url;
+    private readonly string $url;
 
-    /**
-     * @var HttpClientInterface
-     */
-    private $httpClient;
+    private array|bool $urlParts;
 
     /**
      * @var ResponseInterface
      */
     private $lastResponse;
 
-    /**
-     * @var array
-     */
-    private $badCodeHandlers = [];
+    private array $badCodeHandlers = [];
 
     /**
      * EventStore constructor.
      *
-     * @param string              $url
-     * @param HttpClientInterface $httpClient
-     *
      * @throws ConnectionFailedException
      */
-    public function __construct(string $url, HttpClientInterface $httpClient)
+    public function __construct(string $url, private readonly HttpClientInterface $httpClient)
     {
+        $this->urlParts = parse_url($url);
         $this->url = $url;
-        $this->httpClient = $httpClient;
 
         $this->checkConnection();
         $this->initBadCodeHandlers();
@@ -69,7 +59,7 @@ final class EventStore implements EventStoreInterface
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
      */
-    public function deleteStream($streamName, StreamDeletion $mode): void
+    public function deleteStream(string $streamName, StreamDeletion $mode): void
     {
         $request = new Request('DELETE', $this->getStreamUrl($streamName));
 
@@ -82,8 +72,6 @@ final class EventStore implements EventStoreInterface
 
     /**
      * Get the response from the last HTTP call to the EventStore API.
-     *
-     * @return ResponseInterface
      */
     public function getLastResponse(): ResponseInterface
     {
@@ -93,19 +81,18 @@ final class EventStore implements EventStoreInterface
     /**
      * Navigates a stream feed through link relations.
      *
-     * @param StreamFeed   $streamFeed
-     * @param LinkRelation $relation
-     *
-     * @return StreamFeed|null
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
+     * @throws UnauthorizedException
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed
     {
-        $url = $streamFeed->getLinkUrl($relation);
+        $url = $streamFeed->getLinkUrl($relation, [
+            'user' => $this->urlParts['user'],
+            'pass' => $this->urlParts['pass'],
+        ]);
 
-        if (empty($url)) {
+        if (null === $url) {
             return null;
         }
 
@@ -115,15 +102,10 @@ final class EventStore implements EventStoreInterface
     /**
      * Opens a stream feed for read and navigation.
      *
-     * @param string              $streamName
-     * @param EntryEmbedMode|null $embedMode
-     *
-     * @return StreamFeed
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      */
-    public function openStreamFeed($streamName, EntryEmbedMode $embedMode = null): StreamFeed
+    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
         $url = $this->getStreamUrl($streamName);
 
@@ -133,15 +115,11 @@ final class EventStore implements EventStoreInterface
     /**
      * Read a single event.
      *
-     * @param string $eventUrl
-     *
-     * @return Event
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    public function readEvent($eventUrl): Event
+    public function readEvent(string $eventUrl): Event
     {
         $request = $this->getJsonRequest($eventUrl);
         $this->sendRequest($request);
@@ -155,25 +133,19 @@ final class EventStore implements EventStoreInterface
 
     /**
      * Reads a batch of events.
-     *
-     * @param array $eventUrls
-     *
-     * @return array
      */
     public function readEventBatch(array $eventUrls): array
     {
         $requests = array_map(
-            function ($eventUrl) {
-                return $this->getJsonRequest($eventUrl);
-            },
+            fn ($eventUrl): Request => $this->getJsonRequest($eventUrl),
             $eventUrls
         );
 
         $responses = $this->httpClient->sendRequestBatch($requests);
 
         return array_map(
-            function ($response) {
-                $data = json_decode($response->getBody(), true);
+            function ($response): ?Event {
+                $data = json_decode((string) $response->getBody(), true);
                 if (!isset($data['content'])) {
                     return null;
                 }
@@ -186,26 +158,18 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    /**
-     * @param array $content
-     *
-     * @return Event
-     */
     private function createEventFromResponseContent(array $content): Event
     {
         $type = $content['eventType'];
         $version = (int) $content['eventNumber'];
         $data = $content['data'];
-        $metadata = (!empty($content['metadata'])) ? $content['metadata'] : null;
-        $eventId = (!empty($content['eventId']) ? UUID::fromNative($content['eventId']) : null);
+        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
+        $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
 
         return new Event($type, $version, $data, $metadata, $eventId);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function writeToStream($streamName, WritableToStream $events, $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = [])
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int
     {
         if ($events instanceof WritableEvent) {
             $events = new WritableEventCollection([$events]);
@@ -229,67 +193,61 @@ final class EventStore implements EventStoreInterface
         $this->sendRequest($request);
 
         $responseStatusCode = $this->getLastResponse()->getStatusCode();
+
         if (ResponseCode::HTTP_BAD_REQUEST == $responseStatusCode) {
             throw new WrongExpectedVersionException();
         }
 
-        return $this->extractStreamVersionFromLastResponse($streamUrl);
+        try {
+            return $this->extractStreamVersionFromLastResponse($streamUrl);
+        } catch (NoExtractableEventVersionException) {
+            return false;
+        }
     }
 
-    /**
-     * @param string $streamName
-     *
-     * @return StreamFeedIterator
-     */
-    public function forwardStreamFeedIterator($streamName): StreamFeedIterator
+    public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator
     {
         return StreamFeedIterator::forward($this, $streamName);
     }
 
-    /**
-     * @param string $streamName
-     *
-     * @return StreamFeedIterator
-     */
-    public function backwardStreamFeedIterator($streamName): StreamFeedIterator
+    public function backwardStreamFeedIterator(string $streamName): StreamFeedIterator
     {
         return StreamFeedIterator::backward($this, $streamName);
     }
 
     /**
-     * @throws Exception\ConnectionFailedException
+     * @throws ConnectionFailedException
      */
     private function checkConnection(): void
     {
         try {
             $request = new Request('GET', $this->url);
             $this->sendRequest($request);
-        } catch (RequestException $e) {
+        } catch (ConnectException $e) {
             throw new ConnectionFailedException($e->getMessage());
         }
     }
 
-    /**
-     * @param string $streamName
-     *
-     * @return string
-     */
     private function getStreamUrl(string $streamName): string
     {
         return sprintf('%s/streams/%s', $this->url, $streamName);
     }
 
+    private function removeCredentialsFromUrl(string $url): string
+    {
+        $parts = parse_url($url);
+        unset($parts['user']);
+        unset($parts['pass']);
+
+        return \unparse_url($parts);
+    }
+
     /**
-     * @param $streamUrl
-     * @param EntryEmbedMode|null $embedMode
-     *
-     * @return StreamFeed
-     *
      * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    private function readStreamFeed($streamUrl, EntryEmbedMode $embedMode = null): StreamFeed
+    private function readStreamFeed(string $streamUrl, ?EntryEmbedMode $embedMode = null): StreamFeed
     {
         $request = $this->getJsonRequest($streamUrl);
 
@@ -307,15 +265,17 @@ final class EventStore implements EventStoreInterface
 
         $this->ensureStatusCodeIsGood($streamUrl);
 
-        return new StreamFeed($this->lastResponseAsJson(), $embedMode);
+        return new StreamFeed(
+            $this->lastResponseAsJson(),
+            $embedMode,
+            [
+                'user' => $this->urlParts['user'],
+                'pass' => $this->urlParts['pass'],
+            ]
+        );
     }
 
-    /**
-     * @param string $uri
-     *
-     * @return RequestInterface
-     */
-    private function getJsonRequest(string $uri)
+    private function getJsonRequest(string $uri): Request
     {
         return new Request(
             'GET',
@@ -326,20 +286,19 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    /**
-     * @param RequestInterface $request
-     */
     private function sendRequest(RequestInterface $request): void
     {
         try {
             $this->lastResponse = $this->httpClient->sendRequest($request);
-        } catch (ClientException $e) {
+        } catch (HttpException $e) {
             $this->lastResponse = $e->getResponse();
         }
     }
 
     /**
-     * @param string $streamUrl
+     * @throws StreamDeletedException
+     * @throws StreamNotFoundException
+     * @throws UnauthorizedException
      */
     private function ensureStatusCodeIsGood(string $streamUrl): void
     {
@@ -353,31 +312,16 @@ final class EventStore implements EventStoreInterface
     private function initBadCodeHandlers(): void
     {
         $this->badCodeHandlers = [
-            ResponseCode::HTTP_NOT_FOUND => function ($streamUrl) {
-                throw new StreamNotFoundException(
-                        sprintf(
-                            'No stream found at %s',
-                            $streamUrl
-                        )
-                    );
+            ResponseCode::HTTP_NOT_FOUND => function ($streamUrl): never {
+                throw new StreamNotFoundException(sprintf('No stream found at %s', $streamUrl));
             },
 
-            ResponseCode::HTTP_GONE => function ($streamUrl) {
-                throw new StreamDeletedException(
-                        sprintf(
-                            'Stream at %s has been permanently deleted',
-                            $streamUrl
-                        )
-                    );
+            ResponseCode::HTTP_GONE => function ($streamUrl): never {
+                throw new StreamDeletedException(sprintf('Stream at %s has been permanently deleted', $streamUrl));
             },
 
-            ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl) {
-                throw new UnauthorizedException(
-                        sprintf(
-                            'Tried to open stream %s got 401',
-                            $streamUrl
-                        )
-                    );
+            ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl): never {
+                throw new UnauthorizedException(sprintf('Tried to open stream %s got 401', $streamUrl));
             },
         ];
     }
@@ -391,29 +335,25 @@ final class EventStore implements EventStoreInterface
      *
      * http://127.0.0.1:2113/streams/newstream/13 -> 13
      *
-     * @param string $streamUrl
-     *
-     * @return bool|int
+     * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(string $streamUrl)
+    private function extractStreamVersionFromLastResponse(string $streamUrl): int
     {
         $locationHeaders = $this->getLastResponse()->getHeader('Location');
 
-        if (
-            !empty($locationHeaders[0])
-            && 0 === strpos($locationHeaders[0], $streamUrl)
-        ) {
-            $version = substr($locationHeaders[0], strlen($streamUrl));
-
-            return (int)trim($version, '/');
+        if (!isset($locationHeaders[0])) {
+            throw new NoExtractableEventVersionException();
         }
 
-        return false;
+        $streamUrl = $this->removeCredentialsFromUrl($streamUrl);
+
+        if (!preg_match('#^'.preg_quote($streamUrl).'/([^/]+)$#', $locationHeaders[0], $matches)) {
+            throw new NoExtractableEventVersionException();
+        }
+
+        return (int) $matches[1];
     }
 
-    /**
-     * @return array
-     */
     private function lastResponseAsJson(): array
     {
         return json_decode($this->lastResponse->getBody(), true);

@@ -1,0 +1,50 @@
+name: PHP 8
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions:
+          - 8.3
+          - 8.4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Start containers
+        run: |
+          export PHP_VERSION=${{ matrix.php-versions }}
+          make up install
+
+      - name: PHP CS fixer
+        run: make cs-fixer-ci
+
+      - name: PHPUnit
+        run: make test-coverage
+
+      - name: Stop containers
+        if: always()
+        run: make down

@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
 use EventStore\ValueObjects\Enum\Enum;
@@ -6,13 +7,13 @@ use EventStore\ValueObjects\Enum\Enum;
 /**
  * Class EntryEmbedMode.
  *
- * @static @method EntryEmbedMode NONE()
- * @static @method EntryEmbedMode RICH()
- * @static @method EntryEmbedMode BODY()
+ * @method static EntryEmbedMode NONE()
+ * @method static EntryEmbedMode RICH()
+ * @method static EntryEmbedMode BODY()
  */
 final class EntryEmbedMode extends Enum
 {
-    const NONE = 'none';
-    const RICH = 'rich';
-    const BODY = 'body';
+    public const string NONE = 'none';
+    public const string RICH = 'rich';
+    public const string BODY = 'body';
 }

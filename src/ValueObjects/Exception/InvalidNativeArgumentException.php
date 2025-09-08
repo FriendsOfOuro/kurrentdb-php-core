@@ -1,9 +1,8 @@
 <?php
+
 namespace EventStore\ValueObjects\Exception;
 
-use InvalidArgumentException;
-
-class InvalidNativeArgumentException extends InvalidArgumentException
+class InvalidNativeArgumentException extends \InvalidArgumentException
 {
     public function __construct($value, array $allowed_types)
     {

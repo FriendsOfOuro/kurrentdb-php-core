@@ -1,8 +1,10 @@
 <?php
+
 namespace EventStore\Tests;
 
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -10,10 +12,8 @@ use PHPUnit\Framework\TestCase;
  */
 class WritableEventTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function event_is_converted_to_stream_data()
+    #[Test]
+    public function event_is_converted_to_stream_data(): void
     {
         $uuid = new UUID();
         $event = new WritableEvent($uuid, 'Foo', ['bar']);

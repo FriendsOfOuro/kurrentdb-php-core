@@ -1,9 +1,7 @@
 <?php
+
 namespace EventStore\Http;
 
-use Doctrine\Common\Cache\ApcCache;
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\FilesystemCache;
 use Exception as PhpException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -13,51 +11,46 @@ use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Pool;
 use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PublicCacheStrategy;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
-final class GuzzleHttpClient implements HttpClientInterface
+final readonly class GuzzleHttpClient implements HttpClientInterface
 {
-    /**
-     * @var ClientInterface
-     */
-    private $client;
+    private ClientInterface $client;
 
-    public function __construct(ClientInterface $client = null)
+    public function __construct(?ClientInterface $client = null)
     {
         $this->client = $client ?: new Client([
             'handler' => new CurlMultiHandler(),
         ]);
     }
 
-    public static function withFilesystemCache($path)
+    public static function withFilesystemCache(string $path): self
     {
-        return self::withDoctrineCache(
-            new FilesystemCache($path)
+        return self::withPsr6Cache(
+            new FilesystemAdapter(directory: $path)
         );
     }
 
-    public static function withApcCache()
+    public static function withApcCache(): self
     {
-        return self::withDoctrineCache(
-            new ApcCache()
+        return self::withPsr6Cache(
+            new ApcuAdapter()
         );
     }
 
-    public static function withDoctrineCache(Cache $doctrineCache)
+    public static function withPsr6Cache(CacheItemPoolInterface $pool): self
     {
         $stack = new HandlerStack(new CurlMultiHandler());
 
         $stack->push(
-            new CacheMiddleware(
-                new PublicCacheStrategy(
-                    new DoctrineCacheStorage(
-                        $doctrineCache
-                    )
-                )
-            ),
-          'cache'
+            new CacheMiddleware(new PublicCacheStrategy(new Psr6CacheStorage($pool))),
+            'cache'
         );
 
         $client = new Client([
@@ -83,7 +76,7 @@ final class GuzzleHttpClient implements HttpClientInterface
         return $responses;
     }
 
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
         try {
             return $this->client->send($request);

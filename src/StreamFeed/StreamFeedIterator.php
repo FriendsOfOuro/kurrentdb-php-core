@@ -1,42 +1,33 @@
 <?php
+
 namespace EventStore\StreamFeed;
 
-use ArrayIterator;
 use EventStore\EventStoreInterface;
 
 final class StreamFeedIterator implements \Iterator
 {
-    private $eventStore;
+    private ?StreamFeed $feed = null;
 
-    private $streamName;
+    /**
+     * @var \ArrayIterator<EntryWithEvent>
+     */
+    private \ArrayIterator $innerIterator;
 
-    private $feed;
+    private readonly \Closure $arraySortingFunction;
 
-    private $innerIterator;
-
-    private $startingRelation;
-
-    private $navigationRelation;
-
-    private $arraySortingFunction;
-
-    private $rewinded;
+    private bool $rewinded = false;
 
     private function __construct(
-        EventStoreInterface $eventStore,
-        $streamName,
-        LinkRelation $startingRelation,
-        LinkRelation $navigationRelation,
-        callable $arraySortingFunction
+        private readonly EventStoreInterface $eventStore,
+        private readonly string $streamName,
+        private readonly LinkRelation $startingRelation,
+        private readonly LinkRelation $navigationRelation,
+        callable $arraySortingFunction,
     ) {
-        $this->eventStore = $eventStore;
-        $this->streamName = $streamName;
-        $this->startingRelation = $startingRelation;
-        $this->navigationRelation = $navigationRelation;
-        $this->arraySortingFunction = $arraySortingFunction;
+        $this->arraySortingFunction = $arraySortingFunction(...);
     }
 
-    public static function forward(EventStoreInterface $eventStore, $streamName)
+    public static function forward(EventStoreInterface $eventStore, $streamName): self
     {
         return new self(
             $eventStore,
@@ -47,25 +38,25 @@ final class StreamFeedIterator implements \Iterator
         );
     }
 
-    public static function backward(EventStoreInterface $eventStore, $streamName)
+    public static function backward(EventStoreInterface $eventStore, $streamName): self
     {
+        static $identity = fn (array $a): array => $a;
+
         return new self(
             $eventStore,
             $streamName,
             LinkRelation::FIRST(),
             LinkRelation::NEXT(),
-            function (array $array) {
-                return $array;
-            }
+            $identity,
         );
     }
 
-    public function current()
+    public function current(): EntryWithEvent
     {
         return $this->innerIterator->current();
     }
 
-    public function next()
+    public function next(): void
     {
         $this->rewinded = false;
         $this->innerIterator->next();
@@ -83,17 +74,17 @@ final class StreamFeedIterator implements \Iterator
         }
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->innerIterator->current()->getEntry()->getTitle();
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->innerIterator->valid();
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         if ($this->rewinded) {
             return;
@@ -116,16 +107,12 @@ final class StreamFeedIterator implements \Iterator
         $this->rewinded = true;
     }
 
-    private function createInnerIterator()
+    private function createInnerIterator(): void
     {
-        if (null !== $this->feed) {
-            $entries = $this->feed->getEntries();
-        } else {
-            $entries = [];
-        }
+        $entries = $this->feed instanceof StreamFeed ? $this->feed->getEntries() : [];
 
-        if (empty($entries)) {
-            $this->innerIterator = new ArrayIterator([]);
+        if ([] === $entries) {
+            $this->innerIterator = new \ArrayIterator([]);
 
             return;
         }
@@ -136,16 +123,14 @@ final class StreamFeedIterator implements \Iterator
         );
 
         $urls = array_map(
-            function ($entry) {
-                return $entry->getEventUrl();
-            },
+            fn ($entry) => $entry->getEventUrl(),
             $entries
         );
 
-        $this->innerIterator = new ArrayIterator(
+        $this->innerIterator = new \ArrayIterator(
             array_filter(
                 array_map(
-                    function ($entry, $event) {
+                    function (?Entry $entry, ?Event $event): ?EntryWithEvent {
                         if (null === $entry || null === $event) {
                             return null;
                         }
@@ -158,9 +143,7 @@ final class StreamFeedIterator implements \Iterator
                     $entries,
                     $this->eventStore->readEventBatch($urls)
                 ),
-                function ($entryWithEvent) {
-                    return null !== $entryWithEvent;
-                }
+                fn (?EntryWithEvent $entryWithEvent): bool => $entryWithEvent instanceof EntryWithEvent
             )
         );
     }

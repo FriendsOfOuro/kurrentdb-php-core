@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\ValueObjects\Identity\UUID;
@@ -6,58 +7,18 @@ use EventStore\ValueObjects\Identity\UUID;
 /**
  * Class WritableEvent.
  */
-final class WritableEvent implements WritableToStream
+final readonly class WritableEvent implements WritableToStream
 {
-    /**
-     * @var UUID
-     */
-    private $uuid;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var array
-     */
-    private $data;
-
-    /**
-     * @var array
-     */
-    private $metadata;
-
-    /**
-     * @param string $type
-     * @param array  $data
-     * @param array  $metadata
-     *
-     * @return WritableEvent
-     */
-    public static function newInstance($type, array $data, array $metadata = [])
+    public static function newInstance(string $type, array $data, array $metadata = []): self
     {
         return new self(new UUID(), $type, $data, $metadata);
     }
 
-    /**
-     * @param UUID   $uuid
-     * @param string $type
-     * @param array  $data
-     * @param array  $metadata
-     */
-    public function __construct(UUID $uuid, $type, array $data, array $metadata = [])
+    public function __construct(private UUID $uuid, private string $type, private array $data, private array $metadata = [])
     {
-        $this->uuid = $uuid;
-        $this->type = $type;
-        $this->data = $data;
-        $this->metadata = $metadata;
     }
 
-    /**
-     * @return array
-     */
-    public function toStreamData()
+    public function toStreamData(): array
     {
         return [
             'eventId' => $this->uuid->toNative(),

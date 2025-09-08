@@ -1,4 +1,5 @@
 <?php
+
 namespace EventStore;
 
 use EventStore\Exception\InvalidWritableEventObjectException;
@@ -6,36 +7,25 @@ use EventStore\Exception\InvalidWritableEventObjectException;
 /**
  * Class WritableEventCollection.
  */
-final class WritableEventCollection implements WritableToStream
+final readonly class WritableEventCollection implements WritableToStream
 {
     /**
      * @var WritableEvent[]
      */
-    private $events = [];
+    private array $events;
 
-    /**
-     * @param array $events
-     */
     public function __construct(array $events)
     {
         $this->validateEvents($events);
         $this->events = $events;
     }
 
-    /**
-     * @return array
-     */
-    public function toStreamData()
+    public function toStreamData(): array
     {
-        return array_map(function (WritableEvent $event) {
-            return $event->toStreamData();
-        }, $this->events);
+        return array_map(fn (WritableEvent $event): array => $event->toStreamData(), $this->events);
     }
 
-    /**
-     * @param array $events
-     */
-    private function validateEvents(array $events)
+    private function validateEvents(array $events): void
     {
         foreach ($events as $event) {
             if (!$event instanceof WritableEvent) {

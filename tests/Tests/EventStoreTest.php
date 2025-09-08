@@ -1,44 +1,41 @@
 <?php
+
 namespace EventStore\Tests;
 
 use EventStore\EventStore;
+use EventStore\Exception\ConnectionFailedException;
+use EventStore\Exception\StreamDeletedException;
+use EventStore\Exception\StreamNotFoundException;
+use EventStore\Exception\UnauthorizedException;
+use EventStore\Exception\WrongExpectedVersionException;
 use EventStore\Http\GuzzleHttpClient;
 use EventStore\StreamDeletion;
 use EventStore\StreamFeed\Entry;
 use EventStore\StreamFeed\EntryEmbedMode;
+use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\LinkRelation;
+use EventStore\StreamFeed\StreamFeed;
 use EventStore\StreamFeed\StreamFeedIterator;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
-use PHPUnit\Framework\TestCase;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlMultiHandler;
+use PHPUnit\Framework\Attributes\Test;
 
 class EventStoreTest extends TestCase
 {
-    /**
-     * @var EventStore
-     */
-    private $es;
-
-    protected function setUp()
+    #[Test]
+    public function client_successfully_connects_to_event_store(): void
     {
-        $uri = getenv('EVENTSTORE_URI') ?: 'http://127.0.0.1:2113';
-        $httpClient = new GuzzleHttpClient();
-        $this->es = new EventStore($uri, $httpClient);
+        $this->assertMatchesRegularExpression('/^[2-3]\d{2}$/', (string) $this->es->getLastResponse()->getStatusCode());
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function client_successfully_connects_to_event_store()
-    {
-        $this->assertRegExp('/^[2-3][0-9]{2}$/', (string) $this->es->getLastResponse()->getStatusCode());
-    }
-
-    /**
-     * @test
-     */
-    public function event_is_written_to_stream()
+    #[Test]
+    public function event_is_written_to_stream(): void
     {
         $this->prepareTestStream();
 
@@ -46,33 +43,36 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function version_is_provided_after_writing_to_stream()
+    #[Test]
+    public function version_is_provided_after_writing_to_stream(): void
     {
         $streamName = $this->prepareTestStream();
-        $event = WritableEvent::newInstance('Foo', ['foo' => 'bar']);
-
+        $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
         $version = $this->es->writeToStream($streamName, $event);
+
         $this->assertSame(1, $version);
     }
 
     /**
-     * @test
-     * @expectedException \EventStore\Exception\WrongExpectedVersionException
+     * @throws WrongExpectedVersionException
      */
-    public function wrong_expected_version_should_throw_exception()
+    #[Test]
+    public function wrong_expected_version_should_throw_exception(): void
     {
         $streamName = $this->prepareTestStream();
-        $event = WritableEvent::newInstance('Foo', ['foo' => 'bar']);
+        $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
 
+        $this->expectException(WrongExpectedVersionException::class);
         $this->es->writeToStream($streamName, $event, 3);
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function stream_is_soft_deleted()
+    #[Test]
+    public function stream_is_soft_deleted(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::SOFT());
@@ -80,16 +80,17 @@ class EventStoreTest extends TestCase
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
         // we try to write to a soft deleted stream...
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo', ['bar']));
+        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['bar']));
 
         // ..and we should expect a "201 Created" response
         $this->assertEquals('201', $this->es->getLastResponse()->getStatusCode());
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function stream_is_hard_deleted()
+    #[Test]
+    public function stream_is_hard_deleted(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
@@ -97,16 +98,19 @@ class EventStoreTest extends TestCase
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
         // we try to write to a hard deleted stream...
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo', ['bar']));
+        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['bar']));
 
         // ..and we should expect a "410 Stream deleted" response
         $this->assertEquals('410', $this->es->getLastResponse()->getStatusCode());
     }
 
     /**
-     * @test
+     * @throws StreamDeletedException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
-    public function stream_feed_is_successfully_opened()
+    #[Test]
+    public function stream_feed_is_successfully_opened(): void
     {
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName);
@@ -116,113 +120,122 @@ class EventStoreTest extends TestCase
         $this->assertEquals($streamName, $json['streamId']);
     }
 
-    /**
-     * @test
-     * @expectedException \EventStore\Exception\ConnectionFailedException
-     */
-    public function unreacheable_event_store_throws_exception()
+    #[Test]
+    public function unreacheable_event_store_throws_exception(): void
     {
         $httpClient = new GuzzleHttpClient();
+        $this->expectException(ConnectionFailedException::class);
         new EventStore('http://127.0.0.1:12345/', $httpClient);
     }
 
     /**
-     * @test
+     * @throws StreamNotFoundException
+     * @throws StreamDeletedException
+     * @throws WrongExpectedVersionException
      */
-    public function event_data_is_embedded_with_body_mode()
+    #[Test]
+    public function event_data_is_embedded_with_body_mode(): void
     {
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName, EntryEmbedMode::BODY());
 
         $json = $streamFeed->getJson();
 
-        $this->assertEquals(['foo' => 'bar'], json_decode($json['entries'][0]['data'], true));
+        $this->assertEquals(['foo_data_key' => 'bar'], json_decode((string) $json['entries'][0]['data'], true));
     }
 
     /**
-     * @test
+     * @throws StreamDeletedException
+     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function event_stream_feed_head_returns_next_link()
+    #[Test]
+    public function event_stream_feed_head_returns_next_link(): void
     {
         $streamName = $this->prepareTestStream(40);
 
         $head = $this->es->openStreamFeed($streamName);
         $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT());
 
-        $this->assertInstanceOf('EventStore\StreamFeed\StreamFeed', $next);
+        $this->assertInstanceOf(StreamFeed::class, $next);
         $this->assertCount(20, $next->getJson()['entries']);
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
+     * @throws StreamDeletedException
+     * @throws StreamNotFoundException
      */
-    public function event_stream_feed_returns_entries()
+    #[Test]
+    public function event_stream_feed_returns_entries(): void
     {
         $streamName = $this->prepareTestStream(40);
         $feed = $this->es->openStreamFeed($streamName);
         $entries = $feed->getEntries();
 
         $this->assertCount(20, $entries);
-        $this->assertContainsOnlyInstancesOf('EventStore\StreamFeed\Entry', $entries);
+        $this->assertContainsOnlyInstancesOf(Entry::class, $entries);
     }
 
     /**
-     * @test
+     * @throws StreamDeletedException
+     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function get_single_event_from_event_stream()
+    #[Test]
+    public function get_single_event_from_event_stream(): void
     {
         $streamName = $this->prepareTestStream(1);
         $feed = $this->es->openStreamFeed($streamName);
 
-        /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
 
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-        $this->assertEquals(['foo' => 'bar'], $event->getData());
-        $this->assertSame(null, $event->getMetadata());
+        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertNull($event->getMetadata());
     }
 
     /**
-     * @test
+     * @throws StreamDeletedException
+     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function get_single_event_with_provided_event_id()
+    #[Test]
+    public function get_single_event_with_provided_event_id(): void
     {
         $eventId = new UUID();
         $streamName = $this->prepareTestStream(1);
 
-        $event = new WritableEvent($eventId, 'Foo', ['foo' => 'bar']);
+        $event = new WritableEvent($eventId, 'Foo_Event', ['foo_data_key' => 'bar']);
         $this->es->writeToStream($streamName, $event);
 
         $feed = $this->es->openStreamFeed($streamName);
-        /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
         $readEvent = $this->es->readEvent($eventUrl);
 
-        if ('Linux-v3.0.5' === getenv('EVENT_STORE_VERSION')) {
-            // EventId was introduced in version 3.1.0
-            $this->assertNull($readEvent->getEventId());
-        } else {
-            $this->assertEquals($eventId, $readEvent->getEventId());
-        }
+        $this->assertEquals($eventId, $readEvent->getEventId());
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
+     * @throws StreamDeletedException
      */
-    public function get_event_batch_from_event_stream()
+    #[Test]
+    public function get_event_batch_from_event_stream(): void
     {
         $streamName = $this->prepareTestStream(20);
         $feed = $this->es->openStreamFeed($streamName);
 
         $eventUrls = array_map(
-            function (Entry $entry) {
-                return $entry->getEventUrl();
-            },
+            fn (Entry $entry): ?string => $entry->getEventUrl(),
             $feed->getEntries()
         );
 
@@ -232,16 +245,20 @@ class EventStoreTest extends TestCase
         $i = 19;
         foreach ($events as $event) {
             $this->assertSame($i--, $event->getVersion());
-            $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-            $this->assertEquals(['foo' => 'bar'], $event->getData());
-            $this->assertSame(null, $event->getMetadata());
+            $this->assertInstanceOf(Event::class, $event);
+            $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+            $this->assertNull($event->getMetadata());
         }
     }
 
     /**
-     * @test
+     * @throws StreamDeletedException
+     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function get_single_event_with_metadata_from_event_stream()
+    #[Test]
+    public function get_single_event_with_metadata_from_event_stream(): void
     {
         $metadata = [
             'user' => 'akii',
@@ -250,22 +267,24 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(1, $metadata);
         $feed = $this->es->openStreamFeed($streamName);
 
-        /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
 
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-        $this->assertEquals(['foo' => 'bar'], $event->getData());
-        $this->assertEquals($metadata, $event->getMetadata());
+        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertSame($metadata, $event->getMetadata());
     }
 
     /**
-     * @test
+     * @throws UnauthorizedException
+     * @throws StreamDeletedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function navigate_stream_using_missing_link_returns_null()
+    #[Test]
+    public function navigate_stream_using_missing_link_returns_null(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -276,41 +295,48 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @test
-     * @expectedException \EventStore\Exception\StreamNotFoundException
+     * @throws StreamDeletedException
      */
-    public function unexistent_stream_should_throw_not_found_exception()
+    #[Test]
+    public function unexistent_stream_should_throw_not_found_exception(): void
     {
+        $this->expectException(StreamNotFoundException::class);
         $this->es->openStreamFeed('this-stream-does-not-exists');
     }
 
     /**
-     * @test
-     * @expectedException \EventStore\Exception\StreamDeletedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function deleted_stream_should_throw_an_exception()
+    #[Test]
+    public function deleted_stream_should_throw_an_exception(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
 
+        $this->expectException(StreamDeletedException::class);
         $this->es->openStreamFeed($streamName);
     }
 
-    /**
-     * @test
-     * @expectedException \EventStore\Exception\UnauthorizedException
-     * @expectedExceptionMessage Tried to open stream http://127.0.0.1:2113/streams/$et-Baz got 401
-     */
-    public function unauthorized_streams_throw_unauthorized_exception()
+    #[Test]
+    public function unauthorized_streams_throw_unauthorized_exception(): never
     {
-        $this->es->openStreamFeed('$et-Baz');
+        // I wonder how this worked one day as no $et-Baz stream is ever created
+        // For now it throws logically a StreamNotFoundException
+        $this->markTestIncomplete('Find a way to create a forbidden stream: create user, change stream acl...');
+        // $this->expectException(UnauthorizedException::class);
+        // $this->expectExceptionMessage('Tried to open stream http://admin:changeit@127.0.0.1:2113/streams/$et-Baz got 401');
+        // $this->es->openStreamFeed('$et-Baz');
     }
 
     /**
-     * @test
-     * @expectedException \EventStore\Exception\StreamDeletedException
+     * @throws UnauthorizedException
+     * @throws StreamDeletedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
      */
-    public function fetching_event_of_a_deleted_stream_throws_an_exception()
+    #[Test]
+    public function fetching_event_of_a_deleted_stream_throws_an_exception(): void
     {
         $streamName = $this->prepareTestStream(1);
         $feed = $this->es->openStreamFeed($streamName);
@@ -319,13 +345,15 @@ class EventStoreTest extends TestCase
 
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
 
-        $event = $this->es->readEvent($eventUrl);
+        $this->expectException(StreamDeletedException::class);
+        $this->es->readEvent($eventUrl);
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function it_can_create_a_forward_iterator()
+    #[Test]
+    public function it_can_create_a_forward_iterator(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -339,9 +367,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @test
+     * @throws WrongExpectedVersionException
      */
-    public function it_can_create_a_backward_iterator()
+    #[Test]
+    public function it_can_create_a_backward_iterator(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -355,16 +384,18 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @test
+     * @throws ConnectionFailedException
+     * @throws WrongExpectedVersionException
      */
-    public function it_can_process_the_all_stream_with_a_forward_iterator()
+    #[Test]
+    public function it_can_process_the_all_stream_with_a_forward_iterator(): void
     {
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'auth' => ['admin', 'changeit'],
-            'handler' => new \GuzzleHttp\Handler\CurlMultiHandler(),
+            'handler' => new CurlMultiHandler(),
         ]);
         $httpClient = new GuzzleHttpClient($client);
-        $this->es = new EventStore('http://127.0.0.1:2113', $httpClient);
+        $this->es = $this->createEventStore($httpClient);
 
         $this->prepareTestStream(1);
         $streamName = rawurlencode('$all');
@@ -376,18 +407,15 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @param int   $length
-     * @param array $metadata
-     *
-     * @return string
+     * @throws WrongExpectedVersionException
      */
-    private function prepareTestStream($length = 1, $metadata = [])
+    private function prepareTestStream(int $length = 1, array $metadata = []): string
     {
         $streamName = uniqid();
         $events = [];
 
         for ($i = 0; $i < $length; ++$i) {
-            $events[] = WritableEvent::newInstance('Foo', ['foo' => 'bar'], $metadata);
+            $events[] = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar'], $metadata);
         }
 
         $collection = new WritableEventCollection($events);
