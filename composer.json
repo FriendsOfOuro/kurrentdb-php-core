@@ -1,6 +1,6 @@
 {
   "name": "friendsofouro/geteventstore-core",
-  "description": "EventStore client for PHP (core)",
+  "description": "KurrentDB client for PHP (core)",
   "license": "MIT",
   "type": "library",
   "keywords": [
