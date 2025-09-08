@@ -2,6 +2,7 @@
 
 namespace EventStore\ValueObjects\StringLiteral;
 
+use Cassandra\Value;
 use EventStore\ValueObjects\Util\Util;
 use EventStore\ValueObjects\ValueObjectInterface;
 
@@ -30,13 +31,13 @@ abstract readonly class StringLiteral implements ValueObjectInterface
     /**
      * Tells whether two string literals are equal by comparing their values.
      */
-    public function sameValueAs(ValueObjectInterface $stringLiteral): bool
+    public function sameValueAs(ValueObjectInterface $object): bool
     {
-        if (false === Util::classEquals($this, $stringLiteral)) {
+        if (false === Util::classEquals($this, $object)) {
             return false;
         }
 
-        return $this->toNative() === $stringLiteral->toNative();
+        return $this->toNative() === $object->toNative();
     }
 
     /**

@@ -49,7 +49,6 @@ final readonly class UUID extends StringLiteral
     /**
      * Tells whether two UUID are equal by comparing their values.
      *
-     * @param UUID $uuid
      */
     #[\Override]
     public function sameValueAs(ValueObjectInterface $uuid): bool
