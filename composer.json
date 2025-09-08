@@ -26,7 +26,6 @@
   "require": {
     "php": "^8.3",
     "guzzlehttp/psr7": "^2.8",
-    "marc-mabe/php-enum": "^4.7",
     "php-http/httplug": "^2.4",
     "ramsey/uuid": "^4.9"
   },

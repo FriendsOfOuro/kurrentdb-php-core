@@ -75,7 +75,7 @@ class EventStoreTest extends TestCase
     public function stream_is_soft_deleted(): void
     {
         $streamName = $this->prepareTestStream();
-        $this->es->deleteStream($streamName, StreamDeletion::SOFT());
+        $this->es->deleteStream($streamName, StreamDeletion::SOFT);
 
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
@@ -93,7 +93,7 @@ class EventStoreTest extends TestCase
     public function stream_is_hard_deleted(): void
     {
         $streamName = $this->prepareTestStream();
-        $this->es->deleteStream($streamName, StreamDeletion::HARD());
+        $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
@@ -137,7 +137,7 @@ class EventStoreTest extends TestCase
     public function event_data_is_embedded_with_body_mode(): void
     {
         $streamName = $this->prepareTestStream();
-        $streamFeed = $this->es->openStreamFeed($streamName, EntryEmbedMode::BODY());
+        $streamFeed = $this->es->openStreamFeed($streamName, EntryEmbedMode::BODY);
 
         $json = $streamFeed->getJson();
 
@@ -156,7 +156,7 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(40);
 
         $head = $this->es->openStreamFeed($streamName);
-        $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT());
+        $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT);
 
         $this->assertInstanceOf(StreamFeed::class, $next);
         $this->assertCount(20, $next->getJson()['entries']);
@@ -289,7 +289,7 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(1);
 
         $head = $this->es->openStreamFeed($streamName);
-        $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT());
+        $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT);
 
         $this->assertNull($next);
     }
@@ -312,7 +312,7 @@ class EventStoreTest extends TestCase
     public function deleted_stream_should_throw_an_exception(): void
     {
         $streamName = $this->prepareTestStream();
-        $this->es->deleteStream($streamName, StreamDeletion::HARD());
+        $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
         $this->expectException(StreamDeletedException::class);
         $this->es->openStreamFeed($streamName);
@@ -343,7 +343,7 @@ class EventStoreTest extends TestCase
         $entries = $feed->getEntries();
         $eventUrl = $entries[0]->getEventUrl();
 
-        $this->es->deleteStream($streamName, StreamDeletion::HARD());
+        $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
         $this->expectException(StreamDeletedException::class);
         $this->es->readEvent($eventUrl);

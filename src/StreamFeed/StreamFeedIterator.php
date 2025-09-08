@@ -32,8 +32,8 @@ final class StreamFeedIterator implements \Iterator
         return new self(
             $eventStore,
             $streamName,
-            LinkRelation::LAST(),
-            LinkRelation::PREVIOUS(),
+            LinkRelation::LAST,
+            LinkRelation::PREVIOUS,
             'array_reverse'
         );
     }
@@ -45,8 +45,8 @@ final class StreamFeedIterator implements \Iterator
         return new self(
             $eventStore,
             $streamName,
-            LinkRelation::FIRST(),
-            LinkRelation::NEXT(),
+            LinkRelation::FIRST,
+            LinkRelation::NEXT,
             $identity,
         );
     }

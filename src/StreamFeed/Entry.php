@@ -15,7 +15,7 @@ final readonly class Entry
 
     public function getEventUrl(): ?string
     {
-        return $this->getLinkUrl(LinkRelation::ALTERNATE(), $this->credentials);
+        return $this->getLinkUrl(LinkRelation::ALTERNATE, $this->credentials);
     }
 
     public function getTitle()

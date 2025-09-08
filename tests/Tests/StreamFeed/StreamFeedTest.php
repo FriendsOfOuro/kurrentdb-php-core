@@ -29,10 +29,10 @@ class StreamFeedTest extends TestCase
     public static function modeProvider(): array
     {
         return [
-            [null, EntryEmbedMode::NONE()],
-            [$eem = EntryEmbedMode::NONE(), $eem],
-            [$eem = EntryEmbedMode::RICH(), $eem],
-            [$eem = EntryEmbedMode::BODY(), $eem],
+            [null, EntryEmbedMode::NONE],
+            [$eem = EntryEmbedMode::NONE, $eem],
+            [$eem = EntryEmbedMode::RICH, $eem],
+            [$eem = EntryEmbedMode::BODY, $eem],
         ];
     }
 
@@ -45,7 +45,7 @@ class StreamFeedTest extends TestCase
         $feed = new StreamFeed([
             'links' => [
                 [
-                    'relation' => (string) $relation,
+                    'relation' => $relation->value,
                     'uri' => $uri,
                 ],
             ],
@@ -66,7 +66,7 @@ class StreamFeedTest extends TestCase
             ],
         ]);
 
-        $this->assertTrue($feed->hasLink(LinkRelation::LAST()));
+        $this->assertTrue($feed->hasLink(LinkRelation::LAST));
     }
 
     #[Test]
@@ -81,7 +81,7 @@ class StreamFeedTest extends TestCase
             ],
         ]);
 
-        $this->assertFalse($feed->hasLink(LinkRelation::LAST()));
+        $this->assertFalse($feed->hasLink(LinkRelation::LAST));
     }
 
     #[Test]
@@ -96,14 +96,14 @@ class StreamFeedTest extends TestCase
             ],
         ]);
 
-        $this->assertNull($feed->getLinkUrl(LinkRelation::LAST()));
+        $this->assertNull($feed->getLinkUrl(LinkRelation::LAST));
     }
 
     public static function relationProvider(): array
     {
         return [
-            [LinkRelation::FIRST()],
-            [LinkRelation::LAST()],
+            [LinkRelation::FIRST],
+            [LinkRelation::LAST],
         ];
     }
 }

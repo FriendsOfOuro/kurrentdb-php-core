@@ -19,7 +19,7 @@ trait HasLinks
 
         $uri = null;
         foreach ($links as $link) {
-            if ($link['relation'] == $relation->toNative()) {
+            if ($link['relation'] === $relation->value) {
                 $uri = $link['uri'];
                 break;
             }

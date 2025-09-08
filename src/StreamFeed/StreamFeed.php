@@ -16,7 +16,7 @@ final readonly class StreamFeed
         ?EntryEmbedMode $embedMode = null,
         private array $credentials = ['user' => null, 'pass' => null],
     ) {
-        $this->entryEmbedMode = $embedMode ?? EntryEmbedMode::NONE();
+        $this->entryEmbedMode = $embedMode ?? EntryEmbedMode::NONE;
     }
 
     /**

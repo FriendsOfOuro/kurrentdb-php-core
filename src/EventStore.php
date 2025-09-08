@@ -62,7 +62,7 @@ final class EventStore implements EventStoreInterface
     {
         $request = new Request('DELETE', $this->getStreamUrl($streamName));
 
-        if (StreamDeletion::HARD == $mode) {
+        if (StreamDeletion::HARD === $mode) {
             $request = $request->withHeader('ES-HardDelete', 'true');
         }
 
@@ -250,11 +250,11 @@ final class EventStore implements EventStoreInterface
     {
         $request = $this->getJsonRequest($streamUrl);
 
-        if (null != $embedMode && $embedMode != EntryEmbedMode::NONE()) {
+        if (null !== $embedMode && $embedMode !== EntryEmbedMode::NONE) {
             $uri = Uri::withQueryValue(
                 $request->getUri(),
                 'embed',
-                $embedMode->toNative()
+                $embedMode->value
             );
 
             $request = $request->withUri($uri);
