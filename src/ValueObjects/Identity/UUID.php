@@ -14,16 +14,14 @@ class UUID extends StringLiteral
     protected $value;
 
     /**
-     * @return UUID
-     *
      * @throws InvalidNativeArgumentException
      */
-    public static function fromNative()
+    #[\Override]
+    public static function fromNative(): static
     {
         $uuid_str = \func_get_arg(0);
-        $uuid = new static($uuid_str);
 
-        return $uuid;
+        return new static($uuid_str);
     }
 
     /**
@@ -34,9 +32,8 @@ class UUID extends StringLiteral
     public static function generateAsString()
     {
         $uuid = new static();
-        $uuidString = $uuid->toNative();
 
-        return $uuidString;
+        return $uuid->toNative();
     }
 
     public function __construct($value = null)
@@ -64,6 +61,7 @@ class UUID extends StringLiteral
      *
      * @return bool
      */
+    #[\Override]
     public function sameValueAs(ValueObjectInterface $uuid)
     {
         if (false === Util::classEquals($this, $uuid)) {

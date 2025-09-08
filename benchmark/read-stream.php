@@ -7,13 +7,7 @@ use EventStore\Http\GuzzleHttpClient;
 use EventStore\WritableEvent;
 use EventStore\WritableEventCollection;
 
-/**
- * @param int   $length
- * @param array $metadata
- *
- * @return string
- */
-function prepare_test_stream(EventStore $es, $length = 1, $metadata = [])
+function prepare_test_stream(EventStore $es, int $length = 1, array $metadata = []): string
 {
     $streamName = uniqid();
     $events = [];
@@ -36,6 +30,7 @@ $start = microtime(true);
 
 $stream = $es->forwardStreamFeedIterator($streamName);
 foreach ($stream as $event) {
+    // do nothing on purpose
 }
 
 $end = microtime(true);
@@ -46,6 +41,7 @@ $start = microtime(true);
 
 $stream = $es->forwardStreamFeedIterator($streamName);
 foreach ($stream as $event) {
+    // do nothing on purpose
 }
 
 $end = microtime(true);

@@ -11,7 +11,9 @@ use EventStore\Http\GuzzleHttpClient;
 use EventStore\StreamDeletion;
 use EventStore\StreamFeed\Entry;
 use EventStore\StreamFeed\EntryEmbedMode;
+use EventStore\StreamFeed\Event;
 use EventStore\StreamFeed\LinkRelation;
+use EventStore\StreamFeed\StreamFeed;
 use EventStore\StreamFeed\StreamFeedIterator;
 use EventStore\ValueObjects\Identity\UUID;
 use EventStore\WritableEvent;
@@ -34,13 +36,13 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function client_successfully_connects_to_event_store()
+    public function client_successfully_connects_to_event_store(): void
     {
-        $this->assertMatchesRegularExpression('/^[2-3][0-9]{2}$/', (string) $this->es->getLastResponse()->getStatusCode());
+        $this->assertMatchesRegularExpression('/^[2-3]\d{2}$/', (string) $this->es->getLastResponse()->getStatusCode());
     }
 
     #[Test]
-    public function event_is_written_to_stream()
+    public function event_is_written_to_stream(): void
     {
         $this->prepareTestStream();
 
@@ -51,7 +53,7 @@ class EventStoreTest extends TestCase
      * @throws WrongExpectedVersionException
      */
     #[Test]
-    public function version_is_provided_after_writing_to_stream()
+    public function version_is_provided_after_writing_to_stream(): void
     {
         $streamName = $this->prepareTestStream();
         $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
@@ -61,7 +63,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function wrong_expected_version_should_throw_exception()
+    public function wrong_expected_version_should_throw_exception(): void
     {
         $streamName = $this->prepareTestStream();
         $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
@@ -74,7 +76,7 @@ class EventStoreTest extends TestCase
      * @throws WrongExpectedVersionException
      */
     #[Test]
-    public function stream_is_soft_deleted()
+    public function stream_is_soft_deleted(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::SOFT());
@@ -92,7 +94,7 @@ class EventStoreTest extends TestCase
      * @throws WrongExpectedVersionException
      */
     #[Test]
-    public function stream_is_hard_deleted()
+    public function stream_is_hard_deleted(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
@@ -111,7 +113,7 @@ class EventStoreTest extends TestCase
      * @throws StreamNotFoundException
      */
     #[Test]
-    public function stream_feed_is_successfully_opened()
+    public function stream_feed_is_successfully_opened(): void
     {
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName);
@@ -122,7 +124,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function unreacheable_event_store_throws_exception()
+    public function unreacheable_event_store_throws_exception(): void
     {
         $httpClient = new GuzzleHttpClient();
         $this->expectException(ConnectionFailedException::class);
@@ -134,59 +136,59 @@ class EventStoreTest extends TestCase
      * @throws StreamDeletedException
      */
     #[Test]
-    public function event_data_is_embedded_with_body_mode()
+    public function event_data_is_embedded_with_body_mode(): void
     {
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName, EntryEmbedMode::BODY());
 
         $json = $streamFeed->getJson();
 
-        $this->assertEquals(['foo_data_key' => 'bar'], json_decode($json['entries'][0]['data'], true));
+        $this->assertEquals(['foo_data_key' => 'bar'], json_decode((string) $json['entries'][0]['data'], true));
     }
 
     #[Test]
-    public function event_stream_feed_head_returns_next_link()
+    public function event_stream_feed_head_returns_next_link(): void
     {
         $streamName = $this->prepareTestStream(40);
 
         $head = $this->es->openStreamFeed($streamName);
         $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT());
 
-        $this->assertInstanceOf('EventStore\StreamFeed\StreamFeed', $next);
+        $this->assertInstanceOf(StreamFeed::class, $next);
         $this->assertCount(20, $next->getJson()['entries']);
     }
 
     #[Test]
-    public function event_stream_feed_returns_entries()
+    public function event_stream_feed_returns_entries(): void
     {
         $streamName = $this->prepareTestStream(40);
         $feed = $this->es->openStreamFeed($streamName);
         $entries = $feed->getEntries();
 
         $this->assertCount(20, $entries);
-        $this->assertContainsOnlyInstancesOf('EventStore\StreamFeed\Entry', $entries);
+        $this->assertContainsOnlyInstancesOf(Entry::class, $entries);
     }
 
     #[Test]
-    public function get_single_event_from_event_stream()
+    public function get_single_event_from_event_stream(): void
     {
         $streamName = $this->prepareTestStream(1);
         $feed = $this->es->openStreamFeed($streamName);
 
         /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
 
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
-        $this->assertSame(null, $event->getMetadata());
+        $this->assertInstanceOf(Event::class, $event);
+        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertNull($event->getMetadata());
     }
 
     #[Test]
-    public function get_single_event_with_provided_event_id()
+    public function get_single_event_with_provided_event_id(): void
     {
         $eventId = new UUID();
         $streamName = $this->prepareTestStream(1);
@@ -196,28 +198,26 @@ class EventStoreTest extends TestCase
 
         $feed = $this->es->openStreamFeed($streamName);
         /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
         $readEvent = $this->es->readEvent($eventUrl);
 
         if ('Linux-v3.0.5' === getenv('EVENT_STORE_VERSION')) {
             // EventId was introduced in version 3.1.0
-            $this->assertNull($readEvent->getEventId());
+            $this->assertNotInstanceOf(UUID::class, $readEvent->getEventId());
         } else {
             $this->assertEquals($eventId, $readEvent->getEventId());
         }
     }
 
     #[Test]
-    public function get_event_batch_from_event_stream()
+    public function get_event_batch_from_event_stream(): void
     {
         $streamName = $this->prepareTestStream(20);
         $feed = $this->es->openStreamFeed($streamName);
 
         $eventUrls = array_map(
-            function (Entry $entry) {
-                return $entry->getEventUrl();
-            },
+            fn (Entry $entry): ?string => $entry->getEventUrl(),
             $feed->getEntries()
         );
 
@@ -227,14 +227,14 @@ class EventStoreTest extends TestCase
         $i = 19;
         foreach ($events as $event) {
             $this->assertSame($i--, $event->getVersion());
-            $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-            $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
-            $this->assertSame(null, $event->getMetadata());
+            $this->assertInstanceOf(Event::class, $event);
+            $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+            $this->assertNull($event->getMetadata());
         }
     }
 
     #[Test]
-    public function get_single_event_with_metadata_from_event_stream()
+    public function get_single_event_with_metadata_from_event_stream(): void
     {
         $metadata = [
             'user' => 'akii',
@@ -243,20 +243,19 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(1, $metadata);
         $feed = $this->es->openStreamFeed($streamName);
 
-        /** @var Entry $entry */
-        list($entry) = $feed->getEntries();
+        [$entry] = $feed->getEntries();
         $eventUrl = $entry->getEventUrl();
 
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertInstanceOf('EventStore\StreamFeed\Event', $event);
-        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
-        $this->assertEquals($metadata, $event->getMetadata());
+        $this->assertInstanceOf(Event::class, $event);
+        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertSame($metadata, $event->getMetadata());
     }
 
     #[Test]
-    public function navigate_stream_using_missing_link_returns_null()
+    public function navigate_stream_using_missing_link_returns_null(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -267,14 +266,14 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function unexistent_stream_should_throw_not_found_exception()
+    public function unexistent_stream_should_throw_not_found_exception(): void
     {
         $this->expectException(StreamNotFoundException::class);
         $this->es->openStreamFeed('this-stream-does-not-exists');
     }
 
     #[Test]
-    public function deleted_stream_should_throw_an_exception()
+    public function deleted_stream_should_throw_an_exception(): void
     {
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
@@ -284,7 +283,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function unauthorized_streams_throw_unauthorized_exception()
+    public function unauthorized_streams_throw_unauthorized_exception(): never
     {
         // I wonder how this worked one day as no $et-Baz stream is ever created
         // For now it throws logically a StreamNotFoundException
@@ -295,7 +294,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function fetching_event_of_a_deleted_stream_throws_an_exception()
+    public function fetching_event_of_a_deleted_stream_throws_an_exception(): void
     {
         $streamName = $this->prepareTestStream(1);
         $feed = $this->es->openStreamFeed($streamName);
@@ -305,11 +304,11 @@ class EventStoreTest extends TestCase
         $this->es->deleteStream($streamName, StreamDeletion::HARD());
 
         $this->expectException(StreamDeletedException::class);
-        $event = $this->es->readEvent($eventUrl);
+        $this->es->readEvent($eventUrl);
     }
 
     #[Test]
-    public function it_can_create_a_forward_iterator()
+    public function it_can_create_a_forward_iterator(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -323,7 +322,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function it_can_create_a_backward_iterator()
+    public function it_can_create_a_backward_iterator(): void
     {
         $streamName = $this->prepareTestStream(1);
 
@@ -337,7 +336,7 @@ class EventStoreTest extends TestCase
     }
 
     #[Test]
-    public function it_can_process_the_all_stream_with_a_forward_iterator()
+    public function it_can_process_the_all_stream_with_a_forward_iterator(): void
     {
         $client = new \GuzzleHttp\Client([
             'auth' => ['admin', 'changeit'],
@@ -355,13 +354,7 @@ class EventStoreTest extends TestCase
         );
     }
 
-    /**
-     * @param int   $length
-     * @param array $metadata
-     *
-     * @return string
-     */
-    private function prepareTestStream($length = 1, $metadata = [])
+    private function prepareTestStream(int $length = 1, array $metadata = []): string
     {
         $streamName = uniqid();
         $events = [];

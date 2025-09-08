@@ -9,30 +9,13 @@ final class Entry
 {
     use HasLinks;
 
-    /**
-     * @var array
-     */
-    private $json;
-
-    /**
-     * @var array
-     */
-    private $credentials;
-
-    public function __construct(array $json, array $credentials)
+    public function __construct(private array $json, private array $credentials)
     {
-        $this->credentials = $credentials;
-        $this->json = $json;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getEventUrl()
+    public function getEventUrl(): ?string
     {
-        $alternate = $this->getLinkUrl(LinkRelation::ALTERNATE(), $this->credentials);
-
-        return $alternate;
+        return $this->getLinkUrl(LinkRelation::ALTERNATE(), $this->credentials);
     }
 
     public function getTitle()
@@ -40,10 +23,7 @@ final class Entry
         return $this->json['title'];
     }
 
-    /**
-     * @return array
-     */
-    protected function getLinks()
+    protected function getLinks(): array
     {
         return $this->json['links'];
     }

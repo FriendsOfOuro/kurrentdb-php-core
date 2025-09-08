@@ -9,7 +9,7 @@ use EventStore\ValueObjects\ValueObjectInterface;
 
 class StringLiteralTest extends TestCase
 {
-    public function test_from_native()
+    public function test_from_native(): void
     {
         $string = StringLiteral::fromNative('foo');
         $constructedString = new StringLiteral('foo');
@@ -17,13 +17,13 @@ class StringLiteralTest extends TestCase
         $this->assertTrue($string->sameValueAs($constructedString));
     }
 
-    public function test_to_native()
+    public function test_to_native(): void
     {
         $string = new StringLiteral('foo');
         $this->assertEquals('foo', $string->toNative());
     }
 
-    public function test_same_value_as()
+    public function test_same_value_as(): void
     {
         $foo1 = new StringLiteral('foo');
         $foo2 = new StringLiteral('foo');
@@ -37,22 +37,22 @@ class StringLiteralTest extends TestCase
         $this->assertFalse($foo1->sameValueAs($mock));
     }
 
-    public function test_invalid_native_argument()
+    public function test_invalid_native_argument(): void
     {
         $this->expectException(InvalidNativeArgumentException::class);
         new StringLiteral(12);
     }
 
-    public function test_is_empty()
+    public function test_is_empty(): void
     {
         $string = new StringLiteral('');
 
         $this->assertTrue($string->isEmpty());
     }
 
-    public function test_to_string()
+    public function test_to_string(): void
     {
         $foo = new StringLiteral('foo');
-        $this->assertEquals('foo', $foo->__toString());
+        $this->assertSame('foo', $foo->__toString());
     }
 }

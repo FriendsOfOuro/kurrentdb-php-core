@@ -17,13 +17,11 @@ use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PublicCacheStrategy;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
-final class GuzzleHttpClient implements HttpClientInterface
+final readonly class GuzzleHttpClient implements HttpClientInterface
 {
-    /**
-     * @var ClientInterface
-     */
-    private $client;
+    private ClientInterface $client;
 
     public function __construct(?ClientInterface $client = null)
     {
@@ -32,21 +30,21 @@ final class GuzzleHttpClient implements HttpClientInterface
         ]);
     }
 
-    public static function withFilesystemCache($path)
+    public static function withFilesystemCache($path): self
     {
         return self::withDoctrineCache(
             new FilesystemCache($path)
         );
     }
 
-    public static function withApcCache()
+    public static function withApcCache(): self
     {
         return self::withDoctrineCache(
             new ApcCache()
         );
     }
 
-    public static function withDoctrineCache(Cache $doctrineCache)
+    public static function withDoctrineCache(Cache $doctrineCache): self
     {
         $stack = new HandlerStack(new CurlMultiHandler());
 
@@ -84,7 +82,7 @@ final class GuzzleHttpClient implements HttpClientInterface
         return $responses;
     }
 
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
         try {
             return $this->client->send($request);

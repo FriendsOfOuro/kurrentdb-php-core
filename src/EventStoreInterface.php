@@ -63,8 +63,8 @@ interface EventStoreInterface
     /**
      * Open a stream feed for read and navigation.
      *
-     * @param string         $streamName The stream name
-     * @param EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
+     * @param string          $streamName The stream name
+     * @param ?EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
      *
      * @return StreamFeed
      */

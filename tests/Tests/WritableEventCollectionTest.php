@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 class WritableEventCollectionTest extends TestCase
 {
     #[Test]
-    public function event_collection_is_converted_to_stream_data()
+    public function event_collection_is_converted_to_stream_data(): void
     {
         $uuid1 = new UUID();
         $event1 = new WritableEvent($uuid1, 'Foo', ['bar']);
@@ -43,7 +43,7 @@ class WritableEventCollectionTest extends TestCase
     }
 
     #[Test]
-    public function invalid_collection_throws_exception()
+    public function invalid_collection_throws_exception(): void
     {
         $this->expectException(InvalidWritableEventObjectException::class);
         new WritableEventCollection(['foobar']);

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class WritableEventTest extends TestCase
 {
     #[Test]
-    public function event_is_converted_to_stream_data()
+    public function event_is_converted_to_stream_data(): void
     {
         $uuid = new UUID();
         $event = new WritableEvent($uuid, 'Foo', ['bar']);

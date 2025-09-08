@@ -12,12 +12,10 @@ class Util
      *
      * @param object $object_a
      * @param object $object_b
-     *
-     * @return bool
      */
-    public static function classEquals($object_a, $object_b)
+    public static function classEquals($object_a, $object_b): bool
     {
-        return \get_class($object_a) === \get_class($object_b);
+        return $object_a::class === $object_b::class;
     }
 
     /**
@@ -27,6 +25,6 @@ class Util
      */
     public static function getClassAsString($object)
     {
-        return \get_class($object);
+        return $object::class;
     }
 }

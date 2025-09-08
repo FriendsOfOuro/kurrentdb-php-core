@@ -9,14 +9,14 @@ use EventStore\ValueObjects\ValueObjectInterface;
 
 class UUIDTest extends TestCase
 {
-    public function test_generate_as_string()
+    public function test_generate_as_string(): void
     {
         $uuidString = UUID::generateAsString();
 
         $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuidString);
     }
 
-    public function test_from_native()
+    public function test_from_native(): void
     {
         $uuid1 = new UUID();
         $uuid2 = UUID::fromNative($uuid1->toNative());
@@ -24,7 +24,7 @@ class UUIDTest extends TestCase
         $this->assertTrue($uuid1->sameValueAs($uuid2));
     }
 
-    public function test_same_value_as()
+    public function test_same_value_as(): void
     {
         $uuid1 = new UUID();
         $uuid2 = clone $uuid1;
@@ -37,7 +37,7 @@ class UUIDTest extends TestCase
         $this->assertFalse($uuid1->sameValueAs($mock));
     }
 
-    public function test_invalid()
+    public function test_invalid(): void
     {
         $this->expectException(InvalidNativeArgumentException::class);
         new UUID('invalid');

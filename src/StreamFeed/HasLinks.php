@@ -7,17 +7,12 @@ namespace EventStore\StreamFeed;
  */
 trait HasLinks
 {
-    /**
-     * @return array
-     */
-    abstract protected function getLinks();
+    abstract protected function getLinks(): array;
 
-    /**
-     * @return string|null
-     */
-    public function getLinkUrl(LinkRelation $relation,
+    public function getLinkUrl(
+        LinkRelation $relation,
         array $credentials = ['user' => null, 'pass' => null],
-    ) {
+    ): ?string {
         $links = $this->getLinks();
 
         $uri = null;
@@ -32,18 +27,14 @@ trait HasLinks
             return $uri;
         }
 
-        $parts = parse_url($uri);
+        $parts = parse_url((string) $uri);
         $parts['user'] = $credentials['user'];
         $parts['pass'] = $credentials['pass'];
-        $uri = \unparse_url($parts);
 
-        return $uri;
+        return \unparse_url($parts);
     }
 
-    /**
-     * @return bool
-     */
-    public function hasLink(LinkRelation $relation)
+    public function hasLink(LinkRelation $relation): bool
     {
         return null !== $this->getLinkUrl($relation, $this->credentials);
     }

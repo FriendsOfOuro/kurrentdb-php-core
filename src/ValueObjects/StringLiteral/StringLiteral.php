@@ -12,10 +12,8 @@ class StringLiteral implements ValueObjectInterface
 
     /**
      * Returns a StringLiteral object given a PHP native string as parameter.
-     *
-     * @return StringLiteral
      */
-    public static function fromNative()
+    public static function fromNative(): static
     {
         $value = func_get_arg(0);
 
@@ -62,20 +60,16 @@ class StringLiteral implements ValueObjectInterface
 
     /**
      * Tells whether the StringLiteral is empty.
-     *
-     * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return 0 == \strlen($this->toNative());
     }
 
     /**
      * Returns the string value itself.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toNative();
     }
