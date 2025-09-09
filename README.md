@@ -244,51 +244,6 @@ Run with code coverage:
 make coverage
 ```
 
-## Configuration Examples
-
-### Docker Compose Setup
-
-```yaml
-version: '3.8'
-services:
-  kurrentdb:
-    image: ghcr.io/kurrentdb/kurrentdb:latest
-    ports:
-      - "2113:2113"
-    environment:
-      - EVENTSTORE_CLUSTER_SIZE=1
-      - EVENTSTORE_RUN_PROJECTIONS=All
-      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
-      - EVENTSTORE_HTTP_PORT=2113
-      - EVENTSTORE_INSECURE=true
-```
-
-### Production Configuration
-
-```php
-use KurrentDB\EventStore;
-use KurrentDB\Http\GuzzleHttpClient;
-use GuzzleHttp\Client;
-
-// Configure Guzzle with production settings
-$guzzle = new Client([
-    'timeout' => 10,
-    'connect_timeout' => 5,
-    'auth' => ['admin', 'your-secure-password'],
-    'headers' => [
-        'User-Agent' => 'MyApp/1.0'
-    ]
-]);
-
-// Use caching for better performance
-$httpClient = GuzzleHttpClient::withFilesystemCache(
-    '/var/cache/kurrentdb',
-    $guzzle
-);
-
-$eventStore = new EventStore('https://kurrentdb.example.com', $httpClient);
-```
-
 ## API Reference
 
 ### Main Classes
