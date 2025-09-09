@@ -41,6 +41,22 @@ For the complete package with additional integrations:
 composer require friendsofouro/kurrentdb
 ```
 
+### Local Development
+
+```bash
+git clone git@github.com:FriendsOfOuro/kurrentdb-php-core.git
+cd kurrentdb-php-core
+
+# Start the environment
+make up
+
+# Install dependencies
+make install
+
+# Run tests to verify setup
+make test
+```
+
 ## Quick Start
 
 ### Basic Setup
@@ -127,7 +143,7 @@ use KurrentDB\ExpectedVersion;
 $eventStore->writeToStream(
     'user-123', 
     $event, 
-    ExpectedVersion::exact(5) // Expects stream to be at version 5
+    5
 );
 
 // Special version expectations
@@ -194,7 +210,7 @@ use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\Exception\StreamDeletedException;
 
 try {
-    $eventStore->writeToStream('user-123', $event, ExpectedVersion::exact(10));
+    $eventStore->writeToStream('user-123', $event, 10);
 } catch (WrongExpectedVersionException $e) {
     // Handle version conflict
     echo "Version mismatch: " . $e->getMessage();
@@ -230,18 +246,55 @@ class MyCustomHttpClient implements HttpClientInterface
 $eventStore = new EventStore($url, new MyCustomHttpClient());
 ```
 
-## Testing
+## Development Setup
 
-Run the test suite:
+### Quick Start with Make
 
 ```bash
+# Start KurrentDB and build PHP container
+make up
+
+# Install dependencies
+make install
+
+# Run tests
 make test
+
+# Run tests with coverage
+make test-coverage
+
+# Check code style
+make cs-fixer-ci
+
+# Fix code style
+make cs-fixer
+
+# Run static analysis
+make phpstan
+
+# Run benchmarks
+make benchmark
+
+# View logs
+make logs
+
+# Stop containers
+make down
 ```
 
-Run with code coverage:
+## Testing
+
+The project uses PHPUnit for testing:
 
 ```bash
-make coverage
+# Run all tests
+make test
+
+# Run with coverage report
+make test-coverage
+
+# Run specific test file
+docker compose exec php bin/phpunit tests/Tests/EventStoreTest.php
 ```
 
 ## API Reference
@@ -266,9 +319,37 @@ make coverage
 - **`HttpClientInterface`** - HTTP client abstraction
 - **`WritableToStream`** - Objects that can be written to streams
 
+## Docker Environment
+
+The project includes a complete Docker setup with:
+
+- **KurrentDB** (latest) with projections enabled and health checks
+- **PHP container** with all required extensions and dependencies
+- Persistent volumes for KurrentDB data and logs
+- Automatic service dependency management
+
+The KurrentDB instance is configured with:
+- HTTP API on port 2113
+- Default credentials: `admin:changeit`
+- All projections enabled
+- AtomPub over HTTP enabled
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+Before submitting:
+
+```bash
+# Run tests
+make test
+
+# Check code style
+make cs-fixer-ci
+
+# Run static analysis
+make phpstan
+```
 
 ## License
 
