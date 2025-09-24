@@ -2,7 +2,7 @@
 
 namespace KurrentDB\StreamFeed;
 
-final readonly class StreamUrl
+final readonly class StreamUrl implements \Stringable
 {
     public static function fromBaseUrlAndName(string $baseUrl, string $name): self
     {

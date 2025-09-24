@@ -131,7 +131,7 @@ final class StreamFeedIterator implements \Iterator
             array_filter(
                 array_map(
                     function (?Entry $entry, ?Event $event): ?EntryWithEvent {
-                        if (null === $entry || null === $event) {
+                        if (!$entry instanceof Entry || !$event instanceof Event) {
                             return null;
                         }
 
