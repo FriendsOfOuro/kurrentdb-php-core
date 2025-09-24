@@ -53,9 +53,9 @@ class EventStoreTest extends TestCase
     {
         $streamName = $this->prepareTestStream();
         $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
-        $version = $this->es->writeToStream($streamName, $event);
+        $result = $this->es->writeToStream($streamName, $event);
 
-        $this->assertSame(1, $version);
+        $this->assertSame(1, $result->version);
     }
 
     /**

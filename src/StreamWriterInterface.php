@@ -18,8 +18,9 @@ interface StreamWriterInterface
      * @param array            $additionalHeaders Additional HTTP headers
      *
      * @throws Exception\WrongExpectedVersionException
+     * @throws Exception\NoExtractableEventVersionException
      */
-    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int;
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult;
 
     /**
      * Delete a stream.

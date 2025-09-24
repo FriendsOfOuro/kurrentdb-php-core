@@ -173,7 +173,7 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int
+    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
     {
         if ($events instanceof WritableEvent) {
             $events = new WritableEventCollection([$events]);
@@ -221,11 +221,9 @@ final class EventStore implements EventStoreInterface
                 throw new ConnectionFailedException(\sprintf('Server error while writing to stream %s: HTTP %d', $streamUrl, $responseStatusCode));
         }
 
-        try {
-            return $this->extractStreamVersionFromLastResponse($streamUrl);
-        } catch (NoExtractableEventVersionException) {
-            return false;
-        }
+        $version = $this->extractStreamVersionFromLastResponse($streamUrl);
+
+        return new StreamWriteResult($version);
     }
 
     public function forwardStreamFeedIterator(string $streamName, int $pageLimit = PHP_INT_MAX): StreamFeedIterator

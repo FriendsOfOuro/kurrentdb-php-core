@@ -6,6 +6,7 @@ namespace KurrentDB\Tests;
 
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
@@ -16,7 +17,7 @@ use KurrentDB\WritableEventCollection;
 use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -26,7 +27,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
     /**
      * @throws WrongExpectedVersionException
      * @throws ConnectionFailedException
-     * @throws Exception
+     * @throws MockException
      */
     #[Test]
     #[DataProvider('httpErrorCodesProvider')]
@@ -71,10 +72,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
 
         if (null === $expectedExceptionClass) {
             if (201 === $statusCode) {
-                $this->assertIsInt($result, 'Expected integer version for HTTP 201 with Location header');
-                $this->assertEquals(0, $result);
-            } else {
-                $this->assertFalse($result, 'Expected false for successful write without extractable version');
+                $this->assertEquals(0, $result->version);
             }
         }
     }
@@ -150,8 +148,12 @@ class WriteToStreamErrorHandlingTest extends TestCase
         ];
     }
 
+    /**
+     * @throws WrongExpectedVersionException
+     * @throws MockException
+     */
     #[Test]
-    public function write_to_stream_with_successful_response_but_no_location_header_returns_false(): void
+    public function write_to_stream_with_successful_response_but_no_location_header_throws_exception(): void
     {
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
 
@@ -175,13 +177,16 @@ class WriteToStreamErrorHandlingTest extends TestCase
             ['test' => 'data']
         );
 
-        $result = $eventStore->writeToStream('test-stream', $event);
-
-        $this->assertFalse($result);
+        $this->expectException(NoExtractableEventVersionException::class);
+        $eventStore->writeToStream('test-stream', $event);
     }
 
+    /**
+     * @throws WrongExpectedVersionException
+     * @throws MockException
+     */
     #[Test]
-    public function write_to_stream_with_malformed_location_header_returns_false(): void
+    public function write_to_stream_with_malformed_location_header_throws_exception(): void
     {
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
 
@@ -205,8 +210,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
             ['test' => 'data']
         );
 
-        $result = $eventStore->writeToStream('test-stream', $event);
-
-        $this->assertFalse($result);
+        $this->expectException(NoExtractableEventVersionException::class);
+        $eventStore->writeToStream('test-stream', $event);
     }
 }
