@@ -64,9 +64,9 @@ interface EventStoreInterface
      */
     public function openStreamFeed(string $streamName, EntryEmbedMode $embedMode = EntryEmbedMode::NONE): StreamFeed;
 
-    public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator;
+    public function forwardStreamFeedIterator(string $streamName, int $pageLimit = PHP_INT_MAX): StreamFeedIterator;
 
-    public function backwardStreamFeedIterator(string $streamName): StreamFeedIterator;
+    public function backwardStreamFeedIterator(string $streamName, int $pageLimit = PHP_INT_MAX): StreamFeedIterator;
 
     /**
      * Reads a batch of events.
