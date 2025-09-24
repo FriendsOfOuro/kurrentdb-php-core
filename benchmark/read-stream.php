@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__.'/../vendor/autoload.php';
 
+use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Http\GuzzleHttpClient;
 use KurrentDB\WritableEvent;
@@ -25,7 +26,8 @@ function prepare_test_stream(EventStore $es, int $length = 1, array $metadata = 
 }
 
 $url = getenv('EVENTSTORE_URI') ?: 'http://127.0.0.1:2113';
-$es = new EventStore($url, GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
+$httpFactory = new HttpFactory();
+$es = new EventStore($url, $httpFactory, $httpFactory, GuzzleHttpClient::withFilesystemCache('/tmp/es-client'));
 
 $streamName = prepare_test_stream($es, $count = 1000);
 

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests;
 
+use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Http\GuzzleHttpClient;
 use KurrentDB\Http\HttpClientInterface;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\UriFactoryInterface;
 
 class TestCase extends BaseTestCase
 {
@@ -19,16 +22,19 @@ class TestCase extends BaseTestCase
      */
     protected function setUp(): void
     {
-        $this->es = $this->createEventStore(new GuzzleHttpClient());
+        $this->es = $this->createEventStore(
+            new HttpFactory(),
+            new GuzzleHttpClient()
+        );
     }
 
     /**
      * @throws ConnectionFailedException
      */
-    protected function createEventStore(HttpClientInterface $httpClient): EventStore
+    protected function createEventStore(RequestFactoryInterface&UriFactoryInterface $factory, HttpClientInterface $httpClient): EventStore
     {
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
 
-        return new EventStore($uri, $httpClient);
+        return new EventStore($uri, $factory, $factory, $httpClient);
     }
 }

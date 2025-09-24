@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB;
 
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Uri;
-use Http\Client\Exception\HttpException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
@@ -24,8 +20,12 @@ use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamFeed\StreamUrl;
 use KurrentDB\ValueObjects\Identity\UUID;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\NetworkExceptionInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriFactoryInterface;
 
 /**
  * Class EventStore.
@@ -43,8 +43,12 @@ final class EventStore implements EventStoreInterface
      *
      * @throws ConnectionFailedException
      */
-    public function __construct(private readonly string $url, private readonly HttpClientInterface $httpClient)
-    {
+    public function __construct(
+        private readonly string $url,
+        private readonly UriFactoryInterface $uriFactory,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly HttpClientInterface $httpClient,
+    ) {
         $urlParts = parse_url($url);
         if (!is_array($urlParts)) {
             throw new \InvalidArgumentException(\sprintf('URL %s is not valid', $url));
@@ -75,7 +79,7 @@ final class EventStore implements EventStoreInterface
      */
     public function deleteStream(string $streamName, StreamDeletion $mode): void
     {
-        $request = new Request('DELETE', $this->getStreamUrl($streamName));
+        $request = $this->requestFactory->createRequest('DELETE', $this->getStreamUrl($streamName));
 
         if (StreamDeletion::HARD === $mode) {
             $request = $request->withHeader('ES-HardDelete', 'true');
@@ -152,7 +156,7 @@ final class EventStore implements EventStoreInterface
     public function readEventBatch(array $eventUrls): array
     {
         $requests = array_map(
-            fn ($eventUrl): Request => $this->getJsonRequest($eventUrl),
+            fn ($eventUrl): RequestInterface => $this->getJsonRequest($eventUrl),
             $eventUrls
         );
 
@@ -180,20 +184,16 @@ final class EventStore implements EventStoreInterface
         }
 
         $streamUrl = $this->getStreamUrl($streamName);
-        $headers = [
-            'ES-ExpectedVersion' => $expectedVersion,
-            'Content-Type' => 'application/vnd.kurrent.events+json',
-            'Content-Length' => 0,
-        ];
+        $request = $this->requestFactory->createRequest('POST', $streamUrl)
+            ->withHeader('ES-ExpectedVersion', (string) $expectedVersion)
+            ->withHeader('Content-Type', 'application/vnd.kurrent.events+json')
+            ->withHeader('Content-Length', '0')
+        ;
 
-        $headers = $additionalHeaders + $headers;
-        $request = new Request(
-            'POST',
-            $streamUrl,
-            $headers,
-            json_encode($events->toStreamData())
-        );
-
+        foreach ($additionalHeaders as $name => $value) {
+            $request = $request->withHeader($name, (string) $value);
+        }
+        $request->getBody()->write(json_encode($events->toStreamData()));
         $this->sendRequest($request);
 
         $responseStatusCode = $this->getLastResponse()->getStatusCode();
@@ -238,9 +238,9 @@ final class EventStore implements EventStoreInterface
     private function checkConnection(): void
     {
         try {
-            $request = new Request('GET', $this->url);
+            $request = $this->requestFactory->createRequest('GET', $this->url);
             $this->sendRequest($request);
-        } catch (ConnectException $e) {
+        } catch (NetworkExceptionInterface $e) {
             throw new ConnectionFailedException($e->getMessage());
         }
     }
@@ -269,13 +269,13 @@ final class EventStore implements EventStoreInterface
         $request = $this->getJsonRequest($streamUrl);
 
         if (EntryEmbedMode::NONE !== $embedMode) {
-            $uri = Uri::withQueryValue(
-                $request->getUri(),
+            $uriString = with_query_value(
+                (string) $request->getUri(),
                 'embed',
                 $embedMode->value
             );
 
-            $request = $request->withUri($uri);
+            $request = $request->withUri($this->uriFactory->createUri($uriString));
         }
 
         $this->sendRequest($request);
@@ -292,23 +292,29 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    private function getJsonRequest(string $uri): Request
+    private function getJsonRequest(string $uri): RequestInterface
     {
-        return new Request(
-            'GET',
-            $uri,
-            [
-                'Accept' => 'application/vnd.kurrent.atom+json',
-            ]
-        );
+        return $this
+            ->requestFactory
+            ->createRequest(
+                'GET',
+                $uri,
+            )
+            ->withHeader('Accept', 'application/vnd.kurrent.atom+json')
+        ;
     }
 
     private function sendRequest(RequestInterface $request): void
     {
         try {
             $this->lastResponse = $this->httpClient->sendRequest($request);
-        } catch (HttpException $e) {
-            $this->lastResponse = $e->getResponse();
+        } catch (\Exception|ClientExceptionInterface $e) {
+            if (method_exists($e, 'getResponse')) {
+                /* @psalm-suppress PossiblyNullArgument */
+                $this->lastResponse = $e->getResponse();
+            } else {
+                throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
+            }
         }
     }
 

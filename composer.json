@@ -25,8 +25,9 @@
   ],
   "require": {
     "php": "^8.4",
-    "guzzlehttp/psr7": "^2.8",
-    "php-http/httplug": "^2.4",
+    "psr/http-client-implementation": "*",
+    "psr/http-factory-implementation": "*",
+    "psr/http-message-implementation": "*",
     "ramsey/uuid": "^4.9"
   },
   "require-dev": {
