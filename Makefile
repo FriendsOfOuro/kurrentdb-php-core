@@ -36,6 +36,10 @@ test:
 phpstan:
 	$(PHP) bin/phpstan analyse -v
 
+.PHONY: rector
+rector:
+	$(PHP) bin/rector process
+
 .PHONY: benchmark
 benchmark:
 	$(PHP) php benchmark/read-stream.php
