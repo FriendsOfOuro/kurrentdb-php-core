@@ -19,28 +19,33 @@ final class StreamFeedIterator implements \Iterator
 
     private bool $rewinded = false;
 
+    private int $pagesLeft;
+
     private function __construct(
         private readonly EventStoreInterface $eventStore,
         private readonly string $streamName,
         private readonly LinkRelation $startingRelation,
         private readonly LinkRelation $navigationRelation,
         callable $arraySortingFunction,
+        int $pageLimit = PHP_INT_MAX,
     ) {
         $this->arraySortingFunction = $arraySortingFunction(...);
+        $this->pagesLeft = $pageLimit - 1; // Reserve one for initial page
     }
 
-    public static function forward(EventStoreInterface $eventStore, $streamName): self
+    public static function forward(EventStoreInterface $eventStore, string $streamName, int $pageLimit = PHP_INT_MAX): self
     {
         return new self(
             $eventStore,
             $streamName,
             LinkRelation::LAST,
             LinkRelation::PREVIOUS,
-            'array_reverse'
+            'array_reverse',
+            $pageLimit
         );
     }
 
-    public static function backward(EventStoreInterface $eventStore, $streamName): self
+    public static function backward(EventStoreInterface $eventStore, string $streamName, int $pageLimit = PHP_INT_MAX): self
     {
         static $identity = fn (array $a): array => $a;
 
@@ -50,6 +55,7 @@ final class StreamFeedIterator implements \Iterator
             LinkRelation::FIRST,
             LinkRelation::NEXT,
             $identity,
+            $pageLimit
         );
     }
 
@@ -63,7 +69,7 @@ final class StreamFeedIterator implements \Iterator
         $this->rewinded = false;
         $this->innerIterator->next();
 
-        if (!$this->innerIterator->valid()) {
+        if (!$this->innerIterator->valid() && $this->pagesLeft > 0) {
             $this->feed = $this
                 ->eventStore
                 ->navigateStreamFeed(
@@ -72,7 +78,10 @@ final class StreamFeedIterator implements \Iterator
                 )
             ;
 
-            $this->createInnerIterator();
+            if ($this->feed instanceof StreamFeed) {
+                --$this->pagesLeft;
+                $this->createInnerIterator();
+            }
         }
     }
 
@@ -84,6 +93,15 @@ final class StreamFeedIterator implements \Iterator
     public function valid(): bool
     {
         return $this->innerIterator->valid();
+    }
+
+    public function nextUrl(): ?string
+    {
+        if (!$this->feed instanceof StreamFeed) {
+            return null;
+        }
+
+        return $this->feed->getLinkUrl($this->navigationRelation);
     }
 
     public function rewind(): void
