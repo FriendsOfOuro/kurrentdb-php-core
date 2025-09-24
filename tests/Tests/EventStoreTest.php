@@ -6,6 +6,7 @@ namespace KurrentDB\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlMultiHandler;
+use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamDeletedException;
@@ -126,7 +127,7 @@ class EventStoreTest extends TestCase
     {
         $httpClient = new GuzzleHttpClient();
         $this->expectException(ConnectionFailedException::class);
-        new EventStore('http://127.0.0.1:12345/', $httpClient);
+        new EventStore('http://127.0.0.1:12345/', $f = new HttpFactory(), $f, $httpClient);
     }
 
     /**
@@ -396,7 +397,7 @@ class EventStoreTest extends TestCase
             'handler' => new CurlMultiHandler(),
         ]);
         $httpClient = new GuzzleHttpClient($client);
-        $this->es = $this->createEventStore($httpClient);
+        $this->es = $this->createEventStore(new HttpFactory(), $httpClient);
 
         $this->prepareTestStream(1);
         $streamName = rawurlencode('$all');
