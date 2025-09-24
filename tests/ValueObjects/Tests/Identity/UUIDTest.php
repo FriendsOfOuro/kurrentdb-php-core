@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB\ValueObjects\Tests\Identity;
 
 use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;

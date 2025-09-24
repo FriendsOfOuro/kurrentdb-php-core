@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB;
 
 use KurrentDB\Exception\ConnectionFailedException;
@@ -371,6 +373,6 @@ final class EventStore implements EventStoreInterface
 
     private function lastResponseAsJson(): array
     {
-        return json_decode($this->lastResponse->getBody(), true);
+        return json_decode((string) $this->lastResponse->getBody(), true);
     }
 }
