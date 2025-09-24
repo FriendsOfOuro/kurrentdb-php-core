@@ -105,7 +105,7 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed
+    public function openStreamFeed(string $streamName, EntryEmbedMode $embedMode = EntryEmbedMode::NONE): StreamFeed
     {
         $url = $this->getStreamUrl($streamName);
 
@@ -247,11 +247,11 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    private function readStreamFeed(string $streamUrl, ?EntryEmbedMode $embedMode = null): StreamFeed
+    private function readStreamFeed(string $streamUrl, EntryEmbedMode $embedMode): StreamFeed
     {
         $request = $this->getJsonRequest($streamUrl);
 
-        if (null !== $embedMode && EntryEmbedMode::NONE !== $embedMode) {
+        if (EntryEmbedMode::NONE !== $embedMode) {
             $uri = Uri::withQueryValue(
                 $request->getUri(),
                 'embed',

@@ -57,10 +57,10 @@ interface EventStoreInterface
     /**
      * Open a stream feed for read and navigation.
      *
-     * @param string          $streamName The stream name
-     * @param ?EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
+     * @param string         $streamName The stream name
+     * @param EntryEmbedMode $embedMode  The event entries embed mode (none, rich or body)
      */
-    public function openStreamFeed(string $streamName, ?EntryEmbedMode $embedMode = null): StreamFeed;
+    public function openStreamFeed(string $streamName, EntryEmbedMode $embedMode = EntryEmbedMode::NONE): StreamFeed;
 
     public function forwardStreamFeedIterator(string $streamName): StreamFeedIterator;
 
