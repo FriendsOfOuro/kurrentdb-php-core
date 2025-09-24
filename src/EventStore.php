@@ -184,7 +184,9 @@ final class EventStore implements EventStoreInterface
         }
 
         $streamUrl = $this->getStreamUrl($streamName);
-        $request = $this->requestFactory->createRequest('POST', $streamUrl)
+        $request = $this
+            ->requestFactory
+            ->createRequest('POST', $streamUrl)
             ->withHeader('ES-ExpectedVersion', (string) $expectedVersion)
             ->withHeader('Content-Type', 'application/vnd.kurrent.events+json')
         ;
