@@ -173,17 +173,6 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    private function createEventFromResponseContent(array $content): Event
-    {
-        $type = $content['eventType'];
-        $version = (int) $content['eventNumber'];
-        $data = $content['data'];
-        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
-        $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
-
-        return new Event($type, $version, $data, $metadata, $eventId);
-    }
-
     public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): false|int
     {
         if ($events instanceof WritableEvent) {
@@ -374,5 +363,16 @@ final class EventStore implements EventStoreInterface
     private function lastResponseAsJson(): array
     {
         return json_decode((string) $this->lastResponse->getBody(), true);
+    }
+
+    private function createEventFromResponseContent(array $content): Event
+    {
+        $type = $content['eventType'];
+        $version = (int) $content['eventNumber'];
+        $data = $content['data'];
+        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
+        $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
+
+        return new Event($type, $version, $data, $metadata, $eventId);
     }
 }
