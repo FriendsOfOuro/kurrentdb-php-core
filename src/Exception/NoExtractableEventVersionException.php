@@ -6,6 +6,6 @@ namespace KurrentDB\Exception;
  * Class NoExtractableEventVersionException.
  * Thrown when no event version can be extract from event post response.
  */
-class NoExtractableEventVersionException extends \Exception
+final class NoExtractableEventVersionException extends \RuntimeException
 {
 }

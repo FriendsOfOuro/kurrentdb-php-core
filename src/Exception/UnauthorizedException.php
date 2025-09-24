@@ -5,6 +5,6 @@ namespace KurrentDB\Exception;
 /**
  * Class UnauthorizedException.
  */
-class UnauthorizedException extends \Exception
+final class UnauthorizedException extends NetworkException
 {
 }

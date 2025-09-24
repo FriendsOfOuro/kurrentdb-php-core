@@ -5,6 +5,6 @@ namespace KurrentDB\Exception;
 /**
  * Class ConnectionFailedException.
  */
-final class ConnectionFailedException extends \Exception
+final class ConnectionFailedException extends NetworkException
 {
 }

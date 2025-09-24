@@ -5,6 +5,6 @@ namespace KurrentDB\Exception;
 /**
  * Class StreamNotFoundException.
  */
-class StreamNotFoundException extends \Exception
+final class StreamNotFoundException extends StreamException
 {
 }
