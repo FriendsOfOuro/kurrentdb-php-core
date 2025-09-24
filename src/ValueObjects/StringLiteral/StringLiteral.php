@@ -13,14 +13,14 @@ abstract readonly class StringLiteral implements ValueObjectInterface
     /**
      * Returns a StringLiteral object given a PHP native string as parameter.
      */
-    abstract public static function fromNative(string $value): static;
+    public function __construct(protected string $value)
+    {
+    }
 
     /**
      * Returns a StringLiteral object given a PHP native string as parameter.
      */
-    public function __construct(protected string $value)
-    {
-    }
+    abstract public static function fromNative(string $value): static;
 
     /**
      * Returns the value of the string.

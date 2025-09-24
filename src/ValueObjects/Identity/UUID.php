@@ -12,24 +12,6 @@ use Ramsey\Uuid\Uuid as BaseUuid;
 
 final readonly class UUID extends StringLiteral
 {
-    /**
-     * @throws InvalidNativeArgumentException
-     */
-    public static function fromNative(string $uuid): static
-    {
-        return new self($uuid);
-    }
-
-    /**
-     * Generate a new UUID string.
-     */
-    public static function generateAsString(): string
-    {
-        $uuid = new self();
-
-        return $uuid->toNative();
-    }
-
     public function __construct(?string $value = null)
     {
         $uuid_str = BaseUuid::uuid4();
@@ -46,6 +28,24 @@ final readonly class UUID extends StringLiteral
 
         $value = \strval($uuid_str);
         parent::__construct($value);
+    }
+
+    /**
+     * @throws InvalidNativeArgumentException
+     */
+    public static function fromNative(string $uuid): static
+    {
+        return new self($uuid);
+    }
+
+    /**
+     * Generate a new UUID string.
+     */
+    public static function generateAsString(): string
+    {
+        $uuid = new self();
+
+        return $uuid->toNative();
     }
 
     /**
