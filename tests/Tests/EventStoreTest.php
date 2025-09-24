@@ -5,6 +5,7 @@ namespace KurrentDB\Tests;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamDeletedException;
+use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
@@ -98,10 +99,8 @@ class EventStoreTest extends TestCase
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
         // we try to write to a hard deleted stream...
+        $this->expectException(StreamGoneException::class);
         $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['bar']));
-
-        // ..and we should expect a "410 Stream deleted" response
-        $this->assertEquals('410', $this->es->getLastResponse()->getStatusCode());
     }
 
     /**

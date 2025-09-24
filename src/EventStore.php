@@ -5,6 +5,7 @@ namespace KurrentDB;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
+use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
@@ -194,8 +195,27 @@ final class EventStore implements EventStoreInterface
 
         $responseStatusCode = $this->getLastResponse()->getStatusCode();
 
-        if (ResponseCode::HTTP_BAD_REQUEST == $responseStatusCode) {
-            throw new WrongExpectedVersionException();
+        // Handle various HTTP error codes
+        switch ($responseStatusCode) {
+            case ResponseCode::HTTP_BAD_REQUEST:
+            case ResponseCode::HTTP_CONFLICT:
+                throw new WrongExpectedVersionException();
+
+            case ResponseCode::HTTP_UNAUTHORIZED:
+                throw new UnauthorizedException(sprintf('Unauthorized access to stream %s', $streamUrl));
+
+            case ResponseCode::HTTP_NOT_FOUND:
+                throw new StreamNotFoundException(sprintf('Stream %s not found', $streamUrl));
+
+            case ResponseCode::HTTP_GONE:
+                throw new StreamGoneException(sprintf('Stream %s has been permanently deleted', $streamUrl));
+
+            case ResponseCode::HTTP_INTERNAL_SERVER_ERROR:
+            case ResponseCode::HTTP_BAD_GATEWAY:
+            case ResponseCode::HTTP_SERVICE_UNAVAILABLE:
+            case ResponseCode::HTTP_GATEWAY_TIMEOUT:
+            case ResponseCode::HTTP_TOO_MANY_REQUESTS:
+                throw new ConnectionFailedException(sprintf('Server error while writing to stream %s: HTTP %d', $streamUrl, $responseStatusCode));
         }
 
         try {
