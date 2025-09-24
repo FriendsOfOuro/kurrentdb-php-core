@@ -5,6 +5,6 @@ namespace KurrentDB\Exception;
 /**
  * Class StreamDeletedException.
  */
-class StreamDeletedException extends \Exception
+final class StreamDeletedException extends StreamException
 {
 }

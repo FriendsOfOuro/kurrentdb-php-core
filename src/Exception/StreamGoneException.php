@@ -2,6 +2,6 @@
 
 namespace KurrentDB\Exception;
 
-class StreamGoneException extends \Exception
+final class StreamGoneException extends StreamException
 {
 }

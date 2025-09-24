@@ -5,6 +5,6 @@ namespace KurrentDB\Exception;
 /**
  * Class WrongExpectedVersionException.
  */
-class WrongExpectedVersionException extends \Exception
+final class WrongExpectedVersionException extends WriteException
 {
 }
