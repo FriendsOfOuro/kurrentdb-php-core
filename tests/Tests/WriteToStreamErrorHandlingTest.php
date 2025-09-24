@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests;
 
+use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
@@ -12,7 +13,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\HttpClientInterface;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
@@ -37,7 +37,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         ?string $expectedExceptionClass,
         string $description,
     ): void {
-        $mockHttpClient = $this->createMock(HttpClientInterface::class);
+        $mockHttpClient = $this->createMock(ClientInterface::class);
 
         $mockResponse = $this->createMock(ResponseInterface::class);
         $mockResponse->method('getStatusCode')->willReturn($statusCode);
@@ -158,7 +158,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
     #[Test]
     public function write_to_stream_with_successful_response_but_no_location_header_throws_exception(): void
     {
-        $mockHttpClient = $this->createMock(HttpClientInterface::class);
+        $mockHttpClient = $this->createMock(ClientInterface::class);
 
         $mockResponse = $this->createMock(ResponseInterface::class);
         $mockResponse->method('getStatusCode')->willReturn(201);
@@ -193,7 +193,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
     #[Test]
     public function write_to_stream_with_malformed_location_header_throws_exception(): void
     {
-        $mockHttpClient = $this->createMock(HttpClientInterface::class);
+        $mockHttpClient = $this->createMock(ClientInterface::class);
 
         $mockResponse = $this->createMock(ResponseInterface::class);
         $mockResponse->method('getStatusCode')->willReturn(201);

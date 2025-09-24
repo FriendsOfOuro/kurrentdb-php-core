@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27545fd75dcaecc0b1aa55b5c9b677d7",
+    "content-hash": "c9f0da1c8ac7637cfdebac129267b366",
     "packages": [
         {
             "name": "brick/math",
@@ -65,6 +65,45 @@
                 }
             ],
             "time": "2025-08-29T12:40:03+00:00"
+        },
+        {
+            "name": "friendsofouro/http-batch-contract",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FriendsOfOuro/http-batch-contract.git",
+                "reference": "831832c21165fa88244c19485bff037cb971e8ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FriendsOfOuro/http-batch-contract/zipball/831832c21165fa88244c19485bff037cb971e8ca",
+                "reference": "831832c21165fa88244c19485bff037cb971e8ca",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.4",
+                "psr/http-client": "^1.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.48",
+                "friendsofphp/php-cs-fixer": "^3.88"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FriendsOfOuro\\Http\\Batch\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Contract for a batch of HTTP Requests",
+            "support": {
+                "issues": "https://github.com/FriendsOfOuro/http-batch-contract/issues",
+                "source": "https://github.com/FriendsOfOuro/http-batch-contract/tree/v1.0.0"
+            },
+            "time": "2025-09-24T22:16:17+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

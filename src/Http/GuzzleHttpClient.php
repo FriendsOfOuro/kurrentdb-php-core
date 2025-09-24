@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KurrentDB\Http;
 
 use Exception as PhpException;
+use FriendsOfOuro\Http\Batch\ClientInterface as BatchClientInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException as GuzzleClientException;
@@ -21,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
-final readonly class GuzzleHttpClient implements HttpClientInterface
+final readonly class GuzzleHttpClient implements BatchClientInterface
 {
     private ClientInterface $client;
 

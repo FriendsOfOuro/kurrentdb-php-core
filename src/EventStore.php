@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB;
 
+use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
@@ -11,7 +12,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\HttpClientInterface;
 use KurrentDB\Http\ResponseCode;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
@@ -47,7 +47,7 @@ final class EventStore implements EventStoreInterface
         private readonly string $url,
         private readonly UriFactoryInterface $uriFactory,
         private readonly RequestFactoryInterface $requestFactory,
-        private readonly HttpClientInterface $httpClient,
+        private readonly ClientInterface $httpClient,
     ) {
         $urlParts = parse_url($url);
         if (!is_array($urlParts)) {
