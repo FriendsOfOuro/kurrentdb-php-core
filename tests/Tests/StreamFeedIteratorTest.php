@@ -74,12 +74,14 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed1);
+            ->willReturn($streamFeed1)
+        ;
 
         $this->eventStore
             ->expects($this->exactly(1))
             ->method('navigateStreamFeed')
-            ->willReturn($streamFeed2);
+            ->willReturn($streamFeed2)
+        ;
 
         $this->eventStore
             ->expects($this->exactly(2))
@@ -87,7 +89,8 @@ class StreamFeedIteratorTest extends TestCase
             ->willReturn([
                 $this->createEvent('event1', 0),
                 $this->createEvent('event2', 1),
-            ]);
+            ])
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName, $pageLimit);
 
@@ -120,17 +123,20 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed);
+            ->willReturn($streamFeed)
+        ;
 
         $this->eventStore
             ->expects($this->once())
             ->method('navigateStreamFeed')
-            ->willReturn(null);
+            ->willReturn(null)
+        ;
 
         $this->eventStore
             ->expects($this->once())
             ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)]);
+            ->willReturn([$this->createEvent('event1', 0)])
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
 
@@ -160,12 +166,14 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed);
+            ->willReturn($streamFeed)
+        ;
 
         $this->eventStore
             ->expects($this->once())
             ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)]);
+            ->willReturn([$this->createEvent('event1', 0)])
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
         $iterator->rewind();
@@ -200,7 +208,8 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed);
+            ->willReturn($streamFeed)
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
 
@@ -228,12 +237,14 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed);
+            ->willReturn($streamFeed)
+        ;
 
         $this->eventStore
             ->expects($this->once())
             ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)]);
+            ->willReturn([$this->createEvent('event1', 0)])
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
         $iterator->rewind();
@@ -261,12 +272,14 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
-            ->willReturn($streamFeed);
+            ->willReturn($streamFeed)
+        ;
 
         $this->eventStore
             ->expects($this->once())
             ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)]);
+            ->willReturn([$this->createEvent('event1', 0)])
+        ;
 
         $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
 

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace KurrentDB;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Uri;
+use Http\Client\Exception\HttpException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
@@ -20,10 +24,6 @@ use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamFeed\StreamUrl;
 use KurrentDB\ValueObjects\Identity\UUID;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Uri;
-use Http\Client\Exception\HttpException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -203,16 +203,12 @@ final class EventStore implements EventStoreInterface
             case ResponseCode::HTTP_BAD_REQUEST:
             case ResponseCode::HTTP_CONFLICT:
                 throw new WrongExpectedVersionException();
-
             case ResponseCode::HTTP_UNAUTHORIZED:
                 throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $streamUrl));
-
             case ResponseCode::HTTP_NOT_FOUND:
                 throw new StreamNotFoundException(\sprintf('Stream %s not found', $streamUrl));
-
             case ResponseCode::HTTP_GONE:
                 throw new StreamGoneException(\sprintf('Stream %s has been permanently deleted', $streamUrl));
-
             case ResponseCode::HTTP_INTERNAL_SERVER_ERROR:
             case ResponseCode::HTTP_BAD_GATEWAY:
             case ResponseCode::HTTP_SERVICE_UNAVAILABLE:

@@ -10,11 +10,6 @@ namespace KurrentDB;
  * This interface extends all specialized interfaces to maintain backward compatibility
  * while allowing clients to depend on more focused interfaces as needed.
  */
-interface EventStoreInterface extends
-    StreamReaderInterface,
-    StreamWriterInterface,
-    EventReaderInterface,
-    StreamIteratorFactoryInterface,
-    HttpDiagnosticsInterface
+interface EventStoreInterface extends StreamReaderInterface, StreamWriterInterface, EventReaderInterface, StreamIteratorFactoryInterface, HttpDiagnosticsInterface
 {
 }

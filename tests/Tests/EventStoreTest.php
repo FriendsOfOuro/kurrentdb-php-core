@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlMultiHandler;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamDeletedException;
@@ -22,8 +24,6 @@ use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\CurlMultiHandler;
 use PHPUnit\Framework\Attributes\Test;
 
 class EventStoreTest extends TestCase

@@ -12,9 +12,9 @@ use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\Http\HttpClientInterface;
+use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
-use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
@@ -44,7 +44,8 @@ class WriteToStreamErrorHandlingTest extends TestCase
         if (201 === $statusCode) {
             $mockResponse->method('getHeader')
                 ->with('Location')
-                ->willReturn(['http://127.0.0.1:2113/streams/test-stream/0']);
+                ->willReturn(['http://127.0.0.1:2113/streams/test-stream/0'])
+            ;
         } else {
             $mockResponse->method('getHeader')->willReturn([]);
         }
@@ -161,7 +162,8 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $mockResponse->method('getStatusCode')->willReturn(201);
         $mockResponse->method('getHeader')
             ->with('Location')
-            ->willReturn([]);
+            ->willReturn([])
+        ;
 
         $mockBody = $this->createMock(StreamInterface::class);
         $mockBody->method('__toString')->willReturn('');
@@ -194,7 +196,8 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $mockResponse->method('getStatusCode')->willReturn(201);
         $mockResponse->method('getHeader')
             ->with('Location')
-            ->willReturn(['http://some-other-url/different/path']);
+            ->willReturn(['http://some-other-url/different/path'])
+        ;
 
         $mockBody = $this->createMock(StreamInterface::class);
         $mockBody->method('__toString')->willReturn('');

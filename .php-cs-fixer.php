@@ -3,8 +3,8 @@
 declare(strict_types=1);
 // vim: syntax=php:
 
-use PhpCsFixer\Finder;
 use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 
 $finder = Finder::create()
     ->in(__DIR__.'/src')
@@ -18,10 +18,11 @@ $finder = Finder::create()
 
 return (new Config())
     ->setRules([
-        '@Symfony' => true,
         '@PSR12' => true,
+        '@Symfony' => true,
         'declare_strict_types' => true,
         'php_unit_method_casing' => ['case' => 'snake_case'],
+        'multiline_whitespace_before_semicolons' => ['strategy' => 'new_line_for_chained_calls'],
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder)

@@ -26,6 +26,5 @@ function unparse_url(array $parsed): string
         (\strlen($authority) > 0 ? "//$authority" : '').
         ($parsed['path'] ?? '').
         (null !== $query ? "?$query" : '').
-        (null !== $fragment ? "#$fragment" : '')
-    ;
+        (null !== $fragment ? "#$fragment" : '');
 }
