@@ -23,6 +23,7 @@ use GuzzleHttp\Psr7\Uri;
 use Http\Client\Exception\HttpException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use function sprintf;
 
 /**
  * Class EventStore.
@@ -49,7 +50,19 @@ final class EventStore implements EventStoreInterface
         $this->urlParts = $urlParts;
 
         $this->checkConnection();
-        $this->initBadCodeHandlers();
+        $this->badCodeHandlers = [
+            ResponseCode::HTTP_NOT_FOUND => function ($streamUrl): never {
+                throw new StreamNotFoundException(sprintf('No stream found at %s', $streamUrl));
+            },
+
+            ResponseCode::HTTP_GONE => function ($streamUrl): never {
+                throw new StreamDeletedException(sprintf('Stream at %s has been permanently deleted', $streamUrl));
+            },
+
+            ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl): never {
+                throw new UnauthorizedException(sprintf('Tried to open stream %s got 401', $streamUrl));
+            },
+        ];
     }
 
     /**
@@ -307,23 +320,6 @@ final class EventStore implements EventStoreInterface
         if (array_key_exists($code, $this->badCodeHandlers)) {
             $this->badCodeHandlers[$code]($streamUrl);
         }
-    }
-
-    private function initBadCodeHandlers(): void
-    {
-        $this->badCodeHandlers = [
-            ResponseCode::HTTP_NOT_FOUND => function ($streamUrl): never {
-                throw new StreamNotFoundException(sprintf('No stream found at %s', $streamUrl));
-            },
-
-            ResponseCode::HTTP_GONE => function ($streamUrl): never {
-                throw new StreamDeletedException(sprintf('Stream at %s has been permanently deleted', $streamUrl));
-            },
-
-            ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl): never {
-                throw new UnauthorizedException(sprintf('Tried to open stream %s got 401', $streamUrl));
-            },
-        ];
     }
 
     /**
