@@ -1,5 +1,3 @@
-# KurrentDB PHP Client 0.15.0
-
 ## 🛠️ Improvements
 
 - **PHP 8.4+ enforcement** - Dropped PHP 8.3 support and fully embraced PHP 8.4 features

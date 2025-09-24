@@ -1,5 +1,3 @@
-# KurrentDB PHP Client 0.14.0
-
 ## ✨ New Features
 
 - **Native PHP Enums** - Migrated from legacy enum classes to modern PHP 8.4 native enums

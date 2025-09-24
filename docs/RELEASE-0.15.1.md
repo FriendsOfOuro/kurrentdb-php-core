@@ -1,5 +1,3 @@
-# KurrentDB PHP Client 0.15.1
-
 ## 🛠️ Improvements
 
 - **Code readability** - Enhanced code clarity and consistency across the codebase

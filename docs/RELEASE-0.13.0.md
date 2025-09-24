@@ -1,5 +1,3 @@
-# KurrentDB PHP Client 0.13.0
-
 ## ✨ New Features
 
 - **Docker development environment** - Added complete Docker Compose setup with PHP 8.4
