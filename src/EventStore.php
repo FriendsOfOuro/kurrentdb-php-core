@@ -24,7 +24,6 @@ use GuzzleHttp\Psr7\Uri;
 use Http\Client\Exception\HttpException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use function sprintf;
 
 /**
  * Class EventStore.
@@ -46,22 +45,22 @@ final class EventStore implements EventStoreInterface
     {
         $urlParts = parse_url($url);
         if (!is_array($urlParts)) {
-            throw new \InvalidArgumentException(sprintf('URL %s is not valid', $url));
+            throw new \InvalidArgumentException(\sprintf('URL %s is not valid', $url));
         }
         $this->urlParts = $urlParts;
 
         $this->checkConnection();
         $this->badCodeHandlers = [
             ResponseCode::HTTP_NOT_FOUND => function ($streamUrl): never {
-                throw new StreamNotFoundException(sprintf('No stream found at %s', $streamUrl));
+                throw new StreamNotFoundException(\sprintf('No stream found at %s', $streamUrl));
             },
 
             ResponseCode::HTTP_GONE => function ($streamUrl): never {
-                throw new StreamDeletedException(sprintf('Stream at %s has been permanently deleted', $streamUrl));
+                throw new StreamDeletedException(\sprintf('Stream at %s has been permanently deleted', $streamUrl));
             },
 
             ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl): never {
-                throw new UnauthorizedException(sprintf('Tried to open stream %s got 401', $streamUrl));
+                throw new UnauthorizedException(\sprintf('Tried to open stream %s got 401', $streamUrl));
             },
         ];
     }
@@ -215,20 +214,20 @@ final class EventStore implements EventStoreInterface
                 throw new WrongExpectedVersionException();
 
             case ResponseCode::HTTP_UNAUTHORIZED:
-                throw new UnauthorizedException(sprintf('Unauthorized access to stream %s', $streamUrl));
+                throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $streamUrl));
 
             case ResponseCode::HTTP_NOT_FOUND:
-                throw new StreamNotFoundException(sprintf('Stream %s not found', $streamUrl));
+                throw new StreamNotFoundException(\sprintf('Stream %s not found', $streamUrl));
 
             case ResponseCode::HTTP_GONE:
-                throw new StreamGoneException(sprintf('Stream %s has been permanently deleted', $streamUrl));
+                throw new StreamGoneException(\sprintf('Stream %s has been permanently deleted', $streamUrl));
 
             case ResponseCode::HTTP_INTERNAL_SERVER_ERROR:
             case ResponseCode::HTTP_BAD_GATEWAY:
             case ResponseCode::HTTP_SERVICE_UNAVAILABLE:
             case ResponseCode::HTTP_GATEWAY_TIMEOUT:
             case ResponseCode::HTTP_TOO_MANY_REQUESTS:
-                throw new ConnectionFailedException(sprintf('Server error while writing to stream %s: HTTP %d', $streamUrl, $responseStatusCode));
+                throw new ConnectionFailedException(\sprintf('Server error while writing to stream %s: HTTP %d', $streamUrl, $responseStatusCode));
         }
 
         try {
