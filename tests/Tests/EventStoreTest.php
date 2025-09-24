@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests;
 
+use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
@@ -14,7 +15,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\GuzzleHttpClient;
 use KurrentDB\StreamDeletion;
 use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\EntryEmbedMode;

@@ -29,17 +29,17 @@
     "psr/http-client-implementation": "*",
     "psr/http-factory-implementation": "*",
     "psr/http-message-implementation": "*",
+    "friendsofouro/http-batch-implementation": "^1.0",
     "ramsey/uuid": "^4.9"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.48",
     "friendsofphp/php-cs-fixer": "^3.87",
     "guzzlehttp/guzzle": "^7.10",
-    "kevinrob/guzzle-cache-middleware": "^6.0",
+    "friendsofouro/http-batch-guzzle": "^1.0",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^12.3",
-    "rector/rector": "^2.1",
-    "symfony/cache": "^7.3"
+    "rector/rector": "^2.1"
   },
   "replace": {
     "dbellettini/geteventstore-core": "self.version",
@@ -47,11 +47,8 @@
     "friendsofouro/geteventstore-core": "self.version"
   },
   "suggest": {
-    "friendsofouro/broadway-eventstore": "Integrate Event Store with Broadway",
-    "friendsofouro/geteventstore-bundle": "Integrate Event Store with Symfony 2",
-    "guzzlehttp/guzzle": "Default PSR-7 implementation",
-    "kevinrob/guzzle-cache-middleware": "Cache HTTP requests",
-    "symfony/cache": "Use Symfony to cache HTTP requests"
+    "friendsofouro/kurrentdb-bundle": "Integrate KurrentDB with Symfony 7.3 or later",
+    "friendsofouro/http-batch-guzzle": "Default PSR-7 + Batch implementation"
   },
   "autoload": {
     "psr-4": {

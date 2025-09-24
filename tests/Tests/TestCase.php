@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace KurrentDB\Tests;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
+use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
-use KurrentDB\Http\GuzzleHttpClient;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
@@ -24,7 +24,7 @@ class TestCase extends BaseTestCase
     {
         $this->es = $this->createEventStore(
             new HttpFactory(),
-            new GuzzleHttpClient()
+            new GuzzleHttpClient(),
         );
     }
 
