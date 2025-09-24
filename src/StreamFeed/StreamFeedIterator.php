@@ -30,7 +30,7 @@ final class StreamFeedIterator implements \Iterator
         int $pageLimit = PHP_INT_MAX,
     ) {
         $this->arraySortingFunction = $arraySortingFunction(...);
-        $this->pagesLeft = $pageLimit - 1; // Reserve one for initial page
+        $this->pagesLeft = max(0, $pageLimit - 1); // Reserve one for initial page
     }
 
     public static function forward(EventStoreInterface $eventStore, string $streamName, int $pageLimit = PHP_INT_MAX): self
