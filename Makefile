@@ -40,6 +40,10 @@ phpstan:
 rector:
 	$(PHP) bin/rector process
 
+.PHONY: bash
+bash:
+	@$(PHP) bash
+
 .PHONY: benchmark
 benchmark:
 	$(PHP) php benchmark/read-stream.php
