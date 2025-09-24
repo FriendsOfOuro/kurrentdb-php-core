@@ -109,7 +109,7 @@ final class StreamFeedIterator implements \Iterator
 
     private function createInnerIterator(): void
     {
-        $entries = $this->feed instanceof StreamFeed ? $this->feed->getEntries() : [];
+        $entries = $this->feed?->getEntries() ?: [];
 
         if ([] === $entries) {
             $this->innerIterator = new \ArrayIterator([]);
