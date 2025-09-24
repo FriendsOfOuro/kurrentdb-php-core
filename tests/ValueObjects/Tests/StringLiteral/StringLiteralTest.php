@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB\ValueObjects\Tests\StringLiteral;
 
 use KurrentDB\ValueObjects\StringLiteral\BasicStringLiteral;

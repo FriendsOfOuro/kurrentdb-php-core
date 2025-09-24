@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB\StreamFeed;
 
 final readonly class EntryWithEvent

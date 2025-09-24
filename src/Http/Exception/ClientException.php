@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB\Http\Exception;
 
 use GuzzleHttp\Exception\RequestException as RequestExceptionAlias;

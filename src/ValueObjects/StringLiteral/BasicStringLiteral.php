@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace KurrentDB\ValueObjects\StringLiteral;
 
 final readonly class BasicStringLiteral extends StringLiteral

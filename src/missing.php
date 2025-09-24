@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Opposite of parse_url()
  * Taken from https://stackoverflow.com/questions/4354904/php-parse-url-reverse-parsed-url.

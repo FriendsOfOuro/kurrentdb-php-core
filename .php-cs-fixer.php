@@ -14,6 +14,7 @@ return (new Config())
     ->setRules([
         '@Symfony' => true,
         '@PSR12' => true,
+        'declare_strict_types' => true,
         'php_unit_method_casing' => ['case' => 'snake_case'],
     ])
     ->setRiskyAllowed(true)
