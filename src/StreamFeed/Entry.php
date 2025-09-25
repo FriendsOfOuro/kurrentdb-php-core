@@ -29,7 +29,7 @@ final readonly class Entry
         return $this->getLinkUrl(LinkRelation::ALTERNATE, $this->credentials);
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->json['title'];
     }

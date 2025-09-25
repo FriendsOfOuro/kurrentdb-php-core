@@ -28,5 +28,5 @@ interface StreamWriterInterface
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
      */
-    public function deleteStream(string $streamName, StreamDeletion $mode);
+    public function deleteStream(string $streamName, StreamDeletion $mode): void;
 }

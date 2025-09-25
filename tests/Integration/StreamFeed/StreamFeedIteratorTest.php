@@ -13,7 +13,6 @@ use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase
 {
-
     #[Test]
     public function it_should_iterate_single_event_asc(): void
     {

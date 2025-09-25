@@ -22,10 +22,8 @@ class Util
 
     /**
      * Returns full namespaced class as string.
-     *
-     * @return string
      */
-    public static function getClassAsString($object)
+    public static function getClassAsString(object $object): string
     {
         return $object::class;
     }
