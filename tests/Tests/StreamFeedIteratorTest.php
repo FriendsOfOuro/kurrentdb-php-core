@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests;
 
+use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreInterface;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
@@ -19,9 +20,12 @@ class StreamFeedIteratorTest extends TestCase
 {
     private EventStoreInterface&MockObject $eventStore;
 
+    private HttpFactory $uriFactory;
+
     protected function setUp(): void
     {
         $this->eventStore = $this->createMock(EventStoreInterface::class);
+        $this->uriFactory = new HttpFactory();
     }
 
     /**
@@ -315,7 +319,7 @@ class StreamFeedIteratorTest extends TestCase
             'links' => $links,
         ];
 
-        return new StreamFeed($json);
+        return new StreamFeed($this->uriFactory, $json);
     }
 
     private function createEvent(string $type, int $version): Event

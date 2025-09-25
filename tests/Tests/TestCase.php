@@ -7,6 +7,7 @@ namespace KurrentDB\Tests;
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -35,6 +36,6 @@ class TestCase extends BaseTestCase
     {
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
 
-        return new EventStore($uri, $factory, $factory, $httpClient);
+        return new EventStore(new Uri($uri), $factory, $factory, $httpClient);
     }
 }

@@ -27,6 +27,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Class EventStore.
@@ -45,14 +46,14 @@ final class EventStore implements EventStoreInterface
      * @throws ConnectionFailedException
      */
     public function __construct(
-        private readonly string $url,
+        private readonly UriInterface $uri,
         private readonly UriFactoryInterface $uriFactory,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly ClientInterface $httpClient,
     ) {
-        $urlParts = parse_url($url);
+        $urlParts = parse_url((string) $this->uri);
         if (!is_array($urlParts)) {
-            throw new \InvalidArgumentException(\sprintf('URL %s is not valid', $url));
+            throw new \InvalidArgumentException(\sprintf('URL %s is not valid', $uri));
         }
         $this->urlParts = $urlParts;
 
@@ -127,9 +128,9 @@ final class EventStore implements EventStoreInterface
      */
     public function openStreamFeed(string $streamName, EntryEmbedMode $embedMode = EntryEmbedMode::NONE): StreamFeed
     {
-        $url = $this->getStreamUrl($streamName);
+        $uri = $this->getStreamUrl($streamName);
 
-        return $this->readStreamFeed($url, $embedMode);
+        return $this->readStreamFeed($uri, $embedMode);
     }
 
     /**
@@ -139,12 +140,13 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    public function readEvent(string $eventUrl): Event
+    public function readEvent(string|UriInterface $eventUrl): Event
     {
-        $request = $this->getJsonRequest($eventUrl);
+        $eventUri = $eventUrl instanceof UriInterface ? $eventUrl : $this->uriFactory->createUri($eventUrl);
+        $request = $this->getJsonRequest($eventUri);
         $this->sendRequest($request);
 
-        $this->ensureStatusCodeIsGood($eventUrl);
+        $this->ensureStatusCodeIsGood($eventUri);
 
         $jsonResponse = $this->lastResponseAsJson();
 
@@ -184,10 +186,10 @@ final class EventStore implements EventStoreInterface
             $events = new WritableEventCollection([$events]);
         }
 
-        $streamUrl = $this->getStreamUrl($streamName);
+        $streamUri = $this->getStreamUrl($streamName);
         $request = $this
             ->requestFactory
-            ->createRequest('POST', $streamUrl)
+            ->createRequest('POST', $streamUri)
             ->withHeader('ES-ExpectedVersion', (string) $expectedVersion)
             ->withHeader('Content-Type', 'application/vnd.kurrent.events+json')
         ;
@@ -206,20 +208,20 @@ final class EventStore implements EventStoreInterface
             case ResponseCode::HTTP_CONFLICT:
                 throw new WrongExpectedVersionException();
             case ResponseCode::HTTP_UNAUTHORIZED:
-                throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $streamUrl));
+                throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $streamUri));
             case ResponseCode::HTTP_NOT_FOUND:
-                throw new StreamNotFoundException(\sprintf('Stream %s not found', $streamUrl));
+                throw new StreamNotFoundException(\sprintf('Stream %s not found', $streamUri));
             case ResponseCode::HTTP_GONE:
-                throw new StreamGoneException(\sprintf('Stream %s has been permanently deleted', $streamUrl));
+                throw new StreamGoneException(\sprintf('Stream %s has been permanently deleted', $streamUri));
             case ResponseCode::HTTP_INTERNAL_SERVER_ERROR:
             case ResponseCode::HTTP_BAD_GATEWAY:
             case ResponseCode::HTTP_SERVICE_UNAVAILABLE:
             case ResponseCode::HTTP_GATEWAY_TIMEOUT:
             case ResponseCode::HTTP_TOO_MANY_REQUESTS:
-                throw new ConnectionFailedException(\sprintf('Server error while writing to stream %s: HTTP %d', $streamUrl, $responseStatusCode));
+                throw new ConnectionFailedException(\sprintf('Server error while writing to stream %s: HTTP %d', $streamUri, $responseStatusCode));
         }
 
-        $version = $this->extractStreamVersionFromLastResponse($streamUrl);
+        $version = $this->extractStreamVersionFromLastResponse($streamUri);
 
         return new StreamWriteResult($version);
     }
@@ -240,25 +242,18 @@ final class EventStore implements EventStoreInterface
     private function checkConnection(): void
     {
         try {
-            $request = $this->requestFactory->createRequest('GET', $this->url);
+            $request = $this->requestFactory->createRequest('GET', $this->uri);
             $this->sendRequest($request);
         } catch (NetworkExceptionInterface $e) {
             throw new ConnectionFailedException($e->getMessage());
         }
     }
 
-    private function getStreamUrl(string $streamName): string
+    private function getStreamUrl(string $streamName): UriInterface
     {
-        return (string) StreamUrl::fromBaseUrlAndName($this->url, $streamName);
-    }
+        $streamUrlString = (string) StreamUrl::fromBaseUrlAndName($this->uri, $streamName);
 
-    private function removeCredentialsFromUrl(string $url): string
-    {
-        $parts = parse_url($url);
-        unset($parts['user']);
-        unset($parts['pass']);
-
-        return Url\unparse_url($parts);
+        return $this->uriFactory->createUri($streamUrlString);
     }
 
     /**
@@ -266,9 +261,9 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    private function readStreamFeed(string $streamUrl, EntryEmbedMode $embedMode): StreamFeed
+    private function readStreamFeed(UriInterface $streamUri, EntryEmbedMode $embedMode): StreamFeed
     {
-        $request = $this->getJsonRequest($streamUrl);
+        $request = $this->getJsonRequest($streamUri);
 
         if (EntryEmbedMode::NONE !== $embedMode) {
             $uri = PsrUriHelper::withQueryValue(
@@ -282,28 +277,38 @@ final class EventStore implements EventStoreInterface
 
         $this->sendRequest($request);
 
-        $this->ensureStatusCodeIsGood($streamUrl);
+        $this->ensureStatusCodeIsGood($streamUri);
 
         return new StreamFeed(
+            $this->uriFactory,
             $this->lastResponseAsJson(),
             $embedMode,
             [
                 'user' => $this->urlParts['user'],
                 'pass' => $this->urlParts['pass'],
-            ]
+            ],
         );
     }
 
-    private function getJsonRequest(string $uri): RequestInterface
+    private function getJsonRequest(UriInterface|string $uri): RequestInterface
     {
         return $this
             ->requestFactory
             ->createRequest(
                 'GET',
-                $uri,
+                $this->ensureUri($uri),
             )
             ->withHeader('Accept', 'application/vnd.kurrent.atom+json')
         ;
+    }
+
+    private function ensureUri(UriInterface|string $uri): UriInterface
+    {
+        if ($uri instanceof UriInterface) {
+            return $uri;
+        }
+
+        return $this->uriFactory->createUri($uri);
     }
 
     private function sendRequest(RequestInterface $request): void
@@ -325,7 +330,7 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    private function ensureStatusCodeIsGood(string $streamUrl): void
+    private function ensureStatusCodeIsGood(UriInterface $streamUrl): void
     {
         $code = $this->lastResponse->getStatusCode();
 
@@ -345,7 +350,7 @@ final class EventStore implements EventStoreInterface
      *
      * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(string $streamUrl): int
+    private function extractStreamVersionFromLastResponse(UriInterface $streamUri): int
     {
         $locationHeaders = $this->getLastResponse()->getHeader('Location');
 
@@ -353,9 +358,9 @@ final class EventStore implements EventStoreInterface
             throw new NoExtractableEventVersionException();
         }
 
-        $streamUrl = $this->removeCredentialsFromUrl($streamUrl);
+        $streamUri = $streamUri->withUserInfo('');
 
-        if (!preg_match('#^'.preg_quote($streamUrl).'/([^/]+)$#', $locationHeaders[0], $matches)) {
+        if (!preg_match('#^'.preg_quote((string) $streamUri).'/([^/]+)$#', $locationHeaders[0], $matches)) {
             throw new NoExtractableEventVersionException();
         }
 

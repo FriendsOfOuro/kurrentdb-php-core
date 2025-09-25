@@ -6,6 +6,7 @@ namespace KurrentDB\Tests;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
@@ -58,7 +59,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
 
         $httpFactory = new HttpFactory();
-        $eventStore = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpFactory, $httpFactory, $mockHttpClient);
+        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
 
         $event = new WritableEvent(
             new UUID(),
@@ -174,7 +175,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
 
         $httpFactory = new HttpFactory();
-        $eventStore = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpFactory, $httpFactory, $mockHttpClient);
+        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
 
         $event = new WritableEvent(
             new UUID(),
@@ -209,7 +210,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
 
         $httpFactory = new HttpFactory();
-        $eventStore = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpFactory, $httpFactory, $mockHttpClient);
+        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
 
         $event = new WritableEvent(
             new UUID(),

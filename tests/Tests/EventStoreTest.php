@@ -25,6 +25,7 @@ use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\UriInterface;
 
 class EventStoreTest extends TestCase
 {
@@ -128,7 +129,8 @@ class EventStoreTest extends TestCase
     {
         $httpClient = new GuzzleHttpClient();
         $this->expectException(ConnectionFailedException::class);
-        new EventStore('http://127.0.0.1:12345/', $f = new HttpFactory(), $f, $httpClient);
+        $f = new HttpFactory();
+        new EventStore($f->createUri('http://127.0.0.1:12345/'), $f, $f, $httpClient);
     }
 
     /**
@@ -238,7 +240,7 @@ class EventStoreTest extends TestCase
         $feed = $this->es->openStreamFeed($streamName);
 
         $eventUrls = array_map(
-            fn (Entry $entry): ?string => $entry->getEventUrl(),
+            fn (Entry $entry): ?UriInterface => $entry->getEventUrl(),
             $feed->getEntries()
         );
 

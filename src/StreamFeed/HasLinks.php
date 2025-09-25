@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use Psr\Http\Message\UriInterface;
 use function KurrentDB\Url\unparse_url;
 
 /**
@@ -18,13 +19,13 @@ trait HasLinks
     public function getLinkUrl(
         LinkRelation $relation,
         array $credentials = ['user' => null, 'pass' => null],
-    ): ?string {
+    ): ?UriInterface {
         $links = $this->getLinks();
 
         $uri = null;
         foreach ($links as $link) {
             if ($link['relation'] === $relation->value) {
-                $uri = $link['uri'];
+                $uri = $this->uriFactory->createUri($link['uri']);
                 break;
             }
         }
@@ -33,11 +34,7 @@ trait HasLinks
             return $uri;
         }
 
-        $parts = parse_url((string) $uri);
-        $parts['user'] = $credentials['user'];
-        $parts['pass'] = $credentials['pass'];
-
-        return unparse_url($parts);
+        return $uri->withUserInfo((string) $credentials['user'], $credentials['pass']);
     }
 
     public function hasLink(LinkRelation $relation): bool
