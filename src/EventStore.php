@@ -19,6 +19,7 @@ use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamFeed\StreamUrl;
+use KurrentDB\Url\PsrUriHelper;
 use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\NetworkExceptionInterface;
@@ -26,8 +27,6 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
-
-use function KurrentDB\Url\with_query_value;
 
 /**
  * Class EventStore.
@@ -272,13 +271,13 @@ final class EventStore implements EventStoreInterface
         $request = $this->getJsonRequest($streamUrl);
 
         if (EntryEmbedMode::NONE !== $embedMode) {
-            $uriString = with_query_value(
-                (string) $request->getUri(),
+            $uri = PsrUriHelper::withQueryValue(
+                $request->getUri(),
                 'embed',
                 $embedMode->value
             );
 
-            $request = $request->withUri($this->uriFactory->createUri($uriString));
+            $request = $request->withUri($uri);
         }
 
         $this->sendRequest($request);
