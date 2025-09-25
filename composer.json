@@ -34,12 +34,13 @@
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.48",
+    "friendsofouro/http-batch-guzzle": "^1.0",
     "friendsofphp/php-cs-fixer": "^3.87",
     "guzzlehttp/guzzle": "^7.10",
-    "friendsofouro/http-batch-guzzle": "^1.0",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^12.3",
-    "rector/rector": "^2.1"
+    "rector/rector": "^2.1",
+    "symfony/var-dumper": "^7.3"
   },
   "replace": {
     "dbellettini/geteventstore-core": "self.version",
