@@ -6,6 +6,7 @@ namespace KurrentDB;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
 use KurrentDB\Exception\StreamGoneException;
@@ -34,7 +35,7 @@ use Psr\Http\Message\UriInterface;
  */
 final class EventStore implements EventStoreInterface
 {
-    private readonly array $urlParts;
+    private readonly Credentials $credentials;
 
     private readonly array $badCodeHandlers;
 
@@ -51,8 +52,7 @@ final class EventStore implements EventStoreInterface
         private readonly RequestFactoryInterface $requestFactory,
         private readonly ClientInterface $httpClient,
     ) {
-        [$urlParts['user'], $urlParts['pass']] = explode(':', $this->uri->getUserInfo().'::', 2);
-        $this->urlParts = $urlParts;
+        $this->credentials = Credentials::fromString($this->uri->getUserInfo());
 
         $this->checkConnection();
         $this->badCodeHandlers = [
@@ -104,10 +104,7 @@ final class EventStore implements EventStoreInterface
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed
     {
-        $url = $streamFeed->getLinkUrl($relation, [
-            'user' => $this->urlParts['user'],
-            'pass' => $this->urlParts['pass'],
-        ]);
+        $url = $streamFeed->getLinkUrl($relation, $this->credentials);
 
         if (null === $url) {
             return null;
@@ -280,10 +277,7 @@ final class EventStore implements EventStoreInterface
             $this->uriFactory,
             $this->lastResponseAsJson(),
             $embedMode,
-            [
-                'user' => $this->urlParts['user'],
-                'pass' => $this->urlParts['pass'],
-            ],
+            $this->credentials,
         );
     }
 

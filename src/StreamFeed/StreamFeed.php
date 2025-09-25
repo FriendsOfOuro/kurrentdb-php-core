@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use KurrentDB\Http\Auth\Credentials;
 use Psr\Http\Message\UriFactoryInterface;
 
 /**
@@ -19,7 +20,7 @@ final readonly class StreamFeed
         private UriFactoryInterface $uriFactory,
         private array $json,
         ?EntryEmbedMode $embedMode = null,
-        private array $credentials = ['user' => null, 'pass' => null],
+        private Credentials $credentials = new Credentials(''),
     ) {
         $this->entryEmbedMode = $embedMode ?? EntryEmbedMode::NONE;
     }
@@ -50,7 +51,7 @@ final readonly class StreamFeed
         return $this->json['links'];
     }
 
-    protected function getCredentials(): array
+    protected function getCredentials(): Credentials
     {
         return $this->credentials;
     }

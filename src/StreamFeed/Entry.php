@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use KurrentDB\Http\Auth\Credentials;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -17,7 +18,7 @@ final readonly class Entry
     public function __construct(
         private UriFactoryInterface $uriFactory,
         private array $json,
-        private array $credentials,
+        private Credentials $credentials,
     ) {
     }
 
