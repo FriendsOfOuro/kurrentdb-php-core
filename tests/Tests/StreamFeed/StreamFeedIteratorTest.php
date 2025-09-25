@@ -7,13 +7,15 @@ namespace KurrentDB\Tests\StreamFeed;
 use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeedIterator;
+use KurrentDB\Tests\StreamTestHelper;
 use KurrentDB\Tests\TestCase;
 use KurrentDB\WritableEvent;
-use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase
 {
+    use StreamTestHelper;
+
     #[Test]
     public function it_should_iterate_single_event_asc(): void
     {
@@ -95,21 +97,6 @@ class StreamFeedIteratorTest extends TestCase
         $response2 = $this->es->getLastResponse();
 
         $this->assertSame($response1, $response2);
-    }
-
-    private function prepareTestStream(int $length = 1, array $metadata = []): string
-    {
-        $streamName = uniqid();
-        $events = [];
-
-        for ($i = 0; $i < $length; ++$i) {
-            $events[] = WritableEvent::newInstance('Foo', ['foo' => 'bar'], $metadata);
-        }
-
-        $collection = new WritableEventCollection($events);
-        $this->es->writeToStream($streamName, $collection);
-
-        return $streamName;
     }
 
     private function assertEventSorted(array $events, int $sign = 1): void

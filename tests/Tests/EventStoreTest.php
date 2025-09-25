@@ -24,11 +24,12 @@ use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
-use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 
 class EventStoreTest extends TestCase
 {
+    use StreamTestHelper;
+
     #[Test]
     public function client_successfully_connects_to_event_store(): void
     {
@@ -406,23 +407,5 @@ class EventStoreTest extends TestCase
             0,
             iterator_count($this->es->forwardStreamFeedIterator($streamName))
         );
-    }
-
-    /**
-     * @throws WrongExpectedVersionException
-     */
-    private function prepareTestStream(int $length = 1, array $metadata = []): string
-    {
-        $streamName = uniqid();
-        $events = [];
-
-        for ($i = 0; $i < $length; ++$i) {
-            $events[] = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar'], $metadata);
-        }
-
-        $collection = new WritableEventCollection($events);
-        $this->es->writeToStream($streamName, $collection);
-
-        return $streamName;
     }
 }
