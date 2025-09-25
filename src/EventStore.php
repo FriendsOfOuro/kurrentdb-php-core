@@ -51,10 +51,7 @@ final class EventStore implements EventStoreInterface
         private readonly RequestFactoryInterface $requestFactory,
         private readonly ClientInterface $httpClient,
     ) {
-        $urlParts = parse_url((string) $this->uri);
-        if (!is_array($urlParts)) {
-            throw new \InvalidArgumentException(\sprintf('URL %s is not valid', $uri));
-        }
+        [$urlParts['user'], $urlParts['pass']] = explode(':', $this->uri->getUserInfo().'::', 2);
         $this->urlParts = $urlParts;
 
         $this->checkConnection();
