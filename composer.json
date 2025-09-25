@@ -61,7 +61,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "KurrentDB\\": "tests/"
+      "KurrentDB\\Tests\\": "tests/"
     }
   },
   "config": {

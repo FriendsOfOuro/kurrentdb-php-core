@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\ValueObjects\Tests\StringLiteral;
+namespace KurrentDB\Tests\ValueObjects\StringLiteral;
 
 use KurrentDB\ValueObjects\StringLiteral\BasicStringLiteral;
-use KurrentDB\ValueObjects\Tests\TestCase;
 use KurrentDB\ValueObjects\ValueObjectInterface;
+use PHPUnit\Framework\TestCase;
 
 class StringLiteralTest extends TestCase
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\ValueObjects\Tests\Identity;
+namespace KurrentDB\Tests\ValueObjects\Identity;
 
 use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;
 use KurrentDB\ValueObjects\Identity\UUID;
-use KurrentDB\ValueObjects\Tests\TestCase;
 use KurrentDB\ValueObjects\ValueObjectInterface;
+use PHPUnit\Framework\TestCase;
 
 class UUIDTest extends TestCase
 {

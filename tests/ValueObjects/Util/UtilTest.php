@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\ValueObjects\Tests\Util;
+namespace KurrentDB\Tests\ValueObjects\Util;
 
-use KurrentDB\ValueObjects\Tests\TestCase;
 use KurrentDB\ValueObjects\Util\Util;
+use PHPUnit\Framework\TestCase;
 
 class UtilTest extends TestCase
 {
