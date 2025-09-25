@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace KurrentDB\StreamFeed;
 
 use Psr\Http\Message\UriInterface;
-use function KurrentDB\Url\unparse_url;
 
 /**
  * Class HasLinks.
