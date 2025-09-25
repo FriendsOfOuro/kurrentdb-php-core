@@ -27,6 +27,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
 
+use function KurrentDB\Url\with_query_value;
+
 /**
  * Class EventStore.
  */
@@ -257,7 +259,7 @@ final class EventStore implements EventStoreInterface
         unset($parts['user']);
         unset($parts['pass']);
 
-        return \unparse_url($parts);
+        return Url\unparse_url($parts);
     }
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use function KurrentDB\Url\unparse_url;
+
 /**
  * Class HasLinks.
  */
@@ -35,7 +37,7 @@ trait HasLinks
         $parts['user'] = $credentials['user'];
         $parts['pass'] = $credentials['pass'];
 
-        return \unparse_url($parts);
+        return unparse_url($parts);
     }
 
     public function hasLink(LinkRelation $relation): bool

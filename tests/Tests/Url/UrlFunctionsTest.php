@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
+namespace KurrentDB\Tests\Url;
+
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class missingTest extends TestCase
+use function KurrentDB\Url\unparse_url;
+
+class UrlFunctionsTest extends TestCase
 {
     /**
      * @see https://stackoverflow.com/a/31691249/2714285
@@ -15,7 +19,7 @@ class missingTest extends TestCase
     #[DataProvider('urlProvider')]
     public function unparsing_a_parsed_url_will_return_the_same_string(string $url): void
     {
-        $this->assertSame($url, unparse_url(parse_url($url) ?: []));
+        $this->assertSame($url, unparse_url(\parse_url($url) ?: []));
     }
 
     public static function urlProvider(): array

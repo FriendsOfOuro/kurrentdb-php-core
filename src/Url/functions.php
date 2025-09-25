@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace KurrentDB\Url;
+
 /**
  * Add or replace a query parameter in a URI.
  */

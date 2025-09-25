@@ -55,7 +55,7 @@
       "KurrentDB\\": "src/"
     },
     "files": [
-      "src/missing.php"
+      "src/Url/functions.php"
     ]
   },
   "autoload-dev": {
