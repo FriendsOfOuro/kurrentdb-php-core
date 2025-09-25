@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB\ValueObjects\StringLiteral;
 
-use Cassandra\Value;
 use KurrentDB\ValueObjects\Util\Util;
 use KurrentDB\ValueObjects\ValueObjectInterface;
 
