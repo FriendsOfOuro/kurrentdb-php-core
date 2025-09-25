@@ -10,6 +10,9 @@ use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
@@ -37,5 +40,25 @@ class TestCase extends BaseTestCase
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
 
         return new EventStore(new Uri($uri), $factory, $factory, $httpClient);
+    }
+
+    /**
+     * Prepares a test stream with specified number of events.
+     *
+     * @throws WrongExpectedVersionException
+     */
+    protected function prepareTestStream(int $length = 1, array $metadata = []): string
+    {
+        $streamName = uniqid();
+        $events = [];
+
+        for ($i = 0; $i < $length; ++$i) {
+            $events[] = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar'], $metadata);
+        }
+
+        $collection = new WritableEventCollection($events);
+        $this->es->writeToStream($streamName, $collection);
+
+        return $streamName;
     }
 }

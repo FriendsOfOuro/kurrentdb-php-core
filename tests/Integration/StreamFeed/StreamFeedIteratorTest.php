@@ -7,14 +7,12 @@ namespace KurrentDB\Tests\Integration\StreamFeed;
 use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeedIterator;
-use KurrentDB\Tests\Integration\StreamTestHelper;
 use KurrentDB\Tests\Integration\TestCase;
 use KurrentDB\WritableEvent;
 use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase
 {
-    use StreamTestHelper;
 
     #[Test]
     public function it_should_iterate_single_event_asc(): void

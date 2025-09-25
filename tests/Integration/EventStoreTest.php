@@ -29,7 +29,6 @@ use Psr\Http\Message\UriInterface;
 
 class EventStoreTest extends TestCase
 {
-    use StreamTestHelper;
 
     #[Test]
     public function client_successfully_connects_to_event_store(): void
