@@ -20,12 +20,73 @@ use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 class WriteToStreamErrorHandlingTest extends TestCase
 {
+    private ClientInterface&MockObject $mockHttpClient;
+    private ResponseInterface&MockObject $mockResponse;
+    private StreamInterface&MockObject $mockBody;
+    private EventStore $eventStore;
+    private WritableEvent $testEvent;
+
+    /**
+     * @throws MockException
+     * @throws ConnectionFailedException
+     */
+    protected function setUp(): void
+    {
+        $this->mockHttpClient = $this->createMock(ClientInterface::class);
+        $this->mockResponse = $this->createMock(ResponseInterface::class);
+        $this->mockBody = $this->createMock(StreamInterface::class);
+
+        $this->mockBody->method('__toString')->willReturn('');
+        $this->mockResponse->method('getBody')->willReturn($this->mockBody);
+        $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
+
+        $httpFactory = new HttpFactory();
+        $this->eventStore = new EventStore(
+            new Uri('http://admin:changeit@127.0.0.1:2113'),
+            $httpFactory,
+            $httpFactory,
+            $this->mockHttpClient
+        );
+
+        $this->testEvent = new WritableEvent(
+            new UUID(),
+            'TestEventType',
+            ['test' => 'data']
+        );
+    }
+
+    private function configureResponseStatusCode(int $statusCode): void
+    {
+        $this->mockResponse->method('getStatusCode')->willReturn($statusCode);
+    }
+
+    private function configureLocationHeader(array $headers): void
+    {
+        $this->mockResponse->method('getHeader')
+            ->with('Location')
+            ->willReturn($headers)
+        ;
+    }
+
+    private function configureMissingLocationHeader(): void
+    {
+        $this->configureResponseStatusCode(201);
+        $this->configureLocationHeader([]);
+    }
+
+    private function configureMalformedLocationHeader(): void
+    {
+        $this->configureResponseStatusCode(201);
+        $this->configureLocationHeader(['http://some-other-url/different/path']);
+    }
+
     /**
      * @throws WrongExpectedVersionException
      * @throws ConnectionFailedException
@@ -38,46 +99,24 @@ class WriteToStreamErrorHandlingTest extends TestCase
         ?string $expectedExceptionClass,
         string $description,
     ): void {
-        $mockHttpClient = $this->createMock(ClientInterface::class);
-
-        $mockResponse = $this->createMock(ResponseInterface::class);
-        $mockResponse->method('getStatusCode')->willReturn($statusCode);
+        $this->configureResponseStatusCode($statusCode);
 
         if (201 === $statusCode) {
-            $mockResponse->method('getHeader')
-                ->with('Location')
-                ->willReturn(['http://127.0.0.1:2113/streams/test-stream/0'])
-            ;
+            $this->configureLocationHeader(['http://127.0.0.1:2113/streams/test-stream/0']);
         } else {
-            $mockResponse->method('getHeader')->willReturn([]);
+            $this->configureLocationHeader([]);
         }
 
-        $mockBody = $this->createMock(StreamInterface::class);
-        $mockBody->method('__toString')->willReturn('');
-        $mockResponse->method('getBody')->willReturn($mockBody);
-
-        $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
-
-        $httpFactory = new HttpFactory();
-        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
-
-        $event = new WritableEvent(
-            new UUID(),
-            'TestEventType',
-            ['test' => 'data']
-        );
-        $events = new WritableEventCollection([$event]);
+        $events = new WritableEventCollection([$this->testEvent]);
 
         if (null !== $expectedExceptionClass) {
             $this->expectException($expectedExceptionClass);
         }
 
-        $result = $eventStore->writeToStream('test-stream', $events);
+        $result = $this->eventStore->writeToStream('test-stream', $events);
 
-        if (null === $expectedExceptionClass) {
-            if (201 === $statusCode) {
-                $this->assertEquals(0, $result->version);
-            }
+        if (null === $expectedExceptionClass && 201 === $statusCode) {
+            $this->assertEquals(0, $result->version);
         }
     }
 
@@ -154,71 +193,25 @@ class WriteToStreamErrorHandlingTest extends TestCase
 
     /**
      * @throws WrongExpectedVersionException
-     * @throws MockException
      */
     #[Test]
     public function write_to_stream_with_successful_response_but_no_location_header_throws_exception(): void
     {
-        $mockHttpClient = $this->createMock(ClientInterface::class);
-
-        $mockResponse = $this->createMock(ResponseInterface::class);
-        $mockResponse->method('getStatusCode')->willReturn(201);
-        $mockResponse->method('getHeader')
-            ->with('Location')
-            ->willReturn([])
-        ;
-
-        $mockBody = $this->createMock(StreamInterface::class);
-        $mockBody->method('__toString')->willReturn('');
-        $mockResponse->method('getBody')->willReturn($mockBody);
-
-        $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
-
-        $httpFactory = new HttpFactory();
-        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
-
-        $event = new WritableEvent(
-            new UUID(),
-            'TestEventType',
-            ['test' => 'data']
-        );
+        $this->configureMissingLocationHeader();
 
         $this->expectException(NoExtractableEventVersionException::class);
-        $eventStore->writeToStream('test-stream', $event);
+        $this->eventStore->writeToStream('test-stream', $this->testEvent);
     }
 
     /**
      * @throws WrongExpectedVersionException
-     * @throws MockException
      */
     #[Test]
     public function write_to_stream_with_malformed_location_header_throws_exception(): void
     {
-        $mockHttpClient = $this->createMock(ClientInterface::class);
-
-        $mockResponse = $this->createMock(ResponseInterface::class);
-        $mockResponse->method('getStatusCode')->willReturn(201);
-        $mockResponse->method('getHeader')
-            ->with('Location')
-            ->willReturn(['http://some-other-url/different/path'])
-        ;
-
-        $mockBody = $this->createMock(StreamInterface::class);
-        $mockBody->method('__toString')->willReturn('');
-        $mockResponse->method('getBody')->willReturn($mockBody);
-
-        $mockHttpClient->method('sendRequest')->willReturn($mockResponse);
-
-        $httpFactory = new HttpFactory();
-        $eventStore = new EventStore(new Uri('http://admin:changeit@127.0.0.1:2113'), $httpFactory, $httpFactory, $mockHttpClient);
-
-        $event = new WritableEvent(
-            new UUID(),
-            'TestEventType',
-            ['test' => 'data']
-        );
+        $this->configureMalformedLocationHeader();
 
         $this->expectException(NoExtractableEventVersionException::class);
-        $eventStore->writeToStream('test-stream', $event);
+        $this->eventStore->writeToStream('test-stream', $this->testEvent);
     }
 }
