@@ -54,10 +54,7 @@
   "autoload": {
     "psr-4": {
       "KurrentDB\\": "src/"
-    },
-    "files": [
-      "src/Url/functions.php"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {
