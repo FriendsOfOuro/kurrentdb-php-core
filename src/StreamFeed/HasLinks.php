@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -12,6 +13,8 @@ use Psr\Http\Message\UriInterface;
 trait HasLinks
 {
     private readonly array $credentials;
+
+    private readonly UriFactoryInterface $uriFactory;
 
     abstract protected function getLinks(): array;
 
