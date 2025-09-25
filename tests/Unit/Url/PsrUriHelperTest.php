@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\Url;
+namespace KurrentDB\Tests\Unit\Url;
 
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\Url\PsrUriHelper;

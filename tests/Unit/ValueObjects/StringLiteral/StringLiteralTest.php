@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\ValueObjects\StringLiteral;
+namespace KurrentDB\Tests\Unit\ValueObjects\StringLiteral;
 
 use KurrentDB\ValueObjects\StringLiteral\BasicStringLiteral;
 use KurrentDB\ValueObjects\ValueObjectInterface;

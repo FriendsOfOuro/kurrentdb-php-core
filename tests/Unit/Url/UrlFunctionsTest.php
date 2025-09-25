@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\Url;
+namespace KurrentDB\Tests\Unit\Url;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

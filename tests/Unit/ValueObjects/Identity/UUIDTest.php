@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\ValueObjects\Identity;
+namespace KurrentDB\Tests\Unit\ValueObjects\Identity;
 
 use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;
 use KurrentDB\ValueObjects\Identity\UUID;

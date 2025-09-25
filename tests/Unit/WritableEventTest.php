@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests;
+namespace KurrentDB\Tests\Unit;
 
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;

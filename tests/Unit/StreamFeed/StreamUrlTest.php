@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\StreamFeed;
+namespace KurrentDB\Tests\Unit\StreamFeed;
 
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\StreamFeed\StreamUrl;

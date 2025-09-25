@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\StreamFeed;
+namespace KurrentDB\Tests\Integration\StreamFeed;
 
 use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeedIterator;
-use KurrentDB\Tests\StreamTestHelper;
-use KurrentDB\Tests\TestCase;
+use KurrentDB\Tests\Integration\StreamTestHelper;
+use KurrentDB\Tests\Integration\TestCase;
 use KurrentDB\WritableEvent;
 use PHPUnit\Framework\Attributes\Test;
 

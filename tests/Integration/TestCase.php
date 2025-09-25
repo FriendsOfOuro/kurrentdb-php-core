@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests;
+namespace KurrentDB\Tests\Integration;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;

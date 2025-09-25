@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\ValueObjects\Util;
+namespace KurrentDB\Tests\Unit\ValueObjects\Util;
 
 use KurrentDB\ValueObjects\Util\Util;
 use PHPUnit\Framework\TestCase;

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests\Http\Auth;
+namespace KurrentDB\Tests\Unit\Http\Auth;
 
 use KurrentDB\Http\Auth\Credentials;
-use KurrentDB\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
+use PHPUnit\Framework\TestCase;
 
 class CredentialsTest extends TestCase
 {

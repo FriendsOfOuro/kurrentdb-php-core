@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests;
+namespace KurrentDB\Tests\Integration;
 
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\WritableEvent;

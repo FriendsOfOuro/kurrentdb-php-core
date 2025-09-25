@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KurrentDB\Tests;
+namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreInterface;
