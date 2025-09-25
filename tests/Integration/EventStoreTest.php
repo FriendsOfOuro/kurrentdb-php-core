@@ -321,17 +321,6 @@ class EventStoreTest extends TestCase
         $this->es->openStreamFeed($streamName);
     }
 
-    #[Test]
-    public function unauthorized_streams_throw_unauthorized_exception(): never
-    {
-        // I wonder how this worked one day as no $et-Baz stream is ever created
-        // For now it throws logically a StreamNotFoundException
-        $this->markTestIncomplete('Find a way to create a forbidden stream: create user, change stream acl...');
-        // $this->expectException(UnauthorizedException::class);
-        // $this->expectExceptionMessage('Tried to open stream http://admin:changeit@127.0.0.1:2113/streams/$et-Baz got 401');
-        // $this->es->openStreamFeed('$et-Baz');
-    }
-
     /**
      * @throws UnauthorizedException
      * @throws StreamDeletedException
