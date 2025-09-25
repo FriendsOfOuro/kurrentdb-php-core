@@ -34,7 +34,7 @@ test:
 
 .PHONY: phpstan
 phpstan:
-	$(PHP) bin/phpstan analyse -v
+	$(PHP) bin/phpstan analyse -v --memory-limit=1G
 
 .PHONY: rector
 rector:
