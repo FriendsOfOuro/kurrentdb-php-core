@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace KurrentDB\StreamFeed;
 
 use KurrentDB\Http\Auth\Credentials;
-use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -15,8 +14,9 @@ trait HasLinks
 {
     private readonly Credentials $credentials;
 
-    private readonly UriFactoryInterface $uriFactory;
-
+    /**
+     * @return Link[]
+     */
     abstract protected function getLinks(): array;
 
     public function getLinkUrl(
@@ -27,8 +27,8 @@ trait HasLinks
 
         $uri = null;
         foreach ($links as $link) {
-            if ($link['relation'] === $relation->value) {
-                $uri = $this->uriFactory->createUri($link['uri']);
+            if ($link->isRelation($relation)) {
+                $uri = $link->uri;
                 break;
             }
         }

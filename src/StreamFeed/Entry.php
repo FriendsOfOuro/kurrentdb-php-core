@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace KurrentDB\StreamFeed;
 
 use KurrentDB\Http\Auth\Credentials;
-use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -15,8 +14,11 @@ final readonly class Entry
 {
     use HasLinks;
 
+    /**
+     * @param Link[] $links
+     */
     public function __construct(
-        private UriFactoryInterface $uriFactory,
+        private array $links,
         private array $json,
         private Credentials $credentials,
     ) {
@@ -34,6 +36,6 @@ final readonly class Entry
 
     protected function getLinks(): array
     {
-        return $this->json['links'];
+        return $this->links;
     }
 }

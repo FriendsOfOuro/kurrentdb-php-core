@@ -6,18 +6,20 @@ namespace KurrentDB;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
-use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamDeletedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\Http\ResponseCode;
 use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedFactory;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamFeed\StreamUrl;
 use KurrentDB\Url\PsrUriHelper;
@@ -39,6 +41,8 @@ final class EventStore implements EventStoreInterface
 
     private readonly array $badCodeHandlers;
 
+    private readonly StreamFeedFactory $streamFeedFactory;
+
     private ResponseInterface $lastResponse;
 
     /**
@@ -53,6 +57,9 @@ final class EventStore implements EventStoreInterface
         private readonly ClientInterface $httpClient,
     ) {
         $this->credentials = Credentials::fromString($this->uri->getUserInfo());
+
+        $entryFactory = new EntryFactory($this->uriFactory);
+        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
 
         $this->checkConnection();
         $this->badCodeHandlers = [
@@ -273,8 +280,7 @@ final class EventStore implements EventStoreInterface
 
         $this->ensureStatusCodeIsGood($streamUri);
 
-        return new StreamFeed(
-            $this->uriFactory,
+        return $this->streamFeedFactory->create(
             $this->lastResponseAsJson(),
             $embedMode,
             $this->credentials,

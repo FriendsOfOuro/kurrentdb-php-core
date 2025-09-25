@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\StreamFeed;
 
 use GuzzleHttp\Psr7\HttpFactory;
+use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\LinkRelation;
-use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -19,16 +21,21 @@ class StreamFeedTest extends TestCase
 {
     private HttpFactory $uriFactory;
 
+    private StreamFeedFactory $streamFeedFactory;
+
     protected function setUp(): void
     {
         $this->uriFactory = new HttpFactory();
+
+        $entryFactory = new EntryFactory($this->uriFactory);
+        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
     }
 
     #[Test]
     #[DataProvider('modeProvider')]
     public function event_embed_mode_is_returned_properly(?EntryEmbedMode $mode, EntryEmbedMode $expected): void
     {
-        $feed = new StreamFeed($this->uriFactory, [], $mode);
+        $feed = $this->streamFeedFactory->create([], $mode, new Credentials(''));
 
         $this->assertEquals($expected, $feed->getEntryEmbedMode());
     }
@@ -52,8 +59,7 @@ class StreamFeedTest extends TestCase
     {
         $uri = 'http://sample.uri:12345/stream';
 
-        $feed = new StreamFeed(
-            $this->uriFactory,
+        $feed = $this->streamFeedFactory->create(
             [
                 'links' => [
                     [
@@ -61,7 +67,9 @@ class StreamFeedTest extends TestCase
                         'uri' => $uri,
                     ],
                 ],
-            ]
+            ],
+            EntryEmbedMode::NONE,
+            new Credentials('')
         );
 
         $this->assertSame($uri, (string) $feed->getLinkUrl($relation));
@@ -70,8 +78,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_true_on_matching_url(): void
     {
-        $feed = new StreamFeed(
-            $this->uriFactory,
+        $feed = $this->streamFeedFactory->create(
             [
                 'links' => [
                     [
@@ -79,7 +86,9 @@ class StreamFeedTest extends TestCase
                         'uri' => 'http://sample.uri:12345/stream',
                     ],
                 ],
-            ]
+            ],
+            EntryEmbedMode::NONE,
+            new Credentials('')
         );
 
         $this->assertTrue($feed->hasLink(LinkRelation::LAST));
@@ -88,8 +97,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_false_on_missing_url(): void
     {
-        $feed = new StreamFeed(
-            $this->uriFactory,
+        $feed = $this->streamFeedFactory->create(
             [
                 'links' => [
                     [
@@ -97,7 +105,9 @@ class StreamFeedTest extends TestCase
                         'uri' => 'http://sample.uri:12345/stream',
                     ],
                 ],
-            ]
+            ],
+            EntryEmbedMode::NONE,
+            new Credentials('')
         );
 
         $this->assertFalse($feed->hasLink(LinkRelation::LAST));
@@ -106,8 +116,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function get_link_url_returns_null_on_missing_url(): void
     {
-        $feed = new StreamFeed(
-            $this->uriFactory,
+        $feed = $this->streamFeedFactory->create(
             [
                 'links' => [
                     [
@@ -115,7 +124,9 @@ class StreamFeedTest extends TestCase
                         'uri' => 'http://sample.uri:12345/stream',
                     ],
                 ],
-            ]
+            ],
+            EntryEmbedMode::NONE,
+            new Credentials('')
         );
 
         $this->assertNull($feed->getLinkUrl(LinkRelation::LAST));

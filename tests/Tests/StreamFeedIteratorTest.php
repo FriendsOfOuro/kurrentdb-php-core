@@ -6,9 +6,13 @@ namespace KurrentDB\Tests;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreInterface;
+use KurrentDB\Http\Auth\Credentials;
+use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedFactory;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,10 +26,15 @@ class StreamFeedIteratorTest extends TestCase
 
     private HttpFactory $uriFactory;
 
+    private StreamFeedFactory $streamFeedFactory;
+
     protected function setUp(): void
     {
         $this->eventStore = $this->createMock(EventStoreInterface::class);
         $this->uriFactory = new HttpFactory();
+
+        $entryFactory = new EntryFactory($this->uriFactory);
+        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
     }
 
     /**
@@ -319,7 +328,11 @@ class StreamFeedIteratorTest extends TestCase
             'links' => $links,
         ];
 
-        return new StreamFeed($this->uriFactory, $json);
+        return $this->streamFeedFactory->create(
+            $json,
+            EntryEmbedMode::NONE,
+            new Credentials('')
+        );
     }
 
     private function createEvent(string $type, int $version): Event

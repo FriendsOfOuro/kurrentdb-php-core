@@ -12,4 +12,6 @@ enum LinkRelation: string
     case NEXT = 'next';
     case METADATA = 'metadata';
     case ALTERNATE = 'alternate';
+    case SELF = 'self';
+    case EDIT = 'edit';
 }
