@@ -7,12 +7,15 @@ namespace KurrentDB\StreamFeed;
 use KurrentDB\EventStoreInterface;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * @implements \Iterator<string, EntryWithEvent>
+ */
 final class StreamFeedIterator implements \Iterator
 {
     private ?StreamFeed $feed = null;
 
     /**
-     * @var \ArrayIterator<EntryWithEvent>
+     * @var \ArrayIterator<int, EntryWithEvent>
      */
     private \ArrayIterator $innerIterator;
 
@@ -144,7 +147,7 @@ final class StreamFeedIterator implements \Iterator
         );
 
         $urls = array_map(
-            fn (Entry $entry) => $entry->getEventUrl(),
+            fn (Entry $entry): ?UriInterface => $entry->getEventUrl(),
             $entries
         );
 

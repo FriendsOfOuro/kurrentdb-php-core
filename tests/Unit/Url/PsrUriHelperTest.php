@@ -26,6 +26,7 @@ class PsrUriHelperTest extends TestCase
         $this->assertSame($expectedUri, (string) $result);
     }
 
+    /** @return array<string, array<string>> */
     public static function queryValueProvider(): array
     {
         return [

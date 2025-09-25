@@ -84,7 +84,7 @@ class EventStoreTest extends TestCase
         $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
 
         // we try to write to a soft deleted stream...
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['bar']));
+        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['data' => 'bar']));
 
         // ..and we should expect a "201 Created" response
         $this->assertEquals('201', $this->es->getLastResponse()->getStatusCode());
@@ -103,7 +103,7 @@ class EventStoreTest extends TestCase
 
         // we try to write to a hard deleted stream...
         $this->expectException(StreamGoneException::class);
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['bar']));
+        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['data' => 'bar']));
     }
 
     /**

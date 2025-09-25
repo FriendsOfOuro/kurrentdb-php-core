@@ -39,6 +39,7 @@ final class EventStore implements EventStoreInterface
 {
     private readonly Credentials $credentials;
 
+    /** @var array<int, callable(UriInterface): never> */
     private readonly array $badCodeHandlers;
 
     private readonly StreamFeedFactory $streamFeedFactory;
@@ -113,7 +114,7 @@ final class EventStore implements EventStoreInterface
     {
         $url = $streamFeed->getLinkUrl($relation, $this->credentials);
 
-        if (null === $url) {
+        if (!$url instanceof UriInterface) {
             return null;
         }
 
@@ -160,14 +161,14 @@ final class EventStore implements EventStoreInterface
     public function readEventBatch(array $eventUrls): array
     {
         $requests = array_map(
-            fn ($eventUrl): RequestInterface => $this->getJsonRequest($eventUrl),
+            fn (UriInterface|string $eventUrl): RequestInterface => $this->getJsonRequest($eventUrl),
             $eventUrls
         );
 
         $responses = $this->httpClient->sendRequestBatch($requests);
 
         return array_map(
-            function ($response): ?Event {
+            function (ResponseInterface $response): ?Event {
                 $data = json_decode((string) $response->getBody(), true);
                 if (!isset($data['content'])) {
                     return null;
@@ -181,6 +182,7 @@ final class EventStore implements EventStoreInterface
         );
     }
 
+    /** @param array<string, string> $additionalHeaders */
     public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
     {
         if ($events instanceof WritableEvent) {
@@ -287,25 +289,16 @@ final class EventStore implements EventStoreInterface
         );
     }
 
-    private function getJsonRequest(UriInterface|string $uri): RequestInterface
+    private function getJsonRequest(UriInterface $uri): RequestInterface
     {
         return $this
             ->requestFactory
             ->createRequest(
                 'GET',
-                $this->ensureUri($uri),
+                $uri,
             )
             ->withHeader('Accept', 'application/vnd.kurrent.atom+json')
         ;
-    }
-
-    private function ensureUri(UriInterface|string $uri): UriInterface
-    {
-        if ($uri instanceof UriInterface) {
-            return $uri;
-        }
-
-        return $this->uriFactory->createUri($uri);
     }
 
     private function sendRequest(RequestInterface $request): void
@@ -364,11 +357,13 @@ final class EventStore implements EventStoreInterface
         return (int) $matches[1];
     }
 
+    /** @return array<string, mixed> */
     private function lastResponseAsJson(): array
     {
         return json_decode((string) $this->lastResponse->getBody(), true);
     }
 
+    /** @param array<string, mixed> $content */
     private function createEventFromResponseContent(array $content): Event
     {
         $type = $content['eventType'];

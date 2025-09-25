@@ -67,6 +67,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $this->mockResponse->method('getStatusCode')->willReturn($statusCode);
     }
 
+    /** @param string[] $headers */
     private function configureLocationHeader(array $headers): void
     {
         $this->mockResponse->method('getHeader')
@@ -120,6 +121,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
         }
     }
 
+    /** @return array<string, array<mixed>> */
     public static function httpErrorCodesProvider(): array
     {
         return [

@@ -15,6 +15,9 @@ final readonly class StreamFeedFactory
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $json
+     */
     public function create(
         array $json,
         ?EntryEmbedMode $embedMode = null,

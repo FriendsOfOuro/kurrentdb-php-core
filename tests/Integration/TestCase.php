@@ -45,6 +45,8 @@ class TestCase extends BaseTestCase
     /**
      * Prepares a test stream with specified number of events.
      *
+     * @param array<string, mixed> $metadata
+     *
      * @throws WrongExpectedVersionException
      */
     protected function prepareTestStream(int $length = 1, array $metadata = []): string

@@ -12,10 +12,10 @@ interface StreamWriterInterface
     /**
      * Write one or more events to a stream.
      *
-     * @param string           $streamName        The stream name
-     * @param WritableToStream $events            Single event or a collection of events
-     * @param int              $expectedVersion   The expected version of the stream
-     * @param array            $additionalHeaders Additional HTTP headers
+     * @param string                $streamName        The stream name
+     * @param WritableToStream      $events            Single event or a collection of events
+     * @param int                   $expectedVersion   The expected version of the stream
+     * @param array<string, string> $additionalHeaders Additional HTTP headers
      *
      * @throws Exception\WrongExpectedVersionException
      * @throws Exception\NoExtractableEventVersionException

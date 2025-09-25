@@ -20,10 +20,10 @@ class WritableEventCollectionTest extends TestCase
     public function event_collection_is_converted_to_stream_data(): void
     {
         $uuid1 = new UUID();
-        $event1 = new WritableEvent($uuid1, 'Foo', ['bar']);
+        $event1 = new WritableEvent($uuid1, 'Foo', ['data' => 'bar']);
 
         $uuid2 = new UUID();
-        $event2 = new WritableEvent($uuid2, 'Baz', ['foo']);
+        $event2 = new WritableEvent($uuid2, 'Baz', ['data' => 'foo']);
 
         $eventCollection = new WritableEventCollection([$event1, $event2]);
 
@@ -31,12 +31,12 @@ class WritableEventCollectionTest extends TestCase
             [
                 'eventId' => $uuid1->toNative(),
                 'eventType' => 'Foo',
-                'data' => ['bar'],
+                'data' => ['data' => 'bar'],
                 'metadata' => [],
             ], [
                 'eventId' => $uuid2->toNative(),
                 'eventType' => 'Baz',
-                'data' => ['foo'],
+                'data' => ['data' => 'foo'],
                 'metadata' => [],
             ],
         ];
@@ -48,6 +48,7 @@ class WritableEventCollectionTest extends TestCase
     public function invalid_collection_throws_exception(): void
     {
         $this->expectException(InvalidWritableEventObjectException::class);
-        new WritableEventCollection(['foobar']);
+        // @phpstan-ignore-next-line
+        new WritableEventCollection(['invalid']);
     }
 }

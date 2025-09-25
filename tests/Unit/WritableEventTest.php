@@ -18,11 +18,11 @@ class WritableEventTest extends TestCase
     public function event_is_converted_to_stream_data(): void
     {
         $uuid = new UUID();
-        $event = new WritableEvent($uuid, 'Foo', ['bar']);
+        $event = new WritableEvent($uuid, 'Foo', ['data' => 'bar']);
         $streamData = [
             'eventId' => $uuid->toNative(),
             'eventType' => 'Foo',
-            'data' => ['bar'],
+            'data' => ['data' => 'bar'],
             'metadata' => [],
         ];
 

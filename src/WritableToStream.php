@@ -9,5 +9,8 @@ namespace KurrentDB;
  */
 interface WritableToStream
 {
+    /**
+     * @return array<string, mixed>|array<array<string, mixed>>
+     */
     public function toStreamData(): array;
 }

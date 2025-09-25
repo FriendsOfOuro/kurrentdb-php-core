@@ -13,19 +13,12 @@ final readonly class StreamFeed
 {
     use HasLinks;
 
-    private EntryEmbedMode $entryEmbedMode;
-
     /**
-     * @param Link[] $links
+     * @param Link[]               $links
+     * @param array<string, mixed> $json
      */
-    public function __construct(
-        private array $links,
-        private array $json,
-        EntryEmbedMode $embedMode,
-        private Credentials $credentials,
-        private EntryFactory $entryFactory,
-    ) {
-        $this->entryEmbedMode = $embedMode;
+    public function __construct(private array $links, private array $json, private EntryEmbedMode $entryEmbedMode, private Credentials $credentials, private EntryFactory $entryFactory)
+    {
     }
 
     /**
@@ -44,11 +37,17 @@ final readonly class StreamFeed
         return $this->entryEmbedMode;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getJson(): array
     {
         return $this->json;
     }
 
+    /**
+     * @return Link[]
+     */
     protected function getLinks(): array
     {
         return $this->links;

@@ -15,7 +15,8 @@ final readonly class Entry
     use HasLinks;
 
     /**
-     * @param Link[] $links
+     * @param Link[]               $links
+     * @param array<string, mixed> $json
      */
     public function __construct(
         private array $links,

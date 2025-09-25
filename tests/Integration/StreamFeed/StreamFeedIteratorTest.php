@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Integration\StreamFeed;
 
 use KurrentDB\StreamFeed\Entry;
+use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\Tests\Integration\TestCase;
@@ -96,6 +97,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertSame($response1, $response2);
     }
 
+    /** @param array<string, EntryWithEvent> $events */
     private function assertEventSorted(array $events, int $sign = 1): void
     {
         $unsorted = $events;

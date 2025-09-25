@@ -303,6 +303,7 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertTrue($iterator->valid());
     }
 
+    /** @param array<array<string, mixed>> $entries */
     private function createStreamFeed(array $entries, bool $hasNavigation): StreamFeed
     {
         $entriesData = array_map(fn (array $entry): array => [

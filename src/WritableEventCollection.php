@@ -12,21 +12,24 @@ use KurrentDB\Exception\InvalidWritableEventObjectException;
 final readonly class WritableEventCollection implements WritableToStream
 {
     /**
-     * @var WritableEvent[]
+     * @param WritableEvent[] $events
      */
-    private array $events;
-
-    public function __construct(array $events)
+    public function __construct(private array $events)
     {
         $this->validateEvents($events);
-        $this->events = $events;
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     public function toStreamData(): array
     {
         return array_map(fn (WritableEvent $event): array => $event->toStreamData(), $this->events);
     }
 
+    /**
+     * @param WritableEvent[] $events
+     */
     private function validateEvents(array $events): void
     {
         foreach ($events as $event) {

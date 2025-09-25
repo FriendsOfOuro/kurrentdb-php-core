@@ -132,6 +132,7 @@ class StreamFeedTest extends TestCase
         $this->assertNull($feed->getLinkUrl(LinkRelation::LAST));
     }
 
+    /** @return array<array<LinkRelation>> */
     public static function relationProvider(): array
     {
         return [

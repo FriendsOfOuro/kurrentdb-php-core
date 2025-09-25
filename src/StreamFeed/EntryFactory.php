@@ -14,6 +14,9 @@ final readonly class EntryFactory
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $json
+     */
     public function create(array $json, Credentials $credentials): Entry
     {
         $links = $this->createLinks($json['links'] ?? []);
