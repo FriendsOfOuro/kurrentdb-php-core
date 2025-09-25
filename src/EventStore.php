@@ -142,9 +142,8 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
-    public function readEvent(string|UriInterface $eventUrl): Event
+    public function readEvent(UriInterface $eventUri): Event
     {
-        $eventUri = $eventUrl instanceof UriInterface ? $eventUrl : $this->uriFactory->createUri($eventUrl);
         $request = $this->getJsonRequest($eventUri);
         $this->sendRequest($request);
 
@@ -161,13 +160,13 @@ final class EventStore implements EventStoreInterface
     public function readEventBatch(array $eventUrls): array
     {
         $requests = array_map(
-            fn (UriInterface|string $eventUrl): RequestInterface => $this->getJsonRequest($eventUrl),
+            fn (UriInterface $eventUrl): RequestInterface => $this->getJsonRequest($eventUrl),
             $eventUrls
         );
 
         $responses = $this->httpClient->sendRequestBatch($requests);
 
-        return array_map(
+        return array_filter(array_map(
             function (ResponseInterface $response): ?Event {
                 $data = json_decode((string) $response->getBody(), true);
                 if (!isset($data['content'])) {
@@ -179,7 +178,7 @@ final class EventStore implements EventStoreInterface
                 );
             },
             $responses
-        );
+        ));
     }
 
     /** @param array<string, string> $additionalHeaders */
@@ -200,7 +199,7 @@ final class EventStore implements EventStoreInterface
         foreach ($additionalHeaders as $name => $value) {
             $request = $request->withHeader($name, (string) $value);
         }
-        $request->getBody()->write(json_encode($events->toStreamData()));
+        $request->getBody()->write((string) json_encode($events->toStreamData()));
         $this->sendRequest($request);
 
         $responseStatusCode = $this->getLastResponse()->getStatusCode();

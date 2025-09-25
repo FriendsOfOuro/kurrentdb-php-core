@@ -15,14 +15,14 @@ interface EventReaderInterface
     /**
      * Read a single event.
      *
-     * @param UriInterface $eventUrl The url of the event
+     * @param UriInterface $eventUri The url of the event
      */
-    public function readEvent(UriInterface $eventUrl): Event;
+    public function readEvent(UriInterface $eventUri): Event;
 
     /**
      * Reads a batch of events.
      *
-     * @param (UriInterface|string)[] $eventUrls The urls of the events
+     * @param UriInterface[] $eventUrls The urls of the events
      *
      * @return Event[]
      */

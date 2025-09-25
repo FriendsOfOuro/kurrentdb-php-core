@@ -29,7 +29,7 @@ final readonly class WritableEvent implements WritableToStream
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{eventId: string, eventType: string, data: array<string, mixed>, metadata: array<string, mixed>}
      */
     public function toStreamData(): array
     {

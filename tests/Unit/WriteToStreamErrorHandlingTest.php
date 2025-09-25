@@ -89,9 +89,11 @@ class WriteToStreamErrorHandlingTest extends TestCase
     }
 
     /**
+     * @param class-string<\Throwable>|null $expectedExceptionClass
+     *
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
-     * @throws ConnectionFailedException
-     * @throws MockException
      */
     #[Test]
     #[DataProvider('httpErrorCodesProvider')]

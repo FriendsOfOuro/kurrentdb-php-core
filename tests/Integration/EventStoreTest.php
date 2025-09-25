@@ -237,10 +237,10 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(20);
         $feed = $this->es->openStreamFeed($streamName);
 
-        $eventUrls = array_map(
+        $eventUrls = array_filter(array_map(
             fn (Entry $entry): ?UriInterface => $entry->getEventUrl(),
             $feed->getEntries()
-        );
+        ));
 
         $events = $this->es->readEventBatch($eventUrls);
         $this->assertNotEmpty($events);

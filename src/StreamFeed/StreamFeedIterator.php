@@ -146,10 +146,10 @@ final class StreamFeedIterator implements \Iterator
             $entries
         );
 
-        $urls = array_map(
+        $urls = array_filter(array_map(
             fn (Entry $entry): ?UriInterface => $entry->getEventUrl(),
             $entries
-        );
+        ));
 
         $this->innerIterator = new \ArrayIterator(
             array_filter(
