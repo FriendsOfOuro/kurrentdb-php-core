@@ -22,7 +22,7 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
     /**
      * @throws ConnectionFailedException
      */
-    public function create(): EventStore
+    public function create(): EventStoreInterface
     {
         $connectionChecker = new ConnectionChecker($this->requestFactory, $this->httpClient);
         $connectionChecker->checkConnection();

@@ -11,5 +11,5 @@ interface EventStoreFactoryInterface
     /**
      * @throws ConnectionFailedException
      */
-    public function create(): EventStore;
+    public function create(): EventStoreInterface;
 }
