@@ -22,4 +22,4 @@
 - **Internal Exception Handling**: Internal exception handling flow has been refactored for better reliability
 
 ## Full Changelog
-**Full Changelog**: https://github.com/FriendsOfOuro/kurrentdb-php-core/compare/v0.17.0...v0.18.0
+**Full Changelog**: https://github.com/FriendsOfOuro/kurrentdb-php-core/compare/v0.18.0...v0.19.0
