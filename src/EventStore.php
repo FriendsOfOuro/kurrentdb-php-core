@@ -12,6 +12,7 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\Http\ConnectionChecker;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
@@ -34,6 +35,8 @@ use Psr\Http\Message\UriInterface;
  */
 final readonly class EventStore implements EventStoreInterface
 {
+    private ConnectionChecker $connectionChecker;
+
     private HttpErrorHandler $errorHandler;
 
     private StreamFeedFactory $streamFeedFactory;
@@ -48,12 +51,13 @@ final readonly class EventStore implements EventStoreInterface
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
     ) {
+        $this->connectionChecker = new ConnectionChecker($this->requestFactory, $this->httpClient);
         $this->errorHandler = new HttpErrorHandler();
 
         $entryFactory = new EntryFactory($this->uriFactory);
         $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
 
-        $this->checkConnection();
+        $this->connectionChecker->checkConnection();
     }
 
     /**
@@ -213,19 +217,6 @@ final readonly class EventStore implements EventStoreInterface
     public function backwardStreamFeedIterator(string $streamName, int $pageLimit = PHP_INT_MAX): StreamFeedIterator
     {
         return StreamFeedIterator::backward($this, $streamName, $pageLimit);
-    }
-
-    /**
-     * @throws ConnectionFailedException
-     */
-    private function checkConnection(): void
-    {
-        try {
-            $request = $this->requestFactory->createRequest('GET', '/');
-            $this->sendRequest($request);
-        } catch (\Exception $e) {
-            throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
-        }
     }
 
     private function getStreamUrl(string $streamName): UriInterface
