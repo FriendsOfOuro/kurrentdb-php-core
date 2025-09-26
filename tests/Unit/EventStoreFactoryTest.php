@@ -20,6 +20,7 @@ class EventStoreFactoryTest extends TestCase
 {
     private ClientInterface&MockObject $mockHttpClient;
     private HttpFactory $httpFactory;
+    private EventStoreFactory $factory;
 
     /**
      * @throws MockException
@@ -28,6 +29,7 @@ class EventStoreFactoryTest extends TestCase
     {
         $this->mockHttpClient = $this->createMock(ClientInterface::class);
         $this->httpFactory = new HttpFactory();
+        $this->factory = new EventStoreFactory($this->httpFactory, $this->httpFactory, $this->mockHttpClient);
     }
 
     #[Test]
@@ -40,11 +42,7 @@ class EventStoreFactoryTest extends TestCase
             ->willReturn($mockResponse)
         ;
 
-        $eventStore = EventStoreFactory::create(
-            $this->httpFactory,
-            $this->httpFactory,
-            $this->mockHttpClient
-        );
+        $eventStore = $this->factory->create();
 
         $this->assertInstanceOf(EventStore::class, $eventStore);
     }
@@ -63,10 +61,6 @@ class EventStoreFactoryTest extends TestCase
         $this->expectException(ConnectionFailedException::class);
         $this->expectExceptionMessage('Connection failed');
 
-        EventStoreFactory::create(
-            $this->httpFactory,
-            $this->httpFactory,
-            $this->mockHttpClient
-        );
+        $this->factory->create();
     }
 }

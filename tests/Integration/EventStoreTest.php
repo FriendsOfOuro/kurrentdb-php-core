@@ -126,7 +126,7 @@ class EventStoreTest extends TestCase
         $httpClient = new GuzzleHttpClient($guzzleClient);
         $this->expectException(ConnectionFailedException::class);
         $f = new HttpFactory();
-        EventStoreFactory::create($f, $f, $httpClient);
+        new EventStoreFactory($f, $f, $httpClient)->create();
     }
 
     /**

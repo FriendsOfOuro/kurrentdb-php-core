@@ -6,7 +6,7 @@ namespace KurrentDB\StreamFeed;
 
 use Psr\Http\Message\UriFactoryInterface;
 
-final readonly class EntryFactory
+final readonly class EntryFactory implements EntryFactoryInterface
 {
     public function __construct(
         private UriFactoryInterface $uriFactory,

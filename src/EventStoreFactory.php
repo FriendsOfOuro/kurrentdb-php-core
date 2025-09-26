@@ -10,21 +10,25 @@ use KurrentDB\Http\ConnectionChecker;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 
-final readonly class EventStoreFactory
+final readonly class EventStoreFactory implements EventStoreFactoryInterface
 {
+    public function __construct(
+        private UriFactoryInterface $uriFactory,
+        private RequestFactoryInterface $requestFactory,
+        private ClientInterface $httpClient,
+    ) {
+    }
+
     /**
      * @throws ConnectionFailedException
      */
-    public static function create(
-        UriFactoryInterface $uriFactory,
-        RequestFactoryInterface $requestFactory,
-        ClientInterface $httpClient,
-    ): EventStore {
-        $connectionChecker = new ConnectionChecker($requestFactory, $httpClient);
+    public function create(): EventStore
+    {
+        $connectionChecker = new ConnectionChecker($this->requestFactory, $this->httpClient);
         $connectionChecker->checkConnection();
 
-        $streamReader = new StreamReader($uriFactory, $requestFactory, $httpClient);
-        $streamWriter = new StreamWriter($uriFactory, $requestFactory, $httpClient);
+        $streamReader = new StreamReader($this->uriFactory, $this->requestFactory, $this->httpClient);
+        $streamWriter = new StreamWriter($this->uriFactory, $this->requestFactory, $this->httpClient);
         $streamIteratorFactory = new StreamIteratorFactory($streamReader);
 
         return new EventStore($streamReader, $streamWriter, $streamIteratorFactory);

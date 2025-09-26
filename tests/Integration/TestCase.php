@@ -23,6 +23,7 @@ class TestCase extends BaseTestCase
 {
     protected EventStore $es;
     protected RecordingHttpClient $recordingHttpClient;
+    protected EventStoreFactory $factory;
 
     /**
      * @throws ConnectionFailedException
@@ -32,6 +33,8 @@ class TestCase extends BaseTestCase
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
         $guzzleClient = new Client(['base_uri' => $uri]);
         $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient($guzzleClient));
+        $httpFactory = new HttpFactory();
+        $this->factory = new EventStoreFactory($httpFactory, $httpFactory, $this->recordingHttpClient);
         $this->es = $this->createEventStore(
             new HttpFactory(),
             $this->recordingHttpClient,
@@ -43,7 +46,7 @@ class TestCase extends BaseTestCase
      */
     protected function createEventStore(RequestFactoryInterface&UriFactoryInterface $factory, ClientInterface $httpClient): EventStore
     {
-        return EventStoreFactory::create($factory, $factory, $httpClient);
+        return $this->factory->create();
     }
 
     /**
