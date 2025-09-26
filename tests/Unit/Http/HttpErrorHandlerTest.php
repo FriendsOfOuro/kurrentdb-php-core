@@ -15,6 +15,7 @@ use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\Http\ResponseCode;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -69,26 +70,19 @@ class HttpErrorHandlerTest extends TestCase
      * @throws BadRequestException
      */
     #[Test]
-    public function handle_status_code_does_nothing_for_success_codes(): void
+    #[TestWith([200, 'OK'])]
+    #[TestWith([201, 'Created'])]
+    #[TestWith([204, 'No Content'])]
+    public function handle_status_code_does_nothing_for_success_codes(int $statusCode, string $reasonPhrase): void
     {
         $this->expectNotToPerformAssertions();
 
-        $response200 = $this->createMock(ResponseInterface::class);
-        $response200->method('getStatusCode')->willReturn(200);
-        $response200->method('getReasonPhrase')->willReturn('OK');
-
-        $response201 = $this->createMock(ResponseInterface::class);
-        $response201->method('getStatusCode')->willReturn(201);
-        $response201->method('getReasonPhrase')->willReturn('Created');
-
-        $response204 = $this->createMock(ResponseInterface::class);
-        $response204->method('getStatusCode')->willReturn(204);
-        $response204->method('getReasonPhrase')->willReturn('No Content');
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn($statusCode);
+        $response->method('getReasonPhrase')->willReturn($reasonPhrase);
 
         // Should not throw any exception for success codes
-        $this->errorHandler->handleStatusCode($this->uri, $response200);
-        $this->errorHandler->handleStatusCode($this->uri, $response201);
-        $this->errorHandler->handleStatusCode($this->uri, $response204);
+        $this->errorHandler->handleStatusCode($this->uri, $response);
     }
 
     /**
