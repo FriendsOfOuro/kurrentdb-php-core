@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
-use KurrentDB\EventStoreInterface;
+use KurrentDB\StreamReaderInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -26,7 +26,7 @@ final class StreamFeedIterator implements \Iterator
     private int $pagesLeft;
 
     private function __construct(
-        private readonly EventStoreInterface $eventStore,
+        private readonly StreamReaderInterface $streamReader,
         private readonly string $streamName,
         private readonly LinkRelation $startingRelation,
         private readonly LinkRelation $navigationRelation,
@@ -37,10 +37,10 @@ final class StreamFeedIterator implements \Iterator
         $this->pagesLeft = max(0, $pageLimit - 1); // Reserve one for initial page
     }
 
-    public static function forward(EventStoreInterface $eventStore, string $streamName, int $pageLimit = PHP_INT_MAX): self
+    public static function forward(StreamReaderInterface $streamReader, string $streamName, int $pageLimit = PHP_INT_MAX): self
     {
         return new self(
-            $eventStore,
+            $streamReader,
             $streamName,
             LinkRelation::LAST,
             LinkRelation::PREVIOUS,
@@ -49,12 +49,12 @@ final class StreamFeedIterator implements \Iterator
         );
     }
 
-    public static function backward(EventStoreInterface $eventStore, string $streamName, int $pageLimit = PHP_INT_MAX): self
+    public static function backward(StreamReaderInterface $streamReader, string $streamName, int $pageLimit = PHP_INT_MAX): self
     {
         static $identity = fn (array $a): array => $a;
 
         return new self(
-            $eventStore,
+            $streamReader,
             $streamName,
             LinkRelation::FIRST,
             LinkRelation::NEXT,
@@ -75,7 +75,7 @@ final class StreamFeedIterator implements \Iterator
 
         if (!$this->innerIterator->valid() && $this->pagesLeft > 0) {
             $this->feed = $this
-                ->eventStore
+                ->streamReader
                 ->navigateStreamFeed(
                     $this->feed,
                     $this->navigationRelation
@@ -114,11 +114,11 @@ final class StreamFeedIterator implements \Iterator
             return;
         }
 
-        $this->feed = $this->eventStore->openStreamFeed($this->streamName);
+        $this->feed = $this->streamReader->openStreamFeed($this->streamName);
 
         if ($this->feed->hasLink($this->startingRelation)) {
             $this->feed = $this
-                ->eventStore
+                ->streamReader
                 ->navigateStreamFeed(
                     $this->feed,
                     $this->startingRelation
@@ -165,7 +165,7 @@ final class StreamFeedIterator implements \Iterator
                         );
                     },
                     $entries,
-                    $this->eventStore->readEventBatch($urls)
+                    $this->streamReader->readEventBatch($urls)
                 ),
                 fn (?EntryWithEvent $entryWithEvent): bool => $entryWithEvent instanceof EntryWithEvent
             )

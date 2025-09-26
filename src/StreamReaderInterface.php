@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace KurrentDB;
 
 use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
- * Interface for stream reading operations.
+ * Interface for stream and event reading operations.
+ *
+ * This interface combines stream-level operations (feeds, navigation) with
+ * event-level operations (individual and batch reading) since streams and
+ * events are inseparable domain concepts.
  */
 interface StreamReaderInterface
 {
@@ -40,4 +47,28 @@ interface StreamReaderInterface
      * @throws Exception\WrongExpectedVersionException
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed;
+
+    /**
+     * Read a single event.
+     *
+     * @param UriInterface $eventUri The url of the event
+     *
+     * @throws Exception\BadRequestException
+     * @throws Exception\StreamGoneException
+     * @throws Exception\StreamNotFoundException
+     * @throws Exception\UnauthorizedException
+     * @throws Exception\WrongExpectedVersionException
+     */
+    public function readEvent(UriInterface $eventUri): Event;
+
+    /**
+     * Reads a batch of events.
+     *
+     * @param UriInterface[] $eventUrls The urls of the events
+     *
+     * @return Event[]
+     *
+     * @throws ClientExceptionInterface
+     */
+    public function readEventBatch(array $eventUrls): array;
 }
