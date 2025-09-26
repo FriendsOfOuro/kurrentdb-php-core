@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit\Http;
 
 use GuzzleHttp\Psr7\Uri;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
@@ -40,26 +41,54 @@ class HttpErrorHandlerTest extends TestCase
      */
     #[Test]
     #[DataProvider('statusCodeProvider')]
-    public function handle_status_code_throws_correct_exception(int $statusCode, string $expectedException): void
+    public function handle_status_code_throws_correct_exception(int $statusCode, string $expectedException, ?string $reasonPhrase = null): void
     {
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn($statusCode);
+        $response->method('getReasonPhrase')->willReturn($reasonPhrase ?? '');
+
         $this->expectException($expectedException);
-        $this->errorHandler->handleStatusCode($this->uri, $statusCode);
+        $this->errorHandler->handleStatusCode($this->uri, $response);
+    }
+
+    #[Test]
+    public function handle_status_code_throws_bad_request_for_400_with_other_reason(): void
+    {
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(400);
+        $response->method('getReasonPhrase')->willReturn('Bad Request');
+
+        $this->expectException(BadRequestException::class);
+        $this->errorHandler->handleStatusCode($this->uri, $response);
     }
 
     /**
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
      * @throws StreamGoneException
+     * @throws BadRequestException
      */
     #[Test]
     public function handle_status_code_does_nothing_for_success_codes(): void
     {
         $this->expectNotToPerformAssertions();
 
+        $response200 = $this->createMock(ResponseInterface::class);
+        $response200->method('getStatusCode')->willReturn(200);
+        $response200->method('getReasonPhrase')->willReturn('OK');
+
+        $response201 = $this->createMock(ResponseInterface::class);
+        $response201->method('getStatusCode')->willReturn(201);
+        $response201->method('getReasonPhrase')->willReturn('Created');
+
+        $response204 = $this->createMock(ResponseInterface::class);
+        $response204->method('getStatusCode')->willReturn(204);
+        $response204->method('getReasonPhrase')->willReturn('No Content');
+
         // Should not throw any exception for success codes
-        $this->errorHandler->handleStatusCode($this->uri, 200);
-        $this->errorHandler->handleStatusCode($this->uri, 201);
-        $this->errorHandler->handleStatusCode($this->uri, 204);
+        $this->errorHandler->handleStatusCode($this->uri, $response200);
+        $this->errorHandler->handleStatusCode($this->uri, $response201);
+        $this->errorHandler->handleStatusCode($this->uri, $response204);
     }
 
     /**
@@ -153,7 +182,7 @@ class HttpErrorHandlerTest extends TestCase
     public static function statusCodeProvider(): array
     {
         return [
-            'Bad Request' => [ResponseCode::HTTP_BAD_REQUEST, WrongExpectedVersionException::class],
+            'Bad Request (Version Conflict)' => [ResponseCode::HTTP_BAD_REQUEST, WrongExpectedVersionException::class, 'Wrong expected EventNumber'],
             'Unauthorized' => [ResponseCode::HTTP_UNAUTHORIZED, UnauthorizedException::class],
             'Not Found' => [ResponseCode::HTTP_NOT_FOUND, StreamNotFoundException::class],
             'Conflict' => [ResponseCode::HTTP_CONFLICT, WrongExpectedVersionException::class],

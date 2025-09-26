@@ -75,7 +75,7 @@ final class EventStore implements EventStoreInterface
         $request = $this->requestFactory->createRequest('DELETE', $this->getStreamUrl($streamName));
 
         if (StreamDeletion::HARD === $mode) {
-            $request = $request->withHeader('ES-HardDelete', 'true');
+            $request = $request->withHeader('Kurrent-HardDelete', 'true');
         }
 
         $this->sendRequest($request);
@@ -175,7 +175,7 @@ final class EventStore implements EventStoreInterface
         $request = $this
             ->requestFactory
             ->createRequest('POST', $streamUri)
-            ->withHeader('ES-ExpectedVersion', (string) $expectedVersion)
+            ->withHeader('Kurrent-ExpectedVersion', (string) $expectedVersion)
             ->withHeader('Content-Type', 'application/vnd.kurrent.events+json')
         ;
 
@@ -185,8 +185,7 @@ final class EventStore implements EventStoreInterface
         $request->getBody()->write((string) json_encode($events->toStreamData()));
         $this->sendRequest($request);
 
-        $responseStatusCode = $this->getLastResponse()->getStatusCode();
-        $this->errorHandler->handleStatusCode($streamUri, $responseStatusCode);
+        $this->errorHandler->handleStatusCode($streamUri, $this->getLastResponse());
 
         $version = $this->extractStreamVersionFromLastResponse($streamUri);
 
@@ -289,7 +288,7 @@ final class EventStore implements EventStoreInterface
      */
     private function ensureStatusCodeIsGood(UriInterface $streamUrl): void
     {
-        $this->errorHandler->handleStatusCode($streamUrl, $this->lastResponse->getStatusCode());
+        $this->errorHandler->handleStatusCode($streamUrl, $this->lastResponse);
     }
 
     /**

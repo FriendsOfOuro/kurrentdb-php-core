@@ -8,6 +8,7 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamGoneException;
@@ -62,9 +63,10 @@ class WriteToStreamErrorHandlingTest extends TestCase
         );
     }
 
-    private function configureResponseStatusCode(int $statusCode): void
+    private function configureResponseStatusCode(int $statusCode, string $reasonPhrase = ''): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn($statusCode);
+        $this->mockResponse->method('getReasonPhrase')->willReturn($reasonPhrase);
     }
 
     /** @param string[] $headers */
@@ -97,8 +99,9 @@ class WriteToStreamErrorHandlingTest extends TestCase
         int $statusCode,
         ?string $expectedExceptionClass,
         string $description,
+        ?string $reasonPhrase = null,
     ): void {
-        $this->configureResponseStatusCode($statusCode);
+        $this->configureResponseStatusCode($statusCode, $reasonPhrase ?? '');
 
         if (201 === $statusCode) {
             $this->configureLocationHeader(['http://127.0.0.1:2113/streams/test-stream/0']);
@@ -126,8 +129,15 @@ class WriteToStreamErrorHandlingTest extends TestCase
             // Test key error scenarios and successful case
             'HTTP 400 Bad Request' => [
                 400,
+                BadRequestException::class,
+                'Bad request error',
+            ],
+
+            'HTTP 400 Version Conflict' => [
+                400,
                 WrongExpectedVersionException::class,
-                'Wrong expected version error',
+                'Version conflict (KurrentDB specific)',
+                'Wrong expected EventNumber',
             ],
 
             'HTTP 201 Created with version' => [

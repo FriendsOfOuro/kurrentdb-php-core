@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace KurrentDB\Http;
 
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 final class HttpErrorHandler
@@ -19,14 +21,23 @@ final class HttpErrorHandler
      *
      * @throws StreamNotFoundException
      * @throws StreamGoneException
+     * @throws BadRequestException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws ConnectionFailedException
      */
-    public function handleStatusCode(UriInterface $uri, int $statusCode): void
+    public function handleStatusCode(UriInterface $uri, ResponseInterface $response): void
     {
+        $statusCode = $response->getStatusCode();
+        $reasonPhrase = $response->getReasonPhrase();
+
         switch ($statusCode) {
             case ResponseCode::HTTP_BAD_REQUEST:
+                // KurrentDB returns 400 for version conflicts with specific reason phrase
+                if ('Wrong expected EventNumber' === $reasonPhrase) {
+                    throw new WrongExpectedVersionException();
+                }
+                throw new BadRequestException(\sprintf('Bad request for stream %s', $uri));
             case ResponseCode::HTTP_CONFLICT:
                 throw new WrongExpectedVersionException();
             case ResponseCode::HTTP_UNAUTHORIZED:
@@ -49,6 +60,7 @@ final class HttpErrorHandler
      *
      * @throws StreamNotFoundException
      * @throws StreamGoneException
+     * @throws BadRequestException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws ConnectionFailedException
@@ -56,7 +68,7 @@ final class HttpErrorHandler
     public function handleException(UriInterface $uri, ClientExceptionInterface $exception): void
     {
         if (method_exists($exception, 'getResponse') && null !== $exception->getResponse()) {
-            $this->handleStatusCode($uri, $exception->getResponse()->getStatusCode());
+            $this->handleStatusCode($uri, $exception->getResponse());
         }
 
         throw new ConnectionFailedException($exception->getMessage(), $exception->getCode(), $exception);

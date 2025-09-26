@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace KurrentDB\Exception;
 
 /**
- * Class StreamNotFoundException.
+ * Exception thrown when a stream is not found (HTTP 404).
+ *
+ * This could mean the stream never existed or was soft deleted.
  */
-final class StreamNotFoundException extends StreamException
+final class StreamNotFoundException extends StreamNotAvailableException
 {
 }
