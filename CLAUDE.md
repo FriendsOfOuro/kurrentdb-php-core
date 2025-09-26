@@ -24,8 +24,10 @@ This project uses Docker Compose for development environment and Make for common
 All PHP commands are executed inside Docker containers using: `docker compose exec php <command>`
 
 Examples:
-- `docker compose exec php bin/phpunit tests/Tests/EventStoreTest.php` - Run specific test file
+- `docker compose exec php bin/phpunit tests/Integration/EventStoreTest.php` - Run specific test file
+- `docker compose exec php bin/phpunit --filter test_it_should_read_stream_feed` - Run specific test method
 - `docker compose exec php bin/phpstan analyse src/EventStore.php` - Analyze specific file
+- `docker compose exec php bin/rector process src/EventStore.php --dry-run` - Preview Rector changes for a file
 
 ## Architecture Overview
 
@@ -51,9 +53,11 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 - `StreamFeed\LinkRelation` - Navigation relations (FIRST, LAST, NEXT, PREVIOUS)
 
 **HTTP Layer:**
-- `Http\HttpClientInterface` - Abstraction for HTTP clients
-- `Http\GuzzleHttpClient` - Guzzle-based implementation with caching support
-- Supports PSR-6 cache, filesystem cache, and APCu cache
+- Uses `FriendsOfOuro\Http\Batch\ClientInterface` from `friendsofouro/http-batch-contract`
+- PSR-18 compliant HTTP client with batch request support
+- `Http\Auth\Credentials` - Authentication handling extracted from URI
+- `Http\ResponseCode` - HTTP response code constants
+- Supports concurrent batch requests for improved performance
 
 **Value Objects & Utilities:**
 - `ValueObjects\Identity\UUID` - UUID handling
@@ -62,25 +66,37 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 
 ### Key Patterns
 
-1. **PSR Compliance:** Uses PSR-7 (HTTP messages) and PSR-18 (HTTP client) standards
-2. **Optimistic Concurrency:** Stream operations include expected version checking
-3. **Batch Operations:** Support for reading multiple events efficiently
-4. **Stream Navigation:** AtomPub-style feed navigation with link relations
-5. **Error Handling:** Specific exceptions for common scenarios (stream not found, wrong version, etc.)
+1. **Interface Segregation:** Core functionality split into focused interfaces:
+   - `StreamReaderInterface` - Stream reading operations
+   - `StreamWriterInterface` - Stream writing and deletion
+   - `EventReaderInterface` - Event reading and batch operations
+   - `StreamIteratorFactoryInterface` - Stream iteration factories
+   - `HttpDiagnosticsInterface` - HTTP diagnostics
+2. **PSR Compliance:** Uses PSR-7 (HTTP messages), PSR-18 (HTTP client), and PSR-17 (HTTP factories)
+3. **Optimistic Concurrency:** Stream operations include expected version checking
+4. **Batch Operations:** Support for reading multiple events efficiently via `ClientInterface::sendBatch()`
+5. **Stream Navigation:** AtomPub-style feed navigation with link relations
+6. **Error Handling:** Specific exceptions for common scenarios with dedicated handlers
+7. **Factory Pattern:** Dedicated factories for creating stream feeds and entries
 
 ### Testing Environment
 
 - Uses Docker Compose with KurrentDB container for integration tests
-- PHPUnit configuration in `phpunit.xml.dist`
-- Test environment variable: `EVENTSTORE_URI=http://admin:changeit@127.0.0.1:2113`
-- Tests located in `tests/` directory with namespace `KurrentDB\`
+- PHPUnit configuration in `phpunit.xml.dist` with strict settings
+- Test suites: `unit` (tests/Unit) and `integration` (tests/Integration)
+- Environment variable: `EVENTSTORE_URI=http://admin:changeit@eventstore.db:2113` (internal Docker network)
+- Tests namespace: `KurrentDB\Tests\`
+- Base test case: `tests/Integration/TestCase.php` for integration tests
+- Xdebug enabled in Docker for coverage reports
 
 ### Code Standards
 
 - PHP-CS-Fixer with Symfony and PSR-12 rules
-- PHPStan static analysis at level 5
-- Snake case for PHPUnit method names
-- Rector for PHP 8.4+ features and code quality improvements
+- PHPStan static analysis at level 7 (strict mode)
+- Snake case for PHPUnit method names (configured in `.php-cs-fixer.php`)
+- Rector for PHP 8.4+ features with prepared sets: deadCode, codeQuality, typeDeclarations
+- Strict types declaration enforced in all PHP files
+- Chained method calls on new lines for better readability
 
 ## Release Management
 
