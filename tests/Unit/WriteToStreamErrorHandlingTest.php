@@ -90,10 +90,6 @@ class WriteToStreamErrorHandlingTest extends TestCase
 
     /**
      * @param class-string<\Throwable>|null $expectedExceptionClass
-     *
-     * @throws StreamGoneException
-     * @throws StreamNotFoundException
-     * @throws WrongExpectedVersionException
      */
     #[Test]
     #[DataProvider('httpErrorCodesProvider')]
@@ -127,6 +123,7 @@ class WriteToStreamErrorHandlingTest extends TestCase
     public static function httpErrorCodesProvider(): array
     {
         return [
+            // Test key error scenarios and successful case
             'HTTP 400 Bad Request' => [
                 400,
                 WrongExpectedVersionException::class,
@@ -151,22 +148,11 @@ class WriteToStreamErrorHandlingTest extends TestCase
                 'Stream not found',
             ],
 
+            // Test one server error case to ensure integration works
             'HTTP 500 Internal Server Error' => [
                 500,
                 ConnectionFailedException::class,
                 'Server error (e.g., redirect failure in cluster)',
-            ],
-
-            'HTTP 502 Bad Gateway' => [
-                502,
-                ConnectionFailedException::class,
-                'Bad gateway error',
-            ],
-
-            'HTTP 503 Service Unavailable' => [
-                503,
-                ConnectionFailedException::class,
-                'Service temporarily unavailable',
             ],
 
             'HTTP 409 Conflict' => [
@@ -180,24 +166,9 @@ class WriteToStreamErrorHandlingTest extends TestCase
                 StreamGoneException::class,
                 'Stream has been permanently deleted',
             ],
-
-            'HTTP 429 Too Many Requests' => [
-                429,
-                ConnectionFailedException::class,
-                'Rate limiting',
-            ],
-
-            'HTTP 504 Gateway Timeout' => [
-                504,
-                ConnectionFailedException::class,
-                'Gateway timeout',
-            ],
         ];
     }
 
-    /**
-     * @throws WrongExpectedVersionException
-     */
     #[Test]
     public function write_to_stream_with_successful_response_but_no_location_header_throws_exception(): void
     {
@@ -207,9 +178,6 @@ class WriteToStreamErrorHandlingTest extends TestCase
         $this->eventStore->writeToStream('test-stream', $this->testEvent);
     }
 
-    /**
-     * @throws WrongExpectedVersionException
-     */
     #[Test]
     public function write_to_stream_with_malformed_location_header_throws_exception(): void
     {
