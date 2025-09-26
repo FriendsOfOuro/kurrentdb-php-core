@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KurrentDB;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\Exception\StreamGoneException;
@@ -24,7 +25,6 @@ use KurrentDB\StreamFeed\StreamUrl;
 use KurrentDB\Url\PsrUriHelper;
 use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -69,6 +69,11 @@ final class EventStore implements EventStoreInterface
      *
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
+     *
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     public function deleteStream(string $streamName, StreamDeletion $mode): void
     {
@@ -92,8 +97,10 @@ final class EventStore implements EventStoreInterface
     /**
      * Navigates a stream feed through link relations.
      *
+     * @throws BadRequestException
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
-     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed
     {
@@ -109,8 +116,10 @@ final class EventStore implements EventStoreInterface
     /**
      * Opens a stream feed for read and navigation.
      *
+     * @throws BadRequestException
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
-     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
      */
     public function openStreamFeed(string $streamName, EntryEmbedMode $embedMode = EntryEmbedMode::NONE): StreamFeed
     {
@@ -122,8 +131,10 @@ final class EventStore implements EventStoreInterface
     /**
      * Read a single event.
      *
+     * @throws BadRequestException
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
-     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
      */
     public function readEvent(UriInterface $eventUri): Event
     {
@@ -139,6 +150,8 @@ final class EventStore implements EventStoreInterface
 
     /**
      * Reads a batch of events.
+     *
+     * @throws ClientExceptionInterface
      */
     public function readEventBatch(array $eventUrls): array
     {
@@ -164,7 +177,16 @@ final class EventStore implements EventStoreInterface
         ));
     }
 
-    /** @param array<string, string> $additionalHeaders */
+    /**
+     * @param array<string, string> $additionalHeaders
+     *
+     * @throws BadRequestException
+     * @throws ConnectionFailedException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
+     */
     public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
     {
         if ($events instanceof WritableEvent) {
@@ -203,16 +225,14 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
-     * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
-     * @throws StreamGoneException
+     * @throws ConnectionFailedException
      */
     private function checkConnection(): void
     {
         try {
             $request = $this->requestFactory->createRequest('GET', $this->uri);
             $this->sendRequest($request);
-        } catch (NetworkExceptionInterface $e) {
+        } catch (\Exception $e) {
             throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -225,6 +245,7 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
+     * @throws BadRequestException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -267,6 +288,7 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
+     * @throws BadRequestException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -282,6 +304,7 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
+     * @throws BadRequestException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException

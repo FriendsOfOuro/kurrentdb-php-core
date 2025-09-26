@@ -68,16 +68,16 @@
         },
         {
             "name": "friendsofouro/http-batch-contract",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfOuro/http-batch-contract.git",
-                "reference": "831832c21165fa88244c19485bff037cb971e8ca"
+                "reference": "930bfe32b6e6d9f64b9f4dfc0d21844b9242e9c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfOuro/http-batch-contract/zipball/831832c21165fa88244c19485bff037cb971e8ca",
-                "reference": "831832c21165fa88244c19485bff037cb971e8ca",
+                "url": "https://api.github.com/repos/FriendsOfOuro/http-batch-contract/zipball/930bfe32b6e6d9f64b9f4dfc0d21844b9242e9c7",
+                "reference": "930bfe32b6e6d9f64b9f4dfc0d21844b9242e9c7",
                 "shasum": ""
             },
             "require": {
@@ -101,9 +101,9 @@
             "description": "Contract for a batch of HTTP Requests",
             "support": {
                 "issues": "https://github.com/FriendsOfOuro/http-batch-contract/issues",
-                "source": "https://github.com/FriendsOfOuro/http-batch-contract/tree/v1.0.0"
+                "source": "https://github.com/FriendsOfOuro/http-batch-contract/tree/v1.0.1"
             },
-            "time": "2025-09-24T22:16:17+00:00"
+            "time": "2025-09-26T10:23:45+00:00"
         },
         {
             "name": "friendsofouro/http-batch-guzzle",
