@@ -36,6 +36,10 @@ test:
 phpstan:
 	$(PHP) bin/phpstan analyse -v --memory-limit=1G
 
+.PHONY: check-src-deps
+check-src-deps:
+	$(PHP) vendor/maglnet/composer-require-checker/bin/composer-require-checker check --config-file=.composer-require-checker.json
+
 .PHONY: rector
 rector:
 	$(PHP) bin/rector process

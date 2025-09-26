@@ -44,6 +44,9 @@ jobs:
       - name: PHPUnit
         run: make test-coverage
 
+      - name: Check dependencies
+        run: make check-src-deps
+
       - name: Stop containers
         if: always()
         run: make down
