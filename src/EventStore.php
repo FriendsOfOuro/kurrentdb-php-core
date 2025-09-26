@@ -206,7 +206,7 @@ final readonly class EventStore implements EventStoreInterface
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        $version = $this->extractStreamVersionFromLastResponse($streamUri, $response);
+        $version = $this->extractStreamVersionFromLastResponse($response);
 
         return new StreamWriteResult($version);
     }
@@ -304,13 +304,13 @@ final readonly class EventStore implements EventStoreInterface
      *
      * The Event Store responds with a HTTP message containing a Location
      * header pointing to the newly created stream. This method extracts
-     * the last part of that URI an returns the value.
+     * the last part of that URI and returns the value.
      *
      * http://127.0.0.1:2113/streams/newstream/13 -> 13
      *
      * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(UriInterface $streamUri, ResponseInterface $response): int
+    private function extractStreamVersionFromLastResponse(ResponseInterface $response): int
     {
         $locationHeaders = $response->getHeader('Location');
 
@@ -318,13 +318,14 @@ final readonly class EventStore implements EventStoreInterface
             throw new NoExtractableEventVersionException();
         }
 
-        $streamUri = $streamUri->withUserInfo('');
+        $pathComponents = explode('/', $locationHeaders[0]);
+        $version = end($pathComponents);
 
-        if (!preg_match('#^'.preg_quote((string) $streamUri).'/([^/]+)$#', $locationHeaders[0], $matches)) {
+        if (false === $version || !is_numeric($version)) {
             throw new NoExtractableEventVersionException();
         }
 
-        return (int) $matches[1];
+        return (int) $version;
     }
 
     /** @return array<string, mixed> */
