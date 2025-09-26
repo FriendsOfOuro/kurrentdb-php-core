@@ -26,10 +26,10 @@
   "require": {
     "php": "^8.4",
     "friendsofouro/http-batch-contract": "^3.0",
+    "friendsofouro/http-batch-implementation": "^3.0",
     "psr/http-client-implementation": "*",
     "psr/http-factory-implementation": "*",
     "psr/http-message-implementation": "*",
-    "friendsofouro/http-batch-implementation": "^3.0",
     "ramsey/uuid": "^4.9"
   },
   "require-dev": {
@@ -48,8 +48,8 @@
     "friendsofouro/geteventstore-core": "self.version"
   },
   "suggest": {
-    "friendsofouro/kurrentdb-bundle": "Integrate KurrentDB with Symfony 7.3 or later",
-    "friendsofouro/http-batch-guzzle": "Default PSR-7 + Batch implementation"
+    "friendsofouro/http-batch-guzzle": "Default PSR-7 + Batch implementation",
+    "friendsofouro/kurrentdb-bundle": "Integrate KurrentDB with Symfony 7.3 or later"
   },
   "autoload": {
     "psr-4": {
