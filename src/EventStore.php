@@ -164,15 +164,13 @@ final class EventStore implements EventStoreInterface
 
         // Fail fast if any request failed - smart retry will be implemented later
         if ($batch->hasAnyFailures()) {
-            $failedResults = $batch->getFailedResults();
-            $firstFailure = $failedResults[0];
-            throw $firstFailure->getException();
+            $exceptions = $batch->getExceptions();
+            throw $exceptions[0];
         }
 
         // Process all successful responses
         return array_filter(array_map(
-            function ($item): ?Event {
-                $response = $item->getResponse();
+            function (ResponseInterface $response): ?Event {
                 $data = json_decode((string) $response->getBody(), true);
                 if (!isset($data['content'])) {
                     return null;
@@ -182,7 +180,7 @@ final class EventStore implements EventStoreInterface
                     $data['content']
                 );
             },
-            $batch->getResults()
+            $batch->getResponses()
         ));
     }
 
