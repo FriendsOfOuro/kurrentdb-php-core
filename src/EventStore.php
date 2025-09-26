@@ -160,10 +160,19 @@ final class EventStore implements EventStoreInterface
             $eventUrls
         );
 
-        $responses = $this->httpClient->sendRequestBatch($requests);
+        $batch = $this->httpClient->sendRequestBatch($requests);
 
+        // Fail fast if any request failed - smart retry will be implemented later
+        if ($batch->hasAnyFailures()) {
+            $failedResults = $batch->getFailedResults();
+            $firstFailure = $failedResults[0];
+            throw $firstFailure->getException();
+        }
+
+        // Process all successful responses
         return array_filter(array_map(
-            function (ResponseInterface $response): ?Event {
+            function ($item): ?Event {
+                $response = $item->getResponse();
                 $data = json_decode((string) $response->getBody(), true);
                 if (!isset($data['content'])) {
                     return null;
@@ -173,7 +182,7 @@ final class EventStore implements EventStoreInterface
                     $data['content']
                 );
             },
-            $responses
+            $batch->getResults()
         ));
     }
 

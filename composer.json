@@ -25,16 +25,16 @@
   ],
   "require": {
     "php": "^8.4",
-    "friendsofouro/http-batch-contract": "^1.0",
+    "friendsofouro/http-batch-contract": "^2.0",
     "psr/http-client-implementation": "*",
     "psr/http-factory-implementation": "*",
     "psr/http-message-implementation": "*",
-    "friendsofouro/http-batch-implementation": "^1.0",
+    "friendsofouro/http-batch-implementation": "^2.0",
     "ramsey/uuid": "^4.9"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.48",
-    "friendsofouro/http-batch-guzzle": "^1.0",
+    "friendsofouro/http-batch-guzzle": "^2.0",
     "friendsofphp/php-cs-fixer": "^3.87",
     "guzzlehttp/guzzle": "^7.10",
     "phpstan/phpstan": "^2.1",
