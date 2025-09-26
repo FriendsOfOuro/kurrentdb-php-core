@@ -23,6 +23,10 @@ final readonly class EventStoreFactory
         $connectionChecker = new ConnectionChecker($requestFactory, $httpClient);
         $connectionChecker->checkConnection();
 
-        return new EventStore($uriFactory, $requestFactory, $httpClient);
+        $streamReader = new StreamReader($uriFactory, $requestFactory, $httpClient);
+        $streamWriter = new StreamWriter($uriFactory, $requestFactory, $httpClient);
+        $streamIteratorFactory = new StreamIteratorFactory($streamReader);
+
+        return new EventStore($streamReader, $streamWriter, $streamIteratorFactory);
     }
 }

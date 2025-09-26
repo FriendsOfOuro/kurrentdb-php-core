@@ -20,7 +20,6 @@ use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use PHPUnit\Framework\Attributes\Test;
@@ -336,13 +335,16 @@ class EventStoreTest extends TestCase
     {
         $streamName = $this->prepareTestStream(1);
 
-        $this->assertEquals(
-            StreamFeedIterator::forward(
-                $this->es,
-                $streamName
-            ),
-            $this->es->forwardStreamFeedIterator($streamName)
-        );
+        $iterator = $this->es->forwardStreamFeedIterator($streamName);
+
+        // Test that iterator works by iterating over the event
+        $iterator->rewind();
+        $this->assertTrue($iterator->valid());
+
+        $entryWithEvent = $iterator->current();
+        $event = $entryWithEvent->getEvent();
+        $this->assertEquals('Foo_Event', $event->getType());
+        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
     }
 
     /**
@@ -353,13 +355,16 @@ class EventStoreTest extends TestCase
     {
         $streamName = $this->prepareTestStream(1);
 
-        $this->assertEquals(
-            StreamFeedIterator::backward(
-                $this->es,
-                $streamName
-            ),
-            $this->es->backwardStreamFeedIterator($streamName)
-        );
+        $iterator = $this->es->backwardStreamFeedIterator($streamName);
+
+        // Test that iterator works by iterating over the event
+        $iterator->rewind();
+        $this->assertTrue($iterator->valid());
+
+        $entryWithEvent = $iterator->current();
+        $event = $entryWithEvent->getEvent();
+        $this->assertEquals('Foo_Event', $event->getType());
+        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
     }
 
     /**
