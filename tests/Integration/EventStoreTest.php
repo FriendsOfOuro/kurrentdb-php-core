@@ -31,7 +31,7 @@ class EventStoreTest extends TestCase
     #[Test]
     public function client_successfully_connects_to_event_store(): void
     {
-        $this->assertMatchesRegularExpression('/^[2-3]\d{2}$/', (string) $this->es->getLastResponse()->getStatusCode());
+        $this->assertMatchesRegularExpression('/^[2-3]\d{2}$/', (string) $this->recordingHttpClient->getLastResponse()->getStatusCode());
     }
 
     /**
@@ -42,7 +42,7 @@ class EventStoreTest extends TestCase
     {
         $this->prepareTestStream();
 
-        $this->assertEquals('201', $this->es->getLastResponse()->getStatusCode());
+        $this->assertEquals('201', $this->recordingHttpClient->getLastResponse()->getStatusCode());
     }
 
     /**
@@ -80,13 +80,13 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::SOFT);
 
-        $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
+        $this->assertEquals('204', $this->recordingHttpClient->getLastResponse()->getStatusCode());
 
         // we try to write to a soft deleted stream...
         $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['data' => 'bar']));
 
         // ..and we should expect a "201 Created" response
-        $this->assertEquals('201', $this->es->getLastResponse()->getStatusCode());
+        $this->assertEquals('201', $this->recordingHttpClient->getLastResponse()->getStatusCode());
     }
 
     /**
@@ -98,7 +98,7 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
-        $this->assertEquals('204', $this->es->getLastResponse()->getStatusCode());
+        $this->assertEquals('204', $this->recordingHttpClient->getLastResponse()->getStatusCode());
 
         // we try to write to a hard deleted stream...
         $this->expectException(StreamGoneException::class);

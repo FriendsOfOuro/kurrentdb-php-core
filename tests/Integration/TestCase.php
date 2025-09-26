@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\Http\RecordingHttpClient;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -20,15 +21,17 @@ use Psr\Http\Message\UriFactoryInterface;
 class TestCase extends BaseTestCase
 {
     protected EventStore $es;
+    protected RecordingHttpClient $recordingHttpClient;
 
     /**
      * @throws ConnectionFailedException
      */
     protected function setUp(): void
     {
+        $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient());
         $this->es = $this->createEventStore(
             new HttpFactory(),
-            new GuzzleHttpClient(),
+            $this->recordingHttpClient,
         );
     }
 

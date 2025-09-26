@@ -34,15 +34,13 @@ use Psr\Http\Message\UriInterface;
 /**
  * Class EventStore.
  */
-final class EventStore implements EventStoreInterface
+final readonly class EventStore implements EventStoreInterface
 {
-    private readonly Credentials $credentials;
+    private Credentials $credentials;
 
-    private readonly HttpErrorHandler $errorHandler;
+    private HttpErrorHandler $errorHandler;
 
-    private readonly StreamFeedFactory $streamFeedFactory;
-
-    private ResponseInterface $lastResponse;
+    private StreamFeedFactory $streamFeedFactory;
 
     /**
      * EventStore constructor.
@@ -50,10 +48,10 @@ final class EventStore implements EventStoreInterface
      * @throws ConnectionFailedException
      */
     public function __construct(
-        private readonly UriInterface $uri,
-        private readonly UriFactoryInterface $uriFactory,
-        private readonly RequestFactoryInterface $requestFactory,
-        private readonly ClientInterface $httpClient,
+        private UriInterface $uri,
+        private UriFactoryInterface $uriFactory,
+        private RequestFactoryInterface $requestFactory,
+        private ClientInterface $httpClient,
     ) {
         $this->credentials = Credentials::fromString($this->uri->getUserInfo());
         $this->errorHandler = new HttpErrorHandler();
@@ -84,14 +82,6 @@ final class EventStore implements EventStoreInterface
         }
 
         $this->sendRequest($request);
-    }
-
-    /**
-     * Get the response from the last HTTP call to the EventStore API.
-     */
-    public function getLastResponse(): ResponseInterface
-    {
-        return $this->lastResponse;
     }
 
     /**
@@ -139,11 +129,11 @@ final class EventStore implements EventStoreInterface
     public function readEvent(UriInterface $eventUri): Event
     {
         $request = $this->getJsonRequest($eventUri);
-        $this->sendRequest($request);
+        $response = $this->sendRequest($request);
 
-        $this->ensureStatusCodeIsGood($eventUri);
+        $this->errorHandler->handleStatusCode($eventUri, $response);
 
-        $jsonResponse = $this->lastResponseAsJson();
+        $jsonResponse = $this->responseAsJson($response);
 
         return $this->createEventFromResponseContent($jsonResponse['content']);
     }
@@ -212,11 +202,11 @@ final class EventStore implements EventStoreInterface
             $request = $request->withHeader($name, (string) $value);
         }
         $request->getBody()->write((string) json_encode($events->toStreamData()));
-        $this->sendRequest($request);
+        $response = $this->sendRequest($request);
 
-        $this->errorHandler->handleStatusCode($streamUri, $this->getLastResponse());
+        $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        $version = $this->extractStreamVersionFromLastResponse($streamUri);
+        $version = $this->extractStreamVersionFromLastResponse($streamUri, $response);
 
         return new StreamWriteResult($version);
     }
@@ -271,12 +261,12 @@ final class EventStore implements EventStoreInterface
             $request = $request->withUri($uri);
         }
 
-        $this->sendRequest($request);
+        $response = $this->sendRequest($request);
 
-        $this->ensureStatusCodeIsGood($streamUri);
+        $this->errorHandler->handleStatusCode($streamUri, $response);
 
         return $this->streamFeedFactory->create(
-            $this->lastResponseAsJson(),
+            $this->responseAsJson($response),
             $embedMode,
             $this->credentials,
         );
@@ -300,25 +290,13 @@ final class EventStore implements EventStoreInterface
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
-    private function sendRequest(RequestInterface $request): void
+    private function sendRequest(RequestInterface $request): ResponseInterface
     {
         try {
-            $this->lastResponse = $this->httpClient->sendRequest($request);
+            return $this->httpClient->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
-            $this->saveLastResponse($e);
             $this->errorHandler->handleException($request->getUri(), $e);
         }
-    }
-
-    /**
-     * @throws BadRequestException
-     * @throws StreamGoneException
-     * @throws StreamNotFoundException
-     * @throws WrongExpectedVersionException
-     */
-    private function ensureStatusCodeIsGood(UriInterface $streamUrl): void
-    {
-        $this->errorHandler->handleStatusCode($streamUrl, $this->lastResponse);
     }
 
     /**
@@ -332,9 +310,9 @@ final class EventStore implements EventStoreInterface
      *
      * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(UriInterface $streamUri): int
+    private function extractStreamVersionFromLastResponse(UriInterface $streamUri, ResponseInterface $response): int
     {
-        $locationHeaders = $this->getLastResponse()->getHeader('Location');
+        $locationHeaders = $response->getHeader('Location');
 
         if (!isset($locationHeaders[0])) {
             throw new NoExtractableEventVersionException();
@@ -350,9 +328,9 @@ final class EventStore implements EventStoreInterface
     }
 
     /** @return array<string, mixed> */
-    private function lastResponseAsJson(): array
+    private function responseAsJson(ResponseInterface $response): array
     {
-        return json_decode((string) $this->lastResponse->getBody(), true);
+        return json_decode((string) $response->getBody(), true);
     }
 
     /** @param array<string, mixed> $content */
@@ -365,12 +343,5 @@ final class EventStore implements EventStoreInterface
         $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
 
         return new Event($type, $version, $data, $metadata, $eventId);
-    }
-
-    public function saveLastResponse(ClientExceptionInterface $e): void
-    {
-        if (method_exists($e, 'getResponse') && null !== $e->getResponse()) {
-            $this->lastResponse = $e->getResponse();
-        }
     }
 }

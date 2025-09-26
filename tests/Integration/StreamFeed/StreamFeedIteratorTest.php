@@ -89,10 +89,10 @@ class StreamFeedIteratorTest extends TestCase
         $iterator = StreamFeedIterator::backward($this->es, $streamName);
 
         $iterator->rewind();
-        $response1 = $this->es->getLastResponse();
+        $response1 = $this->recordingHttpClient->getLastResponse();
 
         $iterator->rewind();
-        $response2 = $this->es->getLastResponse();
+        $response2 = $this->recordingHttpClient->getLastResponse();
 
         $this->assertSame($response1, $response2);
     }
