@@ -6,7 +6,6 @@ namespace KurrentDB\Tests\Integration;
 
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreFactory;
 use KurrentDB\Exception\ConnectionFailedException;
@@ -374,14 +373,6 @@ class EventStoreTest extends TestCase
     #[Test]
     public function it_can_process_the_all_stream_with_a_forward_iterator(): void
     {
-        $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
-        $client = new Client([
-            'base_uri' => $uri,
-            'handler' => new CurlMultiHandler(),
-        ]);
-        $httpClient = new GuzzleHttpClient($client);
-        $this->es = $this->createEventStore(new HttpFactory(), $httpClient);
-
         $this->prepareTestStream(1);
         $streamName = rawurlencode('$all');
 

@@ -8,6 +8,7 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use FriendsOfOuro\Http\Batch\Guzzle\RecordingHttpClient;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\EventStoreFactory;
@@ -31,14 +32,14 @@ class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
-        $guzzleClient = new Client(['base_uri' => $uri]);
-        $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient($guzzleClient));
+        $client = new Client([
+            'base_uri' => $uri,
+            'handler' => new CurlMultiHandler(),
+        ]);
+        $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient($client));
         $httpFactory = new HttpFactory();
         $this->factory = new EventStoreFactory($httpFactory, $httpFactory, $this->recordingHttpClient);
-        $this->es = $this->createEventStore(
-            new HttpFactory(),
-            $this->recordingHttpClient,
-        );
+        $this->es = $this->factory->create();
     }
 
     /**
