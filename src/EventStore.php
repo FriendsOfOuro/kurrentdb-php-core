@@ -206,7 +206,7 @@ final readonly class EventStore implements EventStoreInterface
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        $version = $this->extractStreamVersionFromLastResponse($response);
+        $version = $this->extractStreamVersionFromResponse($response);
 
         return new StreamWriteResult($version);
     }
@@ -310,7 +310,7 @@ final readonly class EventStore implements EventStoreInterface
      *
      * @throws NoExtractableEventVersionException
      */
-    private function extractStreamVersionFromLastResponse(ResponseInterface $response): int
+    private function extractStreamVersionFromResponse(ResponseInterface $response): int
     {
         $locationHeaders = $response->getHeader('Location');
 
