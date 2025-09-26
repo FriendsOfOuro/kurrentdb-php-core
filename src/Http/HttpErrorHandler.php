@@ -38,8 +38,6 @@ final class HttpErrorHandler
                     throw new WrongExpectedVersionException();
                 }
                 throw new BadRequestException(\sprintf('Bad request for stream %s', $uri));
-            case ResponseCode::HTTP_CONFLICT:
-                throw new WrongExpectedVersionException();
             case ResponseCode::HTTP_UNAUTHORIZED:
                 throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $uri));
             case ResponseCode::HTTP_NOT_FOUND:

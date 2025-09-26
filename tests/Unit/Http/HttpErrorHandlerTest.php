@@ -185,7 +185,6 @@ class HttpErrorHandlerTest extends TestCase
             'Bad Request (Version Conflict)' => [ResponseCode::HTTP_BAD_REQUEST, WrongExpectedVersionException::class, 'Wrong expected EventNumber'],
             'Unauthorized' => [ResponseCode::HTTP_UNAUTHORIZED, UnauthorizedException::class],
             'Not Found' => [ResponseCode::HTTP_NOT_FOUND, StreamNotFoundException::class],
-            'Conflict' => [ResponseCode::HTTP_CONFLICT, WrongExpectedVersionException::class],
             'Gone' => [ResponseCode::HTTP_GONE, StreamGoneException::class],
             'Internal Server Error' => [ResponseCode::HTTP_INTERNAL_SERVER_ERROR, ConnectionFailedException::class],
             'Bad Gateway' => [ResponseCode::HTTP_BAD_GATEWAY, ConnectionFailedException::class],

@@ -165,12 +165,6 @@ class WriteToStreamErrorHandlingTest extends TestCase
                 'Server error (e.g., redirect failure in cluster)',
             ],
 
-            'HTTP 409 Conflict' => [
-                409,
-                WrongExpectedVersionException::class,
-                'Conflict (alternative to 400 for version mismatch)',
-            ],
-
             'HTTP 410 Gone' => [
                 410,
                 StreamGoneException::class,
