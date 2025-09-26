@@ -63,7 +63,7 @@ final class HttpErrorHandler
      * @throws WrongExpectedVersionException
      * @throws ConnectionFailedException
      */
-    public function handleException(UriInterface $uri, ClientExceptionInterface $exception): void
+    public function handleException(UriInterface $uri, ClientExceptionInterface $exception): never
     {
         if (method_exists($exception, 'getResponse') && null !== $exception->getResponse()) {
             $this->handleStatusCode($uri, $exception->getResponse());

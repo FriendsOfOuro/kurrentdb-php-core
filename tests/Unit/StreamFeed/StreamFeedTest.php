@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit\StreamFeed;
 
 use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\LinkRelation;
@@ -35,7 +34,7 @@ class StreamFeedTest extends TestCase
     #[DataProvider('modeProvider')]
     public function event_embed_mode_is_returned_properly(?EntryEmbedMode $mode, EntryEmbedMode $expected): void
     {
-        $feed = $this->streamFeedFactory->create([], $mode, new Credentials(''));
+        $feed = $this->streamFeedFactory->create([], $mode);
 
         $this->assertEquals($expected, $feed->getEntryEmbedMode());
     }
@@ -68,8 +67,7 @@ class StreamFeedTest extends TestCase
                     ],
                 ],
             ],
-            EntryEmbedMode::NONE,
-            new Credentials('')
+            EntryEmbedMode::NONE
         );
 
         $this->assertSame($uri, (string) $feed->getLinkUrl($relation));
@@ -88,7 +86,6 @@ class StreamFeedTest extends TestCase
                 ],
             ],
             EntryEmbedMode::NONE,
-            new Credentials('')
         );
 
         $this->assertTrue($feed->hasLink(LinkRelation::LAST));
@@ -107,7 +104,6 @@ class StreamFeedTest extends TestCase
                 ],
             ],
             EntryEmbedMode::NONE,
-            new Credentials('')
         );
 
         $this->assertFalse($feed->hasLink(LinkRelation::LAST));
@@ -126,7 +122,6 @@ class StreamFeedTest extends TestCase
                 ],
             ],
             EntryEmbedMode::NONE,
-            new Credentials('')
         );
 
         $this->assertNull($feed->getLinkUrl(LinkRelation::LAST));

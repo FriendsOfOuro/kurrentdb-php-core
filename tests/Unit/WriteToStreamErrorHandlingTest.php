@@ -6,7 +6,6 @@ namespace KurrentDB\Tests\Unit;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
-use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
@@ -50,7 +49,6 @@ class WriteToStreamErrorHandlingTest extends TestCase
 
         $httpFactory = new HttpFactory();
         $this->eventStore = new EventStore(
-            new Uri('http://admin:changeit@127.0.0.1:2113'),
             $httpFactory,
             $httpFactory,
             $this->mockHttpClient

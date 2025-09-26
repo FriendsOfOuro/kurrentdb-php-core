@@ -7,8 +7,8 @@ namespace KurrentDB\Tests\Integration;
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use FriendsOfOuro\Http\Batch\Guzzle\RecordingHttpClient;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\HttpFactory;
-use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
@@ -28,7 +28,9 @@ class TestCase extends BaseTestCase
      */
     protected function setUp(): void
     {
-        $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient());
+        $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
+        $guzzleClient = new Client(['base_uri' => $uri]);
+        $this->recordingHttpClient = new RecordingHttpClient(new GuzzleHttpClient($guzzleClient));
         $this->es = $this->createEventStore(
             new HttpFactory(),
             $this->recordingHttpClient,
@@ -40,9 +42,7 @@ class TestCase extends BaseTestCase
      */
     protected function createEventStore(RequestFactoryInterface&UriFactoryInterface $factory, ClientInterface $httpClient): EventStore
     {
-        $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
-
-        return new EventStore(new Uri($uri), $factory, $factory, $httpClient);
+        return new EventStore($factory, $factory, $httpClient);
     }
 
     /**

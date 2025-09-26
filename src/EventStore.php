@@ -12,7 +12,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
@@ -21,7 +20,6 @@ use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedFactory;
 use KurrentDB\StreamFeed\StreamFeedIterator;
-use KurrentDB\StreamFeed\StreamUrl;
 use KurrentDB\Url\PsrUriHelper;
 use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -36,8 +34,6 @@ use Psr\Http\Message\UriInterface;
  */
 final readonly class EventStore implements EventStoreInterface
 {
-    private Credentials $credentials;
-
     private HttpErrorHandler $errorHandler;
 
     private StreamFeedFactory $streamFeedFactory;
@@ -48,12 +44,10 @@ final readonly class EventStore implements EventStoreInterface
      * @throws ConnectionFailedException
      */
     public function __construct(
-        private UriInterface $uri,
         private UriFactoryInterface $uriFactory,
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
     ) {
-        $this->credentials = Credentials::fromString($this->uri->getUserInfo());
         $this->errorHandler = new HttpErrorHandler();
 
         $entryFactory = new EntryFactory($this->uriFactory);
@@ -94,7 +88,7 @@ final readonly class EventStore implements EventStoreInterface
      */
     public function navigateStreamFeed(StreamFeed $streamFeed, LinkRelation $relation): ?StreamFeed
     {
-        $url = $streamFeed->getLinkUrl($relation, $this->credentials);
+        $url = $streamFeed->getLinkUrl($relation);
 
         if (!$url instanceof UriInterface) {
             return null;
@@ -227,7 +221,7 @@ final readonly class EventStore implements EventStoreInterface
     private function checkConnection(): void
     {
         try {
-            $request = $this->requestFactory->createRequest('GET', $this->uri);
+            $request = $this->requestFactory->createRequest('GET', '/');
             $this->sendRequest($request);
         } catch (\Exception $e) {
             throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
@@ -236,9 +230,7 @@ final readonly class EventStore implements EventStoreInterface
 
     private function getStreamUrl(string $streamName): UriInterface
     {
-        $streamUrlString = (string) StreamUrl::fromBaseUrlAndName($this->uri, $streamName);
-
-        return $this->uriFactory->createUri($streamUrlString);
+        return $this->uriFactory->createUri("/streams/{$streamName}");
     }
 
     /**
@@ -268,7 +260,6 @@ final readonly class EventStore implements EventStoreInterface
         return $this->streamFeedFactory->create(
             $this->responseAsJson($response),
             $embedMode,
-            $this->credentials,
         );
     }
 
@@ -286,6 +277,7 @@ final readonly class EventStore implements EventStoreInterface
 
     /**
      * @throws BadRequestException
+     * @throws ConnectionFailedException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException

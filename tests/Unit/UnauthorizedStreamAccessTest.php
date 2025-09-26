@@ -40,14 +40,14 @@ class UnauthorizedStreamAccessTest extends TestCase
         $factory = new HttpFactory();
         $uri = new Uri('http://admin:changeit@127.0.0.1:2113');
 
-        $this->eventStore = new EventStore($uri, $factory, $factory, $this->mockHttpClient);
+        $this->eventStore = new EventStore($factory, $factory, $this->mockHttpClient);
     }
 
     #[Test]
     public function unauthorized_stream_access_throws_unauthorized_exception(): void
     {
         $this->expectException(UnauthorizedException::class);
-        $this->expectExceptionMessage('Unauthorized access to stream http://admin:changeit@127.0.0.1:2113/streams/restricted-stream');
+        $this->expectExceptionMessage('Unauthorized access to stream /streams/restricted-stream');
 
         $this->eventStore->openStreamFeed('restricted-stream');
     }

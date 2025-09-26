@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
-use KurrentDB\Http\Auth\Credentials;
 use Psr\Http\Message\UriFactoryInterface;
 
 final readonly class EntryFactory
@@ -17,11 +16,11 @@ final readonly class EntryFactory
     /**
      * @param array<string, mixed> $json
      */
-    public function create(array $json, Credentials $credentials): Entry
+    public function create(array $json): Entry
     {
         $links = $this->createLinks($json['links'] ?? []);
 
-        return new Entry($links, $json, $credentials);
+        return new Entry($links, $json);
     }
 
     /**

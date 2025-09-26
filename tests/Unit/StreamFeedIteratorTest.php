@@ -6,7 +6,6 @@ namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreInterface;
-use KurrentDB\Http\Auth\Credentials;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\EntryWithEvent;
@@ -331,8 +330,7 @@ class StreamFeedIteratorTest extends TestCase
 
         return $this->streamFeedFactory->create(
             $json,
-            EntryEmbedMode::NONE,
-            new Credentials('')
+            EntryEmbedMode::NONE
         );
     }
 

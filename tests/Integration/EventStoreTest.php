@@ -123,10 +123,11 @@ class EventStoreTest extends TestCase
     #[Test]
     public function unreacheable_event_store_throws_exception(): void
     {
-        $httpClient = new GuzzleHttpClient();
+        $guzzleClient = new Client(['base_uri' => 'http://127.0.0.1:12345/']);
+        $httpClient = new GuzzleHttpClient($guzzleClient);
         $this->expectException(ConnectionFailedException::class);
         $f = new HttpFactory();
-        new EventStore($f->createUri('http://127.0.0.1:12345/'), $f, $f, $httpClient);
+        new EventStore($f, $f, $httpClient);
     }
 
     /**
@@ -368,8 +369,9 @@ class EventStoreTest extends TestCase
     #[Test]
     public function it_can_process_the_all_stream_with_a_forward_iterator(): void
     {
+        $uri = getenv('EVENTSTORE_URI') ?: 'http://admin:changeit@127.0.0.1:2113';
         $client = new Client([
-            'auth' => ['admin', 'changeit'],
+            'base_uri' => $uri,
             'handler' => new CurlMultiHandler(),
         ]);
         $httpClient = new GuzzleHttpClient($client);

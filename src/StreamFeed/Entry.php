@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
-use KurrentDB\Http\Auth\Credentials;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -21,13 +20,12 @@ final readonly class Entry
     public function __construct(
         private array $links,
         private array $json,
-        private Credentials $credentials,
     ) {
     }
 
     public function getEventUrl(): ?UriInterface
     {
-        return $this->getLinkUrl(LinkRelation::ALTERNATE, $this->credentials);
+        return $this->getLinkUrl(LinkRelation::ALTERNATE);
     }
 
     public function getTitle(): string
