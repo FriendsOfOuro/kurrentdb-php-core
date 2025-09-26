@@ -6,12 +6,12 @@ namespace KurrentDB\Tests\Integration;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
+use FriendsOfOuro\Http\Batch\Guzzle\RecordingHttpClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\RecordingHttpClient;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\TestCase as BaseTestCase;

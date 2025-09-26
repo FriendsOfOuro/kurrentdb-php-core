@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "41b51f50d92e77ea32986ab773afef63",
+    "content-hash": "d76cf202b2a0ab8819b3a5c5031f3c42",
     "packages": [
         {
             "name": "brick/math",
@@ -107,16 +107,16 @@
         },
         {
             "name": "friendsofouro/http-batch-guzzle",
-            "version": "v3.0.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfOuro/http-batch-guzzle.git",
-                "reference": "3816df643326fe0efdcdae78fc358688fd5f7602"
+                "reference": "b741a7ef56779965fdf036e24c238145f2fde3de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfOuro/http-batch-guzzle/zipball/3816df643326fe0efdcdae78fc358688fd5f7602",
-                "reference": "3816df643326fe0efdcdae78fc358688fd5f7602",
+                "url": "https://api.github.com/repos/FriendsOfOuro/http-batch-guzzle/zipball/b741a7ef56779965fdf036e24c238145f2fde3de",
+                "reference": "b741a7ef56779965fdf036e24c238145f2fde3de",
                 "shasum": ""
             },
             "require": {
@@ -149,9 +149,9 @@
             "description": "Guzzle implementation for a batch of HTTP Requests",
             "support": {
                 "issues": "https://github.com/FriendsOfOuro/http-batch-guzzle/issues",
-                "source": "https://github.com/FriendsOfOuro/http-batch-guzzle/tree/v3.0.0"
+                "source": "https://github.com/FriendsOfOuro/http-batch-guzzle/tree/v3.1.0"
             },
-            "time": "2025-09-26T15:00:05+00:00"
+            "time": "2025-09-26T16:35:59+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
