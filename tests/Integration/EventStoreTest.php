@@ -10,7 +10,6 @@ use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
 use KurrentDB\Exception\ConnectionFailedException;
-use KurrentDB\Exception\StreamDeletedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
@@ -107,7 +106,6 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
@@ -133,7 +131,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws StreamNotFoundException
-     * @throws StreamDeletedException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -148,7 +145,6 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws StreamDeletedException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
@@ -167,7 +163,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws WrongExpectedVersionException
-     * @throws StreamDeletedException
      * @throws StreamNotFoundException
      */
     #[Test]
@@ -182,7 +177,6 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws StreamDeletedException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
@@ -204,7 +198,6 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws StreamDeletedException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
@@ -229,7 +222,6 @@ class EventStoreTest extends TestCase
     /**
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
-     * @throws StreamDeletedException
      */
     #[Test]
     public function get_event_batch_from_event_stream(): void
@@ -255,7 +247,6 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws StreamDeletedException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
@@ -282,7 +273,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws UnauthorizedException
-     * @throws StreamDeletedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
      */
@@ -297,9 +287,6 @@ class EventStoreTest extends TestCase
         $this->assertNull($next);
     }
 
-    /**
-     * @throws StreamDeletedException
-     */
     #[Test]
     public function unexistent_stream_should_throw_not_found_exception(): void
     {
@@ -317,13 +304,12 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream();
         $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
-        $this->expectException(StreamDeletedException::class);
+        $this->expectException(StreamGoneException::class);
         $this->es->openStreamFeed($streamName);
     }
 
     /**
      * @throws UnauthorizedException
-     * @throws StreamDeletedException
      * @throws WrongExpectedVersionException
      * @throws StreamNotFoundException
      */
@@ -337,7 +323,7 @@ class EventStoreTest extends TestCase
 
         $this->es->deleteStream($streamName, StreamDeletion::HARD);
 
-        $this->expectException(StreamDeletedException::class);
+        $this->expectException(StreamGoneException::class);
         $this->es->readEvent($eventUrl);
     }
 

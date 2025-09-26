@@ -207,7 +207,7 @@ foreach ($events as $event) {
 ```php
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Exception\StreamDeletedException;
+use KurrentDB\Exception\StreamGoneException;
 
 try {
     $eventStore->writeToStream('user-123', $event, 10);
@@ -217,9 +217,9 @@ try {
 } catch (StreamNotFoundException $e) {
     // Stream doesn't exist
     echo "Stream not found: " . $e->getMessage();
-} catch (StreamDeletedException $e) {
-    // Stream was deleted
-    echo "Stream deleted: " . $e->getMessage();
+} catch (StreamGoneException $e) {
+    // Stream was permanently deleted (hard delete)
+    echo "Stream gone: " . $e->getMessage();
 }
 ```
 

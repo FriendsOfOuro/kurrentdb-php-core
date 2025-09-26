@@ -47,7 +47,7 @@ class UnauthorizedStreamAccessTest extends TestCase
     public function unauthorized_stream_access_throws_unauthorized_exception(): void
     {
         $this->expectException(UnauthorizedException::class);
-        $this->expectExceptionMessage('Tried to open stream http://admin:changeit@127.0.0.1:2113/streams/restricted-stream got 401');
+        $this->expectExceptionMessage('Unauthorized access to stream http://admin:changeit@127.0.0.1:2113/streams/restricted-stream');
 
         $this->eventStore->openStreamFeed('restricted-stream');
     }

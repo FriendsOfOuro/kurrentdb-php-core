@@ -7,13 +7,12 @@ namespace KurrentDB;
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
-use KurrentDB\Exception\StreamDeletedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\Http\Auth\Credentials;
-use KurrentDB\Http\ResponseCode;
+use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\Event;
@@ -39,8 +38,7 @@ final class EventStore implements EventStoreInterface
 {
     private readonly Credentials $credentials;
 
-    /** @var array<int, callable(UriInterface): never> */
-    private readonly array $badCodeHandlers;
+    private readonly HttpErrorHandler $errorHandler;
 
     private readonly StreamFeedFactory $streamFeedFactory;
 
@@ -58,24 +56,12 @@ final class EventStore implements EventStoreInterface
         private readonly ClientInterface $httpClient,
     ) {
         $this->credentials = Credentials::fromString($this->uri->getUserInfo());
+        $this->errorHandler = new HttpErrorHandler();
 
         $entryFactory = new EntryFactory($this->uriFactory);
         $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
 
         $this->checkConnection();
-        $this->badCodeHandlers = [
-            ResponseCode::HTTP_NOT_FOUND => function ($streamUrl): never {
-                throw new StreamNotFoundException(\sprintf('No stream found at %s', $streamUrl));
-            },
-
-            ResponseCode::HTTP_GONE => function ($streamUrl): never {
-                throw new StreamDeletedException(\sprintf('Stream at %s has been permanently deleted', $streamUrl));
-            },
-
-            ResponseCode::HTTP_UNAUTHORIZED => function ($streamUrl): never {
-                throw new UnauthorizedException(\sprintf('Tried to open stream %s got 401', $streamUrl));
-            },
-        ];
     }
 
     /**
@@ -106,7 +92,6 @@ final class EventStore implements EventStoreInterface
     /**
      * Navigates a stream feed through link relations.
      *
-     * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
@@ -124,7 +109,6 @@ final class EventStore implements EventStoreInterface
     /**
      * Opens a stream feed for read and navigation.
      *
-     * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
@@ -138,7 +122,6 @@ final class EventStore implements EventStoreInterface
     /**
      * Read a single event.
      *
-     * @throws StreamDeletedException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
      */
@@ -203,25 +186,7 @@ final class EventStore implements EventStoreInterface
         $this->sendRequest($request);
 
         $responseStatusCode = $this->getLastResponse()->getStatusCode();
-
-        // Handle various HTTP error codes
-        switch ($responseStatusCode) {
-            case ResponseCode::HTTP_BAD_REQUEST:
-            case ResponseCode::HTTP_CONFLICT:
-                throw new WrongExpectedVersionException();
-            case ResponseCode::HTTP_UNAUTHORIZED:
-                throw new UnauthorizedException(\sprintf('Unauthorized access to stream %s', $streamUri));
-            case ResponseCode::HTTP_NOT_FOUND:
-                throw new StreamNotFoundException(\sprintf('Stream %s not found', $streamUri));
-            case ResponseCode::HTTP_GONE:
-                throw new StreamGoneException(\sprintf('Stream %s has been permanently deleted', $streamUri));
-            case ResponseCode::HTTP_INTERNAL_SERVER_ERROR:
-            case ResponseCode::HTTP_BAD_GATEWAY:
-            case ResponseCode::HTTP_SERVICE_UNAVAILABLE:
-            case ResponseCode::HTTP_GATEWAY_TIMEOUT:
-            case ResponseCode::HTTP_TOO_MANY_REQUESTS:
-                throw new ConnectionFailedException(\sprintf('Server error while writing to stream %s: HTTP %d', $streamUri, $responseStatusCode));
-        }
+        $this->errorHandler->handleStatusCode($streamUri, $responseStatusCode);
 
         $version = $this->extractStreamVersionFromLastResponse($streamUri);
 
@@ -239,7 +204,9 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
-     * @throws ConnectionFailedException
+     * @throws WrongExpectedVersionException
+     * @throws StreamNotFoundException
+     * @throws StreamGoneException
      */
     private function checkConnection(): void
     {
@@ -247,7 +214,7 @@ final class EventStore implements EventStoreInterface
             $request = $this->requestFactory->createRequest('GET', $this->uri);
             $this->sendRequest($request);
         } catch (NetworkExceptionInterface $e) {
-            throw new ConnectionFailedException($e->getMessage());
+            throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
 
@@ -259,9 +226,9 @@ final class EventStore implements EventStoreInterface
     }
 
     /**
-     * @throws StreamDeletedException
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
-     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
      */
     private function readStreamFeed(UriInterface $streamUri, EntryEmbedMode $embedMode): StreamFeed
     {
@@ -300,32 +267,29 @@ final class EventStore implements EventStoreInterface
         ;
     }
 
+    /**
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     private function sendRequest(RequestInterface $request): void
     {
         try {
             $this->lastResponse = $this->httpClient->sendRequest($request);
-        } catch (\Exception|ClientExceptionInterface $e) {
-            if (method_exists($e, 'getResponse')) {
-                /* @psalm-suppress PossiblyNullArgument */
-                $this->lastResponse = $e->getResponse();
-            } else {
-                throw new ConnectionFailedException($e->getMessage(), (int) $e->getCode(), $e);
-            }
+        } catch (ClientExceptionInterface $e) {
+            $this->saveLastResponse($e);
+            $this->errorHandler->handleException($request->getUri(), $e);
         }
     }
 
     /**
-     * @throws StreamDeletedException
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
-     * @throws UnauthorizedException
+     * @throws WrongExpectedVersionException
      */
     private function ensureStatusCodeIsGood(UriInterface $streamUrl): void
     {
-        $code = $this->lastResponse->getStatusCode();
-
-        if (array_key_exists($code, $this->badCodeHandlers)) {
-            $this->badCodeHandlers[$code]($streamUrl);
-        }
+        $this->errorHandler->handleStatusCode($streamUrl, $this->lastResponse->getStatusCode());
     }
 
     /**
@@ -372,5 +336,12 @@ final class EventStore implements EventStoreInterface
         $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
 
         return new Event($type, $version, $data, $metadata, $eventId);
+    }
+
+    public function saveLastResponse(ClientExceptionInterface $e): void
+    {
+        if (method_exists($e, 'getResponse') && null !== $e->getResponse()) {
+            $this->lastResponse = $e->getResponse();
+        }
     }
 }
