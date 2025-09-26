@@ -8,7 +8,7 @@ use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\EventStore;
+use KurrentDB\EventStoreFactory;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
@@ -127,7 +127,7 @@ class EventStoreTest extends TestCase
         $httpClient = new GuzzleHttpClient($guzzleClient);
         $this->expectException(ConnectionFailedException::class);
         $f = new HttpFactory();
-        new EventStore($f, $f, $httpClient);
+        EventStoreFactory::create($f, $f, $httpClient);
     }
 
     /**

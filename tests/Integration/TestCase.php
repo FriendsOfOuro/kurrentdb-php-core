@@ -10,6 +10,7 @@ use FriendsOfOuro\Http\Batch\Guzzle\RecordingHttpClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStore;
+use KurrentDB\EventStoreFactory;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\WritableEvent;
@@ -42,7 +43,7 @@ class TestCase extends BaseTestCase
      */
     protected function createEventStore(RequestFactoryInterface&UriFactoryInterface $factory, ClientInterface $httpClient): EventStore
     {
-        return new EventStore($factory, $factory, $httpClient);
+        return EventStoreFactory::create($factory, $factory, $httpClient);
     }
 
     /**

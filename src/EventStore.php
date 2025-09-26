@@ -12,7 +12,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
-use KurrentDB\Http\ConnectionChecker;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
@@ -35,29 +34,19 @@ use Psr\Http\Message\UriInterface;
  */
 final readonly class EventStore implements EventStoreInterface
 {
-    private ConnectionChecker $connectionChecker;
-
     private HttpErrorHandler $errorHandler;
 
     private StreamFeedFactory $streamFeedFactory;
 
-    /**
-     * EventStore constructor.
-     *
-     * @throws ConnectionFailedException
-     */
     public function __construct(
         private UriFactoryInterface $uriFactory,
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
     ) {
-        $this->connectionChecker = new ConnectionChecker($this->requestFactory, $this->httpClient);
         $this->errorHandler = new HttpErrorHandler();
 
         $entryFactory = new EntryFactory($this->uriFactory);
         $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
-
-        $this->connectionChecker->checkConnection();
     }
 
     /**
