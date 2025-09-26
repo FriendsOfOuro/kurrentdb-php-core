@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Integration;
 
-use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use FriendsOfOuro\Http\Batch\Guzzle\RecordingHttpClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\EventStore;
 use KurrentDB\EventStoreFactory;
+use KurrentDB\EventStoreInterface;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\UriFactoryInterface;
 
 class TestCase extends BaseTestCase
 {
-    protected EventStore $es;
+    protected EventStoreInterface $es;
     protected RecordingHttpClient $recordingHttpClient;
     protected EventStoreFactory $factory;
 
@@ -40,14 +37,6 @@ class TestCase extends BaseTestCase
         $httpFactory = new HttpFactory();
         $this->factory = new EventStoreFactory($httpFactory, $httpFactory, $this->recordingHttpClient);
         $this->es = $this->factory->create();
-    }
-
-    /**
-     * @throws ConnectionFailedException
-     */
-    protected function createEventStore(RequestFactoryInterface&UriFactoryInterface $factory, ClientInterface $httpClient): EventStore
-    {
-        return $this->factory->create();
     }
 
     /**

@@ -22,14 +22,12 @@ final readonly class StreamWriter implements StreamWriterInterface
 {
     use HttpClientTrait;
 
-    private HttpErrorHandler $errorHandler;
-
     public function __construct(
         private UriFactoryInterface $uriFactory,
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
+        private HttpErrorHandler $errorHandler,
     ) {
-        $this->errorHandler = new HttpErrorHandler();
     }
 
     protected function getUriFactory(): UriFactoryInterface

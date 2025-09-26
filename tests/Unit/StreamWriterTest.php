@@ -8,6 +8,7 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\Exception\NoExtractableEventVersionException;
 use KurrentDB\ExpectedVersion;
+use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamDeletion;
 use KurrentDB\StreamWriter;
 use KurrentDB\StreamWriteResult;
@@ -36,7 +37,13 @@ class StreamWriterTest extends TestCase
         $this->mockResponse->method('getBody')->willReturn($this->mockBody);
 
         $httpFactory = new HttpFactory();
-        $this->streamWriter = new StreamWriter($httpFactory, $httpFactory, $this->mockHttpClient);
+        $httpErrorHandler = new HttpErrorHandler();
+        $this->streamWriter = new StreamWriter(
+            $httpFactory,
+            $httpFactory,
+            $this->mockHttpClient,
+            $httpErrorHandler
+        );
     }
 
     #[Test]

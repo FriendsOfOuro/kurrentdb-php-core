@@ -12,11 +12,10 @@ use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\Http\HttpClientTrait;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedFactory;
+use KurrentDB\StreamFeed\StreamFeedFactoryInterface;
 use KurrentDB\Url\PsrUriHelper;
 use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -30,18 +29,13 @@ final readonly class StreamReader implements StreamReaderInterface
 {
     use HttpClientTrait;
 
-    private HttpErrorHandler $errorHandler;
-    private StreamFeedFactory $streamFeedFactory;
-
     public function __construct(
         private UriFactoryInterface $uriFactory,
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
+        private HttpErrorHandler $errorHandler,
+        private StreamFeedFactoryInterface $streamFeedFactory,
     ) {
-        $this->errorHandler = new HttpErrorHandler();
-
-        $entryFactory = new EntryFactory($this->uriFactory);
-        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
     }
 
     protected function getUriFactory(): UriFactoryInterface
