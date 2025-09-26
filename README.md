@@ -20,6 +20,46 @@ A modern PHP client library for [KurrentDB](https://kurrent.io/) (formerly Event
 - ✅ Type-safe with PHP 8.4 features
 - ✅ Comprehensive error handling
 
+## Architecture
+
+The library follows a clean architecture with a facade pattern that promotes separation of concerns and follows SOLID principles:
+
+### Facade Pattern
+
+**EventStore** acts as a facade that delegates operations to specialized services:
+- **StreamReader** - Handles all stream reading operations
+- **StreamWriter** - Manages stream writing and deletion operations
+- **StreamIteratorFactory** - Creates stream iterators for navigation
+
+### Factory Pattern
+
+**EventStoreFactory** provides the recommended way to instantiate EventStore with proper dependency injection and connection validation:
+
+```php
+// Simple creation with default dependencies
+$eventStore = EventStoreFactory::create($uri);
+
+// With custom HTTP client
+$eventStore = EventStoreFactory::createWithHttpClient($uri, $httpClient);
+
+// With all custom dependencies
+$eventStore = EventStoreFactory::createWithDependencies(
+    $uri,
+    $httpClient,
+    $streamReader,
+    $streamWriter,
+    $streamIteratorFactory
+);
+```
+
+### Benefits
+
+- **Testability** - Each service can be mocked independently
+- **Separation of Concerns** - Clear boundaries between reading, writing, and iteration
+- **SOLID Principles** - Interface segregation and dependency inversion
+- **Maintainability** - Easier to extend and modify individual components
+- **Type Safety** - Strong typing throughout the service layer
+
 ## Requirements
 
 - PHP 8.4 or higher
@@ -62,12 +102,19 @@ make test
 ### Basic Setup
 
 ```php
-use KurrentDB\EventStore;
+use KurrentDB\EventStoreFactory;
+
+// Create EventStore using factory (recommended)
+$eventStore = EventStoreFactory::create('http://admin:changeit@127.0.0.1:2113');
+
+// Or with custom HTTP client
 use KurrentDB\Http\GuzzleHttpClient;
 
-// Create HTTP client and connect to KurrentDB
 $httpClient = new GuzzleHttpClient();
-$eventStore = new EventStore('http://admin:changeit@127.0.0.1:2113', $httpClient);
+$eventStore = EventStoreFactory::createWithHttpClient(
+    'http://admin:changeit@127.0.0.1:2113',
+    $httpClient
+);
 ```
 
 ### Writing Events
@@ -172,16 +219,42 @@ Improve performance with built-in caching:
 ```php
 // Filesystem cache
 $httpClient = GuzzleHttpClient::withFilesystemCache('/tmp/kurrentdb-cache');
+$eventStore = EventStoreFactory::createWithHttpClient($url, $httpClient);
 
 // APCu cache (in-memory)
 $httpClient = GuzzleHttpClient::withApcuCache();
+$eventStore = EventStoreFactory::createWithHttpClient($url, $httpClient);
 
 // Custom PSR-6 cache
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 $cacheAdapter = new RedisAdapter($redisClient);
 $httpClient = GuzzleHttpClient::withPsr6Cache($cacheAdapter);
+$eventStore = EventStoreFactory::createWithHttpClient($url, $httpClient);
+```
 
-$eventStore = new EventStore($url, $httpClient);
+### Custom Service Dependencies
+
+For advanced use cases, you can provide custom implementations of the core services:
+
+```php
+use KurrentDB\EventStoreFactory;
+use KurrentDB\Service\StreamReaderInterface;
+use KurrentDB\Service\StreamWriterInterface;
+use KurrentDB\Service\StreamIteratorFactoryInterface;
+
+// Create custom service implementations
+$customStreamReader = new MyCustomStreamReader($httpClient);
+$customStreamWriter = new MyCustomStreamWriter($httpClient);
+$customIteratorFactory = new MyCustomIteratorFactory($streamReader);
+
+// Create EventStore with custom dependencies
+$eventStore = EventStoreFactory::createWithDependencies(
+    $uri,
+    $httpClient,
+    $customStreamReader,
+    $customStreamWriter,
+    $customIteratorFactory
+);
 ```
 
 ### Batch Operations
@@ -243,7 +316,7 @@ class MyCustomHttpClient implements HttpClientInterface
     }
 }
 
-$eventStore = new EventStore($url, new MyCustomHttpClient());
+$eventStore = EventStoreFactory::createWithHttpClient($url, new MyCustomHttpClient());
 ```
 
 ## Development Setup
@@ -301,11 +374,18 @@ docker compose exec php bin/phpunit tests/Tests/EventStoreTest.php
 
 ### Main Classes
 
-- **`EventStore`** - Main client class for all operations
+- **`EventStore`** - Main facade class for all operations
+- **`EventStoreFactory`** - Factory for creating EventStore instances with proper dependencies
 - **`WritableEvent`** - Represents an event to be written
 - **`WritableEventCollection`** - Collection of events for atomic writes
 - **`StreamFeed`** - Paginated view of a stream
 - **`Event`** - Represents a read event with version and metadata
+
+### Service Classes
+
+- **`StreamReader`** - Handles stream reading operations
+- **`StreamWriter`** - Manages stream writing and deletion
+- **`StreamIteratorFactory`** - Creates stream iterators for navigation
 
 ### Enums
 
@@ -349,6 +429,18 @@ make cs-fixer-ci
 
 # Run static analysis
 make phpstan
+
+# Check source dependencies
+make check-src-deps
+```
+
+### Dependency Validation
+
+The project includes dependency validation using `composer-require-checker` to ensure all used dependencies are properly declared in `composer.json`:
+
+```bash
+# Check for missing dependencies in source code
+make check-src-deps
 ```
 
 ## License
