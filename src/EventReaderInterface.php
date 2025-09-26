@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace KurrentDB;
 
 use KurrentDB\StreamFeed\Event;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -16,6 +17,12 @@ interface EventReaderInterface
      * Read a single event.
      *
      * @param UriInterface $eventUri The url of the event
+     *
+     * @throws Exception\BadRequestException
+     * @throws Exception\StreamGoneException
+     * @throws Exception\StreamNotFoundException
+     * @throws Exception\UnauthorizedException
+     * @throws Exception\WrongExpectedVersionException
      */
     public function readEvent(UriInterface $eventUri): Event;
 
@@ -25,6 +32,8 @@ interface EventReaderInterface
      * @param UriInterface[] $eventUrls The urls of the events
      *
      * @return Event[]
+     *
+     * @throws ClientExceptionInterface
      */
     public function readEventBatch(array $eventUrls): array;
 }

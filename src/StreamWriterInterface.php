@@ -17,8 +17,13 @@ interface StreamWriterInterface
      * @param int                   $expectedVersion   The expected version of the stream
      * @param array<string, string> $additionalHeaders Additional HTTP headers
      *
-     * @throws Exception\WrongExpectedVersionException
+     * @throws Exception\BadRequestException
+     * @throws Exception\ConnectionFailedException
      * @throws Exception\NoExtractableEventVersionException
+     * @throws Exception\StreamGoneException
+     * @throws Exception\StreamNotFoundException
+     * @throws Exception\UnauthorizedException
+     * @throws Exception\WrongExpectedVersionException
      */
     public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult;
 
@@ -27,6 +32,12 @@ interface StreamWriterInterface
      *
      * @param string         $streamName Name of the stream
      * @param StreamDeletion $mode       Deletion mode (soft or hard)
+     *
+     * @throws Exception\BadRequestException
+     * @throws Exception\StreamGoneException
+     * @throws Exception\StreamNotFoundException
+     * @throws Exception\UnauthorizedException
+     * @throws Exception\WrongExpectedVersionException
      */
     public function deleteStream(string $streamName, StreamDeletion $mode): void;
 }
