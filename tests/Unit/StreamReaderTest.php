@@ -193,6 +193,6 @@ class StreamReaderTest extends TestCase
         $result = $this->streamReader->readEventBatch($eventUrls);
 
         $this->assertCount(1, $result);
-        $this->containsOnlyInstancesOf(Event::class);
+        $this->assertContainsOnlyInstancesOf(Event::class, $result);
     }
 }

@@ -6,6 +6,7 @@ namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreInterface;
+use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\EntryWithEvent;
@@ -13,6 +14,7 @@ use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedFactory;
 use KurrentDB\StreamFeed\StreamFeedIterator;
+use KurrentDB\StreamReaderInterface;
 use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
@@ -21,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 
 class StreamFeedIteratorTest extends TestCase
 {
-    private EventStoreInterface&MockObject $eventStore;
+    private StreamReaderInterface&MockObject $streamReader;
 
     private HttpFactory $uriFactory;
 
@@ -29,35 +31,11 @@ class StreamFeedIteratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventStore = $this->createMock(EventStoreInterface::class);
+        $this->streamReader = $this->createMock(StreamReaderInterface::class);
         $this->uriFactory = new HttpFactory();
 
         $entryFactory = new EntryFactory($this->uriFactory);
         $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
-    }
-
-    /**
-     * @throws Exception
-     */
-    #[Test]
-    public function forward_iterator_creates_with_correct_navigation(): void
-    {
-        $streamName = 'test-stream';
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
-
-        $this->assertInstanceOf(StreamFeedIterator::class, $iterator);
-    }
-
-    /**
-     * @throws Exception
-     */
-    #[Test]
-    public function backward_iterator_creates_with_correct_navigation(): void
-    {
-        $streamName = 'test-stream';
-        $iterator = StreamFeedIterator::backward($this->eventStore, $streamName);
-
-        $this->assertInstanceOf(StreamFeedIterator::class, $iterator);
     }
 
     /**
@@ -82,20 +60,20 @@ class StreamFeedIteratorTest extends TestCase
             ['title' => 'event6'],
         ], false);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed1)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->exactly(1))
             ->method('navigateStreamFeed')
             ->willReturn($streamFeed2)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->exactly(2))
             ->method('readEventBatch')
             ->willReturn([
@@ -104,19 +82,11 @@ class StreamFeedIteratorTest extends TestCase
             ])
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName, $pageLimit);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName, $pageLimit);
+        $entriesWithEvents = iterator_to_array($iterator);
 
-        $eventCount = 0;
-        foreach ($iterator as $entryWithEvent) {
-            ++$eventCount;
-            $this->assertInstanceOf(EntryWithEvent::class, $entryWithEvent);
-
-            if ($eventCount >= 4) {
-                break;
-            }
-        }
-
-        $this->assertEquals(4, $eventCount);
+        $this->assertCount(4, $entriesWithEvents);
+        $this->assertContainsOnlyInstancesOf(EntryWithEvent::class, $entriesWithEvents);
     }
 
     /**
@@ -131,34 +101,31 @@ class StreamFeedIteratorTest extends TestCase
             ['title' => 'event1'],
         ], false);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('navigateStreamFeed')
             ->willReturn(null)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('readEventBatch')
             ->willReturn([$this->createEvent('event1', 0)])
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
-        $eventCount = 0;
-        foreach ($iterator as $entryWithEvent) {
-            ++$eventCount;
-            $this->assertInstanceOf(EntryWithEvent::class, $entryWithEvent);
-        }
+        $entriesWithEvents = iterator_to_array($iterator);
 
-        $this->assertEquals(1, $eventCount);
+        $this->assertCount(1, $entriesWithEvents);
+        $this->assertContainsOnlyInstancesOf(EntryWithEvent::class, $entriesWithEvents);
     }
 
     /**
@@ -174,20 +141,20 @@ class StreamFeedIteratorTest extends TestCase
             ['title' => 'event1'],
         ], true);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('readEventBatch')
             ->willReturn([$this->createEvent('event1', 0)])
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
         $iterator->rewind();
 
         $this->assertEquals($expectedUrl, $iterator->nextUrl());
@@ -201,7 +168,7 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'test-stream';
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
         $this->assertNull($iterator->nextUrl());
     }
@@ -216,14 +183,14 @@ class StreamFeedIteratorTest extends TestCase
 
         $streamFeed = $this->createStreamFeed([], false);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed)
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
         $eventCount = 0;
         foreach ($iterator as $entryWithEvent) {
@@ -245,20 +212,20 @@ class StreamFeedIteratorTest extends TestCase
 
         $streamFeed = $this->createStreamFeed([['title' => $expectedTitle]], false);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('readEventBatch')
             ->willReturn([$this->createEvent('event1', 0)])
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
         $iterator->rewind();
 
         if ($iterator->valid()) {
@@ -280,20 +247,20 @@ class StreamFeedIteratorTest extends TestCase
             ['title' => 'event1'],
         ], false);
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
             ->with($streamName)
             ->willReturn($streamFeed)
         ;
 
-        $this->eventStore
+        $this->streamReader
             ->expects($this->once())
             ->method('readEventBatch')
             ->willReturn([$this->createEvent('event1', 0)])
         ;
 
-        $iterator = StreamFeedIterator::forward($this->eventStore, $streamName);
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
         $iterator->rewind();
         $iterator->rewind();

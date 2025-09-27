@@ -41,8 +41,6 @@ class ConnectionCheckerTest extends TestCase
         ;
 
         $this->connectionChecker->checkConnection();
-
-        $this->addToAssertionCount(1);
     }
 
     #[Test]

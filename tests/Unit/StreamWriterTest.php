@@ -56,7 +56,6 @@ class StreamWriterTest extends TestCase
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
         $result = $this->streamWriter->writeToStream('test-stream', $event);
 
-        $this->assertInstanceOf(StreamWriteResult::class, $result);
         $this->assertEquals(0, $result->version);
     }
 
@@ -113,8 +112,6 @@ class StreamWriterTest extends TestCase
         $this->mockHttpClient->expects($this->once())->method('sendRequest')->willReturn($this->mockResponse);
 
         $this->streamWriter->deleteStream('test-stream', StreamDeletion::SOFT);
-
-        $this->addToAssertionCount(1);
     }
 
     #[Test]
@@ -130,7 +127,5 @@ class StreamWriterTest extends TestCase
         ;
 
         $this->streamWriter->deleteStream('test-stream', StreamDeletion::HARD);
-
-        $this->addToAssertionCount(1);
     }
 }
