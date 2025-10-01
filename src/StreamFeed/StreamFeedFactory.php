@@ -23,11 +23,18 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
     ): StreamFeed {
         $links = $this->createLinks($json['links'] ?? []);
 
+        $entries = [];
+        if (isset($json['entries']) && is_array($json['entries'])) {
+            foreach ($json['entries'] as $entryData) {
+                $entries[] = $this->entryFactory->create($entryData);
+            }
+        }
+
         return new StreamFeed(
             $links,
+            $entries,
             $json,
             $embedMode ?? EntryEmbedMode::NONE,
-            $this->entryFactory,
         );
     }
 

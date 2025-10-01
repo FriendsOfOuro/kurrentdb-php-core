@@ -8,9 +8,10 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Http\ConnectionChecker;
 use KurrentDB\Http\HttpErrorHandler;
-use KurrentDB\StreamFeed\EntryFactory;
+use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EventDenormalizer;
-use KurrentDB\StreamFeed\StreamFeedFactory;
+use KurrentDB\StreamFeed\LinkDenormalizer;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -36,10 +37,21 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
 
         // Create shared dependencies
         $httpErrorHandler = new HttpErrorHandler();
-        $entryFactory = new EntryFactory($this->uriFactory);
-        $streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
+
+        // Create denormalizers (which also act as factories for backward compatibility)
+        $linkDenormalizer = new LinkDenormalizer($this->uriFactory);
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+
+        // Create serializer with all denormalizers
         $serializer = new Serializer(
-            [new EventDenormalizer(), new ObjectNormalizer()],
+            [
+                new EventDenormalizer(),
+                $linkDenormalizer,
+                $entryDenormalizer,
+                $streamFeedDenormalizer,
+                new ObjectNormalizer(),
+            ],
             [new JsonEncoder()]
         );
 
@@ -49,7 +61,7 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
             $this->requestFactory,
             $this->httpClient,
             $httpErrorHandler,
-            $streamFeedFactory,
+            $streamFeedDenormalizer,
             $serializer
         );
 
