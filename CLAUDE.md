@@ -19,6 +19,7 @@ This project uses Docker Compose for development environment and Make for common
 - `make cs-fixer-ci` - Check code style (dry-run with diff)
 - `make phpstan` - Run static analysis (level 5)
 - `make benchmark` - Run performance benchmarks
+- `make before-push` - **Run before pushing commits** - executes cs-fixer, test, and phpstan in sequence to ensure code quality
 
 ### Running Individual Commands
 All PHP commands are executed inside Docker containers using: `docker compose exec php <command>`
@@ -97,6 +98,14 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 - Rector for PHP 8.4+ features with prepared sets: deadCode, codeQuality, typeDeclarations
 - Strict types declaration enforced in all PHP files
 - Chained method calls on new lines for better readability
+
+**Pre-commit Workflow:**
+Always run `make before-push` before committing and pushing changes. This ensures:
+1. Code style is automatically fixed (cs-fixer)
+2. All tests pass (test)
+3. Static analysis passes (phpstan)
+
+This catches issues early and maintains code quality across all contributions.
 
 ## Release Management
 
