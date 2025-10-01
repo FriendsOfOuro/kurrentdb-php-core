@@ -17,6 +17,7 @@ use KurrentDB\Http\HttpErrorHandler;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class StreamWriter implements StreamWriterInterface
 {
@@ -27,6 +28,7 @@ final readonly class StreamWriter implements StreamWriterInterface
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
         private HttpErrorHandler $errorHandler,
+        private SerializerInterface $serializer,
     ) {
     }
 
@@ -73,7 +75,7 @@ final readonly class StreamWriter implements StreamWriterInterface
         foreach ($additionalHeaders as $name => $value) {
             $request = $request->withHeader($name, (string) $value);
         }
-        $request->getBody()->write((string) json_encode($events->toStreamData()));
+        $request->getBody()->write($this->serializer->serialize($events->getEvents(), 'json'));
         $response = $this->sendRequest($request);
 
         $this->errorHandler->handleStatusCode($streamUri, $response);

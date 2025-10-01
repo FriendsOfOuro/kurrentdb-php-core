@@ -8,8 +8,12 @@ use KurrentDB\Exception\InvalidWritableEventObjectException;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
+use KurrentDB\WritableEventNormalizer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class WritableEventCollectionTest.
@@ -17,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 class WritableEventCollectionTest extends TestCase
 {
     #[Test]
-    public function event_collection_is_converted_to_stream_data(): void
+    public function event_collection_is_serialized_to_stream_data(): void
     {
         $uuid1 = new UUID();
         $event1 = new WritableEvent($uuid1, 'Foo', ['data' => 'bar']);
@@ -27,21 +31,27 @@ class WritableEventCollectionTest extends TestCase
 
         $eventCollection = new WritableEventCollection([$event1, $event2]);
 
-        $streamData = [
+        $writableEventNormalizer = new WritableEventNormalizer();
+        $serializer = new Serializer([$writableEventNormalizer, new ObjectNormalizer()], [new JsonEncoder()]);
+
+        $serialized = $serializer->serialize($eventCollection->getEvents(), 'json');
+
+        $expected = json_encode([
             [
                 'eventId' => $uuid1->toNative(),
                 'eventType' => 'Foo',
                 'data' => ['data' => 'bar'],
                 'metadata' => [],
-            ], [
+            ],
+            [
                 'eventId' => $uuid2->toNative(),
                 'eventType' => 'Baz',
                 'data' => ['data' => 'foo'],
                 'metadata' => [],
             ],
-        ];
+        ]);
 
-        $this->assertEquals($streamData, $eventCollection->toStreamData());
+        $this->assertEquals($expected, $serialized);
     }
 
     #[Test]

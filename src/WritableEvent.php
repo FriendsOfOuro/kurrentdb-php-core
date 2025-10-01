@@ -24,20 +24,7 @@ final readonly class WritableEvent
      * @param array<string, mixed> $data
      * @param array<string, mixed> $metadata
      */
-    public function __construct(private UUID $uuid, private string $type, private array $data, private array $metadata = [])
+    public function __construct(public UUID $uuid, public string $type, public array $data, public array $metadata = [])
     {
-    }
-
-    /**
-     * @return array{eventId: string, eventType: string, data: array<string, mixed>, metadata: array<string, mixed>}
-     */
-    public function toStreamData(): array
-    {
-        return [
-            'eventId' => $this->uuid->toNative(),
-            'eventType' => $this->type,
-            'data' => $this->data,
-            'metadata' => $this->metadata,
-        ];
     }
 }

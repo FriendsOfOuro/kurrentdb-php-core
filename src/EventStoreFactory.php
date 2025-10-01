@@ -38,13 +38,15 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
         // Create shared dependencies
         $httpErrorHandler = new HttpErrorHandler();
 
-        // Create Symfony Serializer with denormalizers
+        // Create Symfony Serializer with denormalizers and normalizers
         $linkDenormalizer = new LinkDenormalizer($this->uriFactory);
         $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
         $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+        $writableEventNormalizer = new WritableEventNormalizer();
 
         $serializer = new Serializer(
             [
+                $writableEventNormalizer,
                 $linkDenormalizer,
                 $entryDenormalizer,
                 $streamFeedDenormalizer,
@@ -68,7 +70,8 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
             $this->uriFactory,
             $this->requestFactory,
             $this->httpClient,
-            $httpErrorHandler
+            $httpErrorHandler,
+            $serializer
         );
 
         $streamIteratorFactory = new StreamIteratorFactory($streamReader);

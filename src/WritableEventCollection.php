@@ -25,11 +25,11 @@ final readonly class WritableEventCollection
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return WritableEvent[]
      */
-    public function toStreamData(): array
+    public function getEvents(): array
     {
-        return array_map(fn (WritableEvent $event): array => $event->toStreamData(), $this->events);
+        return $this->events;
     }
 
     /**
