@@ -34,7 +34,7 @@ class WritableEventCollectionTest extends TestCase
         $writableEventNormalizer = new WritableEventNormalizer();
         $serializer = new Serializer([$writableEventNormalizer, new ObjectNormalizer()], [new JsonEncoder()]);
 
-        $serialized = $serializer->serialize($eventCollection->getEvents(), 'json');
+        $serialized = $serializer->serialize($eventCollection->events, 'json');
 
         $expected = json_encode([
             [

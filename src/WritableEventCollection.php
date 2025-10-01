@@ -14,7 +14,7 @@ final readonly class WritableEventCollection
     /**
      * @param WritableEvent[] $events
      */
-    public function __construct(private array $events)
+    public function __construct(public array $events)
     {
         $this->validateEvents($events);
     }
@@ -22,14 +22,6 @@ final readonly class WritableEventCollection
     public static function of(WritableEvent ...$events): self
     {
         return new self($events);
-    }
-
-    /**
-     * @return WritableEvent[]
-     */
-    public function getEvents(): array
-    {
-        return $this->events;
     }
 
     /**

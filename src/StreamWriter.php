@@ -75,7 +75,7 @@ final readonly class StreamWriter implements StreamWriterInterface
         foreach ($additionalHeaders as $name => $value) {
             $request = $request->withHeader($name, (string) $value);
         }
-        $request->getBody()->write($this->serializer->serialize($events->getEvents(), 'json'));
+        $request->getBody()->write($this->serializer->serialize($events->events, 'json'));
         $response = $this->sendRequest($request);
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
