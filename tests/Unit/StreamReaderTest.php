@@ -9,13 +9,15 @@ use FriendsOfOuro\Http\Batch\ResponseBatchInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\Http\HttpErrorHandler;
+use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\EventDenormalizer;
 use KurrentDB\StreamFeed\Link;
+use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedFactoryInterface;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamReader;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -31,7 +33,6 @@ class StreamReaderTest extends TestCase
     private ClientInterface&MockObject $mockHttpClient;
     private ResponseInterface&MockObject $mockResponse;
     private StreamInterface&MockObject $mockBody;
-    private StreamFeedFactoryInterface&MockObject $mockStreamFeedFactory;
     private StreamReader $streamReader;
 
     protected function setUp(): void
@@ -39,14 +40,24 @@ class StreamReaderTest extends TestCase
         $this->mockHttpClient = $this->createMock(ClientInterface::class);
         $this->mockResponse = $this->createMock(ResponseInterface::class);
         $this->mockBody = $this->createMock(StreamInterface::class);
-        $this->mockStreamFeedFactory = $this->createMock(StreamFeedFactoryInterface::class);
 
         $this->mockResponse->method('getBody')->willReturn($this->mockBody);
 
         $httpFactory = new HttpFactory();
         $httpErrorHandler = new HttpErrorHandler();
+
+        $linkDenormalizer = new LinkDenormalizer($httpFactory);
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+
         $serializer = new Serializer(
-            [new EventDenormalizer(), new ObjectNormalizer()],
+            [
+                new EventDenormalizer(),
+                $linkDenormalizer,
+                $entryDenormalizer,
+                $streamFeedDenormalizer,
+                new ObjectNormalizer(),
+            ],
             [new JsonEncoder()]
         );
 
@@ -55,7 +66,6 @@ class StreamReaderTest extends TestCase
             $httpFactory,
             $this->mockHttpClient,
             $httpErrorHandler,
-            $this->mockStreamFeedFactory,
             $serializer
         );
     }
@@ -74,21 +84,9 @@ class StreamReaderTest extends TestCase
         $this->mockResponse->method('getStatusCode')->willReturn(200);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
-        $expectedStreamFeed = new StreamFeed(
-            [],
-            [],
-            $jsonResponse,
-            EntryEmbedMode::NONE
-        );
-
-        $this->mockStreamFeedFactory
-            ->method('create')
-            ->with($jsonResponse, EntryEmbedMode::NONE)
-            ->willReturn($expectedStreamFeed)
-        ;
-
         $result = $this->streamReader->openStreamFeed('test-stream');
 
+        $this->assertInstanceOf(StreamFeed::class, $result);
         $this->assertEquals(EntryEmbedMode::NONE, $result->getEntryEmbedMode());
     }
 
@@ -127,22 +125,10 @@ class StreamReaderTest extends TestCase
             EntryEmbedMode::NONE
         );
 
-        $expectedNextFeed = new StreamFeed(
-            [],
-            [],
-            $jsonResponse,
-            EntryEmbedMode::NONE
-        );
-
-        $this->mockStreamFeedFactory
-            ->method('create')
-            ->with($jsonResponse, EntryEmbedMode::NONE)
-            ->willReturn($expectedNextFeed)
-        ;
-
         $result = $this->streamReader->navigateStreamFeed($streamFeed, LinkRelation::NEXT);
 
         $this->assertInstanceOf(StreamFeed::class, $result);
+        $this->assertEquals(EntryEmbedMode::NONE, $result->getEntryEmbedMode());
     }
 
     #[Test]

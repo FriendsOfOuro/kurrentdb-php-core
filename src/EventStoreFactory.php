@@ -61,7 +61,6 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
             $this->requestFactory,
             $this->httpClient,
             $httpErrorHandler,
-            $streamFeedDenormalizer,
             $serializer
         );
 

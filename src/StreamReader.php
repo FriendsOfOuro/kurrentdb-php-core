@@ -15,7 +15,6 @@ use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedFactoryInterface;
 use KurrentDB\Url\PsrUriHelper;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -34,7 +33,6 @@ final readonly class StreamReader implements StreamReaderInterface
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
         private HttpErrorHandler $errorHandler,
-        private StreamFeedFactoryInterface $streamFeedFactory,
         private DenormalizerInterface $denormalizer,
     ) {
     }
@@ -173,9 +171,10 @@ final readonly class StreamReader implements StreamReaderInterface
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        return $this->streamFeedFactory->create(
+        return $this->denormalizer->denormalize(
             $this->responseAsJson($response),
-            $embedMode,
+            StreamFeed::class,
+            context: ['embedMode' => $embedMode]
         );
     }
 
