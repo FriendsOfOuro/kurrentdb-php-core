@@ -17,13 +17,13 @@ use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedFactoryInterface;
 use KurrentDB\Url\PsrUriHelper;
-use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 final readonly class StreamReader implements StreamReaderInterface
 {
@@ -35,6 +35,7 @@ final readonly class StreamReader implements StreamReaderInterface
         private ClientInterface $httpClient,
         private HttpErrorHandler $errorHandler,
         private StreamFeedFactoryInterface $streamFeedFactory,
+        private DenormalizerInterface $denormalizer,
     ) {
     }
 
@@ -181,12 +182,6 @@ final readonly class StreamReader implements StreamReaderInterface
     /** @param array<string, mixed> $content */
     private function createEventFromResponseContent(array $content): Event
     {
-        $type = $content['eventType'];
-        $version = (int) $content['eventNumber'];
-        $data = $content['data'];
-        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
-        $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
-
-        return new Event($type, $version, $data, $metadata, $eventId);
+        return $this->denormalizer->denormalize($content, Event::class);
     }
 }

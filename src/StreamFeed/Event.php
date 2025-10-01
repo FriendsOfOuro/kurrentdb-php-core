@@ -16,8 +16,8 @@ final readonly class Event
      * @param array<string, mixed>|null $metadata
      */
     public function __construct(
-        private string $type,
-        private int $version,
+        private string $eventType,
+        private int $eventNumber,
         private array $data,
         private ?array $metadata = null,
         private ?UUID $eventId = null,
@@ -26,12 +26,12 @@ final readonly class Event
 
     public function getType(): string
     {
-        return $this->type;
+        return $this->eventType;
     }
 
     public function getVersion(): int
     {
-        return $this->version;
+        return $this->eventNumber;
     }
 
     /**

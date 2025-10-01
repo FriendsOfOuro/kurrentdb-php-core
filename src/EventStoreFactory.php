@@ -9,9 +9,13 @@ use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Http\ConnectionChecker;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryFactory;
+use KurrentDB\StreamFeed\EventDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedFactory;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 final readonly class EventStoreFactory implements EventStoreFactoryInterface
 {
@@ -34,6 +38,10 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
         $httpErrorHandler = new HttpErrorHandler();
         $entryFactory = new EntryFactory($this->uriFactory);
         $streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
+        $serializer = new Serializer(
+            [new EventDenormalizer(), new ObjectNormalizer()],
+            [new JsonEncoder()]
+        );
 
         // Create services with injected dependencies
         $streamReader = new StreamReader(
@@ -41,7 +49,8 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
             $this->requestFactory,
             $this->httpClient,
             $httpErrorHandler,
-            $streamFeedFactory
+            $streamFeedFactory,
+            $serializer
         );
 
         $streamWriter = new StreamWriter(

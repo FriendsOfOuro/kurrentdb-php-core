@@ -12,6 +12,7 @@ use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\EventDenormalizer;
 use KurrentDB\StreamFeed\Link;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
@@ -22,6 +23,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class StreamReaderTest extends TestCase
 {
@@ -42,13 +46,18 @@ class StreamReaderTest extends TestCase
 
         $httpFactory = new HttpFactory();
         $httpErrorHandler = new HttpErrorHandler();
+        $serializer = new Serializer(
+            [new EventDenormalizer(), new ObjectNormalizer()],
+            [new JsonEncoder()]
+        );
 
         $this->streamReader = new StreamReader(
             $httpFactory,
             $httpFactory,
             $this->mockHttpClient,
             $httpErrorHandler,
-            $this->mockStreamFeedFactory
+            $this->mockStreamFeedFactory,
+            $serializer
         );
     }
 
