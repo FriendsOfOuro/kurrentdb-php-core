@@ -8,6 +8,7 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
+use KurrentDB\Exception\SerializationException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\UnauthorizedException;
@@ -17,6 +18,7 @@ use KurrentDB\Http\HttpErrorHandler;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SymfonySerializerException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class StreamWriter implements StreamWriterInterface
@@ -57,6 +59,7 @@ final readonly class StreamWriter implements StreamWriterInterface
      *
      * @throws BadRequestException
      * @throws ConnectionFailedException
+     * @throws SerializationException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -75,7 +78,14 @@ final readonly class StreamWriter implements StreamWriterInterface
         foreach ($additionalHeaders as $name => $value) {
             $request = $request->withHeader($name, (string) $value);
         }
-        $request->getBody()->write($this->serializer->serialize($events->events, 'json'));
+
+        try {
+            $serialized = $this->serializer->serialize($events->events, 'json');
+        } catch (SymfonySerializerException $e) {
+            throw SerializationException::fromSymfonyException($e);
+        }
+
+        $request->getBody()->write($serialized);
         $response = $this->sendRequest($request);
 
         $this->errorHandler->handleStatusCode($streamUri, $response);

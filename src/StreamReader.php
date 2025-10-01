@@ -6,6 +6,7 @@ namespace KurrentDB;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\BadRequestException;
+use KurrentDB\Exception\DeserializationException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\WrongExpectedVersionException;
@@ -22,6 +23,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SymfonySerializerException;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class StreamReader implements StreamReaderInterface
@@ -95,6 +97,7 @@ final readonly class StreamReader implements StreamReaderInterface
      * Read a single event.
      *
      * @throws BadRequestException
+     * @throws DeserializationException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -106,17 +109,22 @@ final readonly class StreamReader implements StreamReaderInterface
 
         $this->errorHandler->handleStatusCode($eventUri, $response);
 
-        return $this->serializer->deserialize(
-            (string) $response->getBody(),
-            Event::class,
-            'json'
-        );
+        try {
+            return $this->serializer->deserialize(
+                (string) $response->getBody(),
+                Event::class,
+                'json'
+            );
+        } catch (SymfonySerializerException $e) {
+            throw DeserializationException::fromSymfonyException($e);
+        }
     }
 
     /**
      * Reads a batch of events.
      *
      * @throws ClientExceptionInterface
+     * @throws DeserializationException
      */
     public function readEventBatch(array $eventUrls): array
     {
@@ -134,7 +142,7 @@ final readonly class StreamReader implements StreamReaderInterface
         }
 
         // Process all successful responses
-        return array_filter(array_map(
+        return array_values(array_filter(array_map(
             function (ResponseInterface $response): ?Event {
                 try {
                     return $this->serializer->deserialize(
@@ -142,16 +150,18 @@ final readonly class StreamReader implements StreamReaderInterface
                         Event::class,
                         'json'
                     );
-                } catch (\Throwable) {
+                } catch (SymfonySerializerException) {
+                    // Skip responses that cannot be deserialized as Event (e.g., feed entries without embedded content)
                     return null;
                 }
             },
             $batch->getResponses()
-        ));
+        )));
     }
 
     /**
      * @throws BadRequestException
+     * @throws DeserializationException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -174,11 +184,15 @@ final readonly class StreamReader implements StreamReaderInterface
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        return $this->serializer->deserialize(
-            (string) $response->getBody(),
-            StreamFeed::class,
-            'json',
-            ['embedMode' => $embedMode]
-        );
+        try {
+            return $this->serializer->deserialize(
+                (string) $response->getBody(),
+                StreamFeed::class,
+                'json',
+                ['embedMode' => $embedMode]
+            );
+        } catch (SymfonySerializerException $e) {
+            throw DeserializationException::fromSymfonyException($e);
+        }
     }
 }
