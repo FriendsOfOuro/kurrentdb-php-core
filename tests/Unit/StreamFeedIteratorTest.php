@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\EventStoreInterface;
-use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\EntryWithEvent;
