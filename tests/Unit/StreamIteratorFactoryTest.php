@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit;
 
+use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\FeedEntryDenormalizer;
+use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
-use KurrentDB\StreamFeed\StreamFeed;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamIteratorFactory;
 use KurrentDB\StreamReaderInterface;
@@ -19,10 +22,17 @@ class StreamIteratorFactoryTest extends TestCase
     private StreamReaderInterface&MockObject $mockStreamReader;
     private StreamIteratorFactory $streamIteratorFactory;
 
+    private StreamFeedDenormalizer $streamFeedDenormalizer;
+
     protected function setUp(): void
     {
         $this->mockStreamReader = $this->createMock(StreamReaderInterface::class);
         $this->streamIteratorFactory = new StreamIteratorFactory($this->mockStreamReader);
+
+        $httpFactory = new HttpFactory();
+        $linkDenormalizer = new LinkDenormalizer($httpFactory);
+        $feedEntryDenormalizer = new FeedEntryDenormalizer($linkDenormalizer);
+        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $feedEntryDenormalizer);
     }
 
     #[Test]
@@ -62,9 +72,7 @@ class StreamIteratorFactoryTest extends TestCase
     #[Test]
     public function forward_iterator_uses_injected_stream_reader(): void
     {
-        $streamFeed = new StreamFeed(
-            [],
-            [],
+        $streamFeed = $this->streamFeedDenormalizer->create(
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE
         );
@@ -85,9 +93,7 @@ class StreamIteratorFactoryTest extends TestCase
     #[Test]
     public function backward_iterator_uses_injected_stream_reader(): void
     {
-        $streamFeed = new StreamFeed(
-            [],
-            [],
+        $streamFeed = $this->streamFeedDenormalizer->create(
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE
         );

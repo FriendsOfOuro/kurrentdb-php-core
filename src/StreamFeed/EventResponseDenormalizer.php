@@ -6,7 +6,7 @@ namespace KurrentDB\StreamFeed;
 
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-final readonly class EntryDenormalizer implements DenormalizerInterface
+final readonly class EventResponseDenormalizer implements DenormalizerInterface
 {
     public function __construct(
         private DenormalizerInterface $linkDenormalizer,
@@ -16,7 +16,7 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
     /**
      * @param array<string, mixed> $context
      */
-    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): Entry
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): EventResponse
     {
         $links = [];
         if (isset($data['links']) && is_array($data['links'])) {
@@ -25,7 +25,15 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
             }
         }
 
-        return new Entry($links, $data);
+        return new EventResponse(
+            $data['title'] ?? '',
+            $data['id'] ?? '',
+            $data['updated'] ?? '',
+            $data['summary'] ?? '',
+            $data['retryCount'] ?? null,
+            $links,
+            $data['content'] ?? [],
+        );
     }
 
     /**
@@ -33,13 +41,13 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
      */
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
-        return Entry::class === $type;
+        return EventResponse::class === $type;
     }
 
     public function getSupportedTypes(?string $format): array
     {
         return [
-            Entry::class => true,
+            EventResponse::class => true,
         ];
     }
 }

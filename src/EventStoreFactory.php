@@ -8,8 +8,9 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Http\ConnectionChecker;
 use KurrentDB\Http\HttpErrorHandler;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EventDenormalizer;
+use KurrentDB\StreamFeed\EventResponseDenormalizer;
+use KurrentDB\StreamFeed\FeedEntryDenormalizer;
 use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -38,17 +39,19 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
         // Create shared dependencies
         $httpErrorHandler = new HttpErrorHandler();
 
-        // Create denormalizers (which also act as factories for backward compatibility)
+        // Create denormalizers
         $linkDenormalizer = new LinkDenormalizer($this->uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+        $feedEntryDenormalizer = new FeedEntryDenormalizer($linkDenormalizer);
+        $eventResponseDenormalizer = new EventResponseDenormalizer($linkDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $feedEntryDenormalizer);
 
         // Create serializer with all denormalizers
         $serializer = new Serializer(
             [
                 new EventDenormalizer(),
                 $linkDenormalizer,
-                $entryDenormalizer,
+                $feedEntryDenormalizer,
+                $eventResponseDenormalizer,
                 $streamFeedDenormalizer,
                 new ObjectNormalizer(),
             ],

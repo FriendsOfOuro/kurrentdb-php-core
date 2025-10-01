@@ -9,11 +9,10 @@ use FriendsOfOuro\Http\Batch\ResponseBatchInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\Http\HttpErrorHandler;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\EventDenormalizer;
-use KurrentDB\StreamFeed\Link;
+use KurrentDB\StreamFeed\FeedEntryDenormalizer;
 use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
@@ -34,6 +33,7 @@ class StreamReaderTest extends TestCase
     private ResponseInterface&MockObject $mockResponse;
     private StreamInterface&MockObject $mockBody;
     private StreamReader $streamReader;
+    private StreamFeedDenormalizer $streamFeedDenormalizer;
 
     protected function setUp(): void
     {
@@ -47,15 +47,15 @@ class StreamReaderTest extends TestCase
         $httpErrorHandler = new HttpErrorHandler();
 
         $linkDenormalizer = new LinkDenormalizer($httpFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+        $feedEntryDenormalizer = new FeedEntryDenormalizer($linkDenormalizer);
+        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $feedEntryDenormalizer);
 
         $serializer = new Serializer(
             [
                 new EventDenormalizer(),
                 $linkDenormalizer,
-                $entryDenormalizer,
-                $streamFeedDenormalizer,
+                $feedEntryDenormalizer,
+                $this->streamFeedDenormalizer,
                 new ObjectNormalizer(),
             ],
             [new JsonEncoder()]
@@ -93,9 +93,7 @@ class StreamReaderTest extends TestCase
     #[Test]
     public function navigate_stream_feed_returns_null_when_no_link(): void
     {
-        $streamFeed = new StreamFeed(
-            [],
-            [],
+        $streamFeed = $this->streamFeedDenormalizer->create(
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE
         );
@@ -117,10 +115,7 @@ class StreamReaderTest extends TestCase
         $this->mockResponse->method('getStatusCode')->willReturn(200);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
-        $link = new Link(LinkRelation::NEXT, new Uri('http://example.com/streams/test-stream/next'));
-        $streamFeed = new StreamFeed(
-            [$link],
-            [],
+        $streamFeed = $this->streamFeedDenormalizer->create(
             ['entries' => [], 'links' => [['relation' => 'next', 'uri' => 'http://example.com/streams/test-stream/next']]],
             EntryEmbedMode::NONE
         );

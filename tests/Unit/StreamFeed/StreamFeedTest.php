@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit\StreamFeed;
 
 use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
+use KurrentDB\StreamFeed\FeedEntryDenormalizer;
 use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeedDenormalizer;
@@ -25,8 +25,8 @@ class StreamFeedTest extends TestCase
     {
         $uriFactory = new HttpFactory();
         $linkDenormalizer = new LinkDenormalizer($uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+        $feedEntryDenormalizer = new FeedEntryDenormalizer($linkDenormalizer);
+        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $feedEntryDenormalizer);
     }
 
     #[Test]

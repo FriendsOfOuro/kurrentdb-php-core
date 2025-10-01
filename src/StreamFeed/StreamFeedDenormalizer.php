@@ -10,7 +10,7 @@ final readonly class StreamFeedDenormalizer implements DenormalizerInterface
 {
     public function __construct(
         private DenormalizerInterface $linkDenormalizer,
-        private DenormalizerInterface $entryDenormalizer,
+        private DenormalizerInterface $feedEntryDenormalizer,
     ) {
     }
 
@@ -37,13 +37,24 @@ final readonly class StreamFeedDenormalizer implements DenormalizerInterface
         $entries = [];
         if (isset($data['entries']) && is_array($data['entries'])) {
             foreach ($data['entries'] as $entryData) {
-                $entries[] = $this->entryDenormalizer->denormalize($entryData, Entry::class);
+                $entries[] = $this->feedEntryDenormalizer->denormalize($entryData, FeedEntry::class);
             }
         }
 
         $embedMode = $context['embedMode'] ?? EntryEmbedMode::NONE;
 
-        return new StreamFeed($links, $entries, $data, $embedMode);
+        return new StreamFeed(
+            $data['title'] ?? '',
+            $data['id'] ?? '',
+            $data['updated'] ?? '',
+            $data['streamId'] ?? '',
+            $data['headOfStream'] ?? false,
+            $data['selfUrl'] ?? '',
+            $data['eTag'] ?? '',
+            $links,
+            $entries,
+            $embedMode
+        );
     }
 
     /**

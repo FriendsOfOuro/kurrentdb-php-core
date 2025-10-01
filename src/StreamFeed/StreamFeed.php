@@ -4,24 +4,50 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use Psr\Http\Message\UriInterface;
+
 /**
- * Class StreamFeed.
+ * Stream feed representation (paginated list of entries).
  */
 final readonly class StreamFeed
 {
-    use HasLinks;
-
     /**
-     * @param Link[]               $links
-     * @param Entry[]              $entries
-     * @param array<string, mixed> $json
+     * @param Link[]      $links
+     * @param FeedEntry[] $entries
      */
-    public function __construct(private array $links, private array $entries, private array $json, private EntryEmbedMode $entryEmbedMode)
+    public function __construct(
+        public string $title,
+        public string $id,
+        public string $updated,
+        public string $streamId,
+        public bool $headOfStream,
+        public string $selfUrl,
+        public string $eTag,
+        public array $links,
+        public array $entries,
+        public EntryEmbedMode $embedMode,
+    ) {
+    }
+
+    public function getLink(LinkRelation $relation): ?Link
     {
+        return array_find($this->links, fn ($link) => $link->relation === $relation);
+    }
+
+    public function getLinkUrl(LinkRelation $relation): ?UriInterface
+    {
+        $link = $this->getLink($relation);
+
+        return $link?->uri;
+    }
+
+    public function hasLink(LinkRelation $relation): bool
+    {
+        return null !== $this->getLink($relation);
     }
 
     /**
-     * @return Entry[]
+     * @return FeedEntry[]
      */
     public function getEntries(): array
     {
@@ -30,22 +56,6 @@ final readonly class StreamFeed
 
     public function getEntryEmbedMode(): EntryEmbedMode
     {
-        return $this->entryEmbedMode;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getJson(): array
-    {
-        return $this->json;
-    }
-
-    /**
-     * @return Link[]
-     */
-    protected function getLinks(): array
-    {
-        return $this->links;
+        return $this->embedMode;
     }
 }

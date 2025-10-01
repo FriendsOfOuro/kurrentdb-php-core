@@ -113,9 +113,7 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName);
 
-        $json = $streamFeed->getJson();
-
-        $this->assertEquals($streamName, $json['streamId']);
+        $this->assertEquals($streamName, $streamFeed->streamId);
     }
 
     #[Test]
@@ -138,9 +136,9 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream();
         $streamFeed = $this->es->openStreamFeed($streamName, EntryEmbedMode::BODY);
 
-        $json = $streamFeed->getJson();
+        $entry = $streamFeed->entries[0];
 
-        $this->assertEquals(['foo_data_key' => 'bar'], json_decode((string) $json['entries'][0]['data'], true));
+        $this->assertEquals(['foo_data_key' => 'bar'], $entry->data);
     }
 
     /**
@@ -157,7 +155,7 @@ class EventStoreTest extends TestCase
         $next = $this->es->navigateStreamFeed($head, LinkRelation::NEXT);
 
         $this->assertInstanceOf(StreamFeed::class, $next);
-        $this->assertCount(20, $next->getJson()['entries']);
+        $this->assertCount(20, $next->entries);
     }
 
     /**

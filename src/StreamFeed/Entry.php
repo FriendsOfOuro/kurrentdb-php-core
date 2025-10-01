@@ -7,34 +7,48 @@ namespace KurrentDB\StreamFeed;
 use Psr\Http\Message\UriInterface;
 
 /**
- * Class Entry.
+ * Abstract base class for all entry types (feed entries and single event responses).
  */
-final readonly class Entry
+abstract readonly class Entry
 {
-    use HasLinks;
-
     /**
-     * @param Link[]               $links
-     * @param array<string, mixed> $json
+     * @param Link[] $links
      */
     public function __construct(
-        private array $links,
-        private array $json,
+        public string $title,
+        public string $id,
+        public string $updated,
+        public string $summary,
+        public ?int $retryCount,
+        public array $links,
     ) {
+    }
+
+    public function getLink(LinkRelation $relation): ?Link
+    {
+        foreach ($this->links as $link) {
+            if ($link->relation === $relation) {
+                return $link;
+            }
+        }
+
+        return null;
+    }
+
+    public function getAlternateUrl(): ?UriInterface
+    {
+        $link = $this->getLink(LinkRelation::ALTERNATE);
+
+        return $link?->uri;
     }
 
     public function getEventUrl(): ?UriInterface
     {
-        return $this->getLinkUrl(LinkRelation::ALTERNATE);
+        return $this->getAlternateUrl();
     }
 
     public function getTitle(): string
     {
-        return $this->json['title'];
-    }
-
-    protected function getLinks(): array
-    {
-        return $this->links;
+        return $this->title;
     }
 }
