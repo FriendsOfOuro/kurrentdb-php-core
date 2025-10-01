@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit;
 
 use KurrentDB\Exception\InvalidWritableEventObjectException;
+use KurrentDB\Tests\SerializerFactory;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
-use KurrentDB\WritableEventNormalizer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class WritableEventCollectionTest.
@@ -31,9 +28,7 @@ class WritableEventCollectionTest extends TestCase
 
         $eventCollection = new WritableEventCollection([$event1, $event2]);
 
-        $writableEventNormalizer = new WritableEventNormalizer();
-        $serializer = new Serializer([$writableEventNormalizer, new ObjectNormalizer()], [new JsonEncoder()]);
-
+        $serializer = SerializerFactory::create();
         $serialized = $serializer->serialize($eventCollection->events, 'json');
 
         $expected = json_encode([

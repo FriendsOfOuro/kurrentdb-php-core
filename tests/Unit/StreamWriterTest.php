@@ -13,18 +13,15 @@ use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamDeletion;
 use KurrentDB\StreamWriter;
 use KurrentDB\StreamWriteResult;
+use KurrentDB\Tests\SerializerFactory;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
-use KurrentDB\WritableEventNormalizer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class StreamWriterTest extends TestCase
 {
@@ -43,8 +40,7 @@ class StreamWriterTest extends TestCase
 
         $httpFactory = new HttpFactory();
         $httpErrorHandler = new HttpErrorHandler();
-        $writableEventNormalizer = new WritableEventNormalizer();
-        $serializer = new Serializer([$writableEventNormalizer, new ObjectNormalizer()], [new JsonEncoder()]);
+        $serializer = SerializerFactory::create($httpFactory);
         $this->streamWriter = new StreamWriter(
             $httpFactory,
             $httpFactory,

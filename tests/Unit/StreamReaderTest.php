@@ -9,25 +9,18 @@ use FriendsOfOuro\Http\Batch\ResponseBatchInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\Http\HttpErrorHandler;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
-use KurrentDB\StreamFeed\EventDenormalizer;
 use KurrentDB\StreamFeed\Link;
-use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamReader;
-use KurrentDB\WritableEventNormalizer;
+use KurrentDB\Tests\SerializerFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class StreamReaderTest extends TestCase
 {
@@ -46,24 +39,7 @@ class StreamReaderTest extends TestCase
 
         $httpFactory = new HttpFactory();
         $httpErrorHandler = new HttpErrorHandler();
-
-        $linkDenormalizer = new LinkDenormalizer($httpFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
-        $eventDenormalizer = new EventDenormalizer();
-        $writableEventNormalizer = new WritableEventNormalizer();
-
-        $serializer = new Serializer(
-            [
-                $writableEventNormalizer,
-                $linkDenormalizer,
-                $entryDenormalizer,
-                $streamFeedDenormalizer,
-                $eventDenormalizer,
-                new ObjectNormalizer(),
-            ],
-            [new JsonEncoder()]
-        );
+        $serializer = SerializerFactory::create($httpFactory);
 
         $this->streamReader = new StreamReader(
             $httpFactory,

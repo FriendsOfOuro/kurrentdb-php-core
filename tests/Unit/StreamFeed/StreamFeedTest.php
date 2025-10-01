@@ -4,19 +4,13 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit\StreamFeed;
 
-use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedDenormalizer;
+use KurrentDB\Tests\SerializerFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -28,21 +22,7 @@ class StreamFeedTest extends TestCase
 
     protected function setUp(): void
     {
-        $uriFactory = new HttpFactory();
-
-        $linkDenormalizer = new LinkDenormalizer($uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
-
-        $this->serializer = new Serializer(
-            [
-                $linkDenormalizer,
-                $entryDenormalizer,
-                $streamFeedDenormalizer,
-                new ObjectNormalizer(),
-            ],
-            [new JsonEncoder()]
-        );
+        $this->serializer = SerializerFactory::create();
     }
 
     #[Test]

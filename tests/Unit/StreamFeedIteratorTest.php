@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit;
 
-use GuzzleHttp\Psr7\HttpFactory;
-use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
-use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamReaderInterface;
+use KurrentDB\Tests\SerializerFactory;
 use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class StreamFeedIteratorTest extends TestCase
@@ -32,21 +26,7 @@ class StreamFeedIteratorTest extends TestCase
     protected function setUp(): void
     {
         $this->streamReader = $this->createMock(StreamReaderInterface::class);
-        $uriFactory = new HttpFactory();
-
-        $linkDenormalizer = new LinkDenormalizer($uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
-
-        $this->serializer = new Serializer(
-            [
-                $linkDenormalizer,
-                $entryDenormalizer,
-                $streamFeedDenormalizer,
-                new ObjectNormalizer(),
-            ],
-            [new JsonEncoder()]
-        );
+        $this->serializer = SerializerFactory::create();
     }
 
     /**
