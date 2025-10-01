@@ -15,15 +15,14 @@ use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedFactoryInterface;
 use KurrentDB\Url\PsrUriHelper;
-use KurrentDB\ValueObjects\Identity\UUID;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final readonly class StreamReader implements StreamReaderInterface
 {
@@ -34,7 +33,7 @@ final readonly class StreamReader implements StreamReaderInterface
         private RequestFactoryInterface $requestFactory,
         private ClientInterface $httpClient,
         private HttpErrorHandler $errorHandler,
-        private StreamFeedFactoryInterface $streamFeedFactory,
+        private SerializerInterface $serializer,
     ) {
     }
 
@@ -107,9 +106,11 @@ final readonly class StreamReader implements StreamReaderInterface
 
         $this->errorHandler->handleStatusCode($eventUri, $response);
 
-        $jsonResponse = $this->responseAsJson($response);
-
-        return $this->createEventFromResponseContent($jsonResponse['content']);
+        return $this->serializer->deserialize(
+            (string) $response->getBody(),
+            Event::class,
+            'json'
+        );
     }
 
     /**
@@ -135,14 +136,15 @@ final readonly class StreamReader implements StreamReaderInterface
         // Process all successful responses
         return array_filter(array_map(
             function (ResponseInterface $response): ?Event {
-                $data = json_decode((string) $response->getBody(), true);
-                if (!isset($data['content'])) {
+                try {
+                    return $this->serializer->deserialize(
+                        (string) $response->getBody(),
+                        Event::class,
+                        'json'
+                    );
+                } catch (\Throwable) {
                     return null;
                 }
-
-                return $this->createEventFromResponseContent(
-                    $data['content']
-                );
             },
             $batch->getResponses()
         ));
@@ -172,21 +174,11 @@ final readonly class StreamReader implements StreamReaderInterface
 
         $this->errorHandler->handleStatusCode($streamUri, $response);
 
-        return $this->streamFeedFactory->create(
-            $this->responseAsJson($response),
-            $embedMode,
+        return $this->serializer->deserialize(
+            (string) $response->getBody(),
+            StreamFeed::class,
+            'json',
+            ['embedMode' => $embedMode]
         );
-    }
-
-    /** @param array<string, mixed> $content */
-    private function createEventFromResponseContent(array $content): Event
-    {
-        $type = $content['eventType'];
-        $version = (int) $content['eventNumber'];
-        $data = $content['data'];
-        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
-        $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
-
-        return new Event($type, $version, $data, $metadata, $eventId);
     }
 }

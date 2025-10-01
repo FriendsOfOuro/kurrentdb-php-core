@@ -9,21 +9,22 @@ use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedDenormalizer;
-use KurrentDB\StreamFeed\StreamFeedFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class StreamFeedTest.
  */
 class StreamFeedTest extends TestCase
 {
-    private StreamFeedFactory $streamFeedFactory;
+    private SerializerInterface $serializer;
 
     protected function setUp(): void
     {
@@ -33,7 +34,7 @@ class StreamFeedTest extends TestCase
         $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
         $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
 
-        $serializer = new Serializer(
+        $this->serializer = new Serializer(
             [
                 $linkDenormalizer,
                 $entryDenormalizer,
@@ -42,37 +43,14 @@ class StreamFeedTest extends TestCase
             ],
             [new JsonEncoder()]
         );
-
-        $this->streamFeedFactory = new StreamFeedFactory($serializer);
-    }
-
-    #[Test]
-    #[DataProvider('modeProvider')]
-    public function event_embed_mode_is_returned_properly(EntryEmbedMode $mode): void
-    {
-        $feed = $this->streamFeedFactory->create([], $mode);
-
-        $this->assertEquals($mode, $feed->getEntryEmbedMode());
     }
 
     #[Test]
     public function event_embed_mode_defaults_to_none(): void
     {
-        $feed = $this->streamFeedFactory->create([]);
+        $feed = $this->serializer->deserialize('[]', StreamFeed::class, 'json');
 
         $this->assertEquals(EntryEmbedMode::NONE, $feed->getEntryEmbedMode());
-    }
-
-    /**
-     * @return array{EntryEmbedMode}[]
-     */
-    public static function modeProvider(): array
-    {
-        return [
-            [EntryEmbedMode::NONE],
-            [EntryEmbedMode::RICH],
-            [EntryEmbedMode::BODY],
-        ];
     }
 
     #[Test]
@@ -81,17 +59,16 @@ class StreamFeedTest extends TestCase
     {
         $uri = 'http://sample.uri:12345/stream';
 
-        $feed = $this->streamFeedFactory->create(
-            [
-                'links' => [
-                    [
-                        'relation' => $relation->value,
-                        'uri' => $uri,
-                    ],
+        $json = json_encode([
+            'links' => [
+                [
+                    'relation' => $relation->value,
+                    'uri' => $uri,
                 ],
             ],
-            EntryEmbedMode::NONE
-        );
+        ]);
+
+        $feed = $this->serializer->deserialize($json, StreamFeed::class, 'json');
 
         $this->assertSame($uri, (string) $feed->getLinkUrl($relation));
     }
@@ -99,17 +76,16 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_true_on_matching_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
-            [
-                'links' => [
-                    [
-                        'relation' => 'last',
-                        'uri' => 'http://sample.uri:12345/stream',
-                    ],
+        $json = json_encode([
+            'links' => [
+                [
+                    'relation' => 'last',
+                    'uri' => 'http://sample.uri:12345/stream',
                 ],
             ],
-            EntryEmbedMode::NONE,
-        );
+        ]);
+
+        $feed = $this->serializer->deserialize($json, StreamFeed::class, 'json');
 
         $this->assertTrue($feed->hasLink(LinkRelation::LAST));
     }
@@ -117,17 +93,16 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_false_on_missing_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
-            [
-                'links' => [
-                    [
-                        'relation' => 'first',
-                        'uri' => 'http://sample.uri:12345/stream',
-                    ],
+        $json = json_encode([
+            'links' => [
+                [
+                    'relation' => 'first',
+                    'uri' => 'http://sample.uri:12345/stream',
                 ],
             ],
-            EntryEmbedMode::NONE,
-        );
+        ]);
+
+        $feed = $this->serializer->deserialize($json, StreamFeed::class, 'json');
 
         $this->assertFalse($feed->hasLink(LinkRelation::LAST));
     }
@@ -135,17 +110,16 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function get_link_url_returns_null_on_missing_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
-            [
-                'links' => [
-                    [
-                        'relation' => 'first',
-                        'uri' => 'http://sample.uri:12345/stream',
-                    ],
+        $json = json_encode([
+            'links' => [
+                [
+                    'relation' => 'first',
+                    'uri' => 'http://sample.uri:12345/stream',
                 ],
             ],
-            EntryEmbedMode::NONE,
-        );
+        ]);
+
+        $feed = $this->serializer->deserialize($json, StreamFeed::class, 'json');
 
         $this->assertNull($feed->getLinkUrl(LinkRelation::LAST));
     }

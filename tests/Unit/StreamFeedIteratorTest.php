@@ -6,13 +6,11 @@ namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\StreamFeed\EntryDenormalizer;
-use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedDenormalizer;
-use KurrentDB\StreamFeed\StreamFeedFactory;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamReaderInterface;
 use KurrentDB\ValueObjects\Identity\UUID;
@@ -23,12 +21,13 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class StreamFeedIteratorTest extends TestCase
 {
     private StreamReaderInterface&MockObject $streamReader;
 
-    private StreamFeedFactory $streamFeedFactory;
+    private SerializerInterface $serializer;
 
     protected function setUp(): void
     {
@@ -39,7 +38,7 @@ class StreamFeedIteratorTest extends TestCase
         $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
         $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
 
-        $serializer = new Serializer(
+        $this->serializer = new Serializer(
             [
                 $linkDenormalizer,
                 $entryDenormalizer,
@@ -48,8 +47,6 @@ class StreamFeedIteratorTest extends TestCase
             ],
             [new JsonEncoder()]
         );
-
-        $this->streamFeedFactory = new StreamFeedFactory($serializer);
     }
 
     /**
@@ -309,9 +306,10 @@ class StreamFeedIteratorTest extends TestCase
             'links' => $links,
         ];
 
-        return $this->streamFeedFactory->create(
-            $json,
-            EntryEmbedMode::NONE
+        return $this->serializer->deserialize(
+            json_encode($json),
+            StreamFeed::class,
+            'json'
         );
     }
 

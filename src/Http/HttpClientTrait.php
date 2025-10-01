@@ -56,10 +56,4 @@ trait HttpClientTrait
             $this->getErrorHandler()->handleException($request->getUri(), $e);
         }
     }
-
-    /** @return array<string, mixed> */
-    protected function responseAsJson(ResponseInterface $response): array
-    {
-        return json_decode((string) $response->getBody(), true);
-    }
 }
