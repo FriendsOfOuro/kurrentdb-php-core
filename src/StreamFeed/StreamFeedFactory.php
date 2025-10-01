@@ -19,7 +19,7 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
      */
     public function create(
         array $json,
-        ?EntryEmbedMode $embedMode = null,
+        EntryEmbedMode $embedMode = EntryEmbedMode::NONE,
     ): StreamFeed {
         $links = $this->createLinks($json['links'] ?? []);
         $entries = $this->createEntries($json['entries'] ?? []);
@@ -28,7 +28,7 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
             $links,
             $entries,
             $json,
-            $embedMode ?? EntryEmbedMode::NONE,
+            $embedMode,
         );
     }
 

@@ -11,6 +11,6 @@ interface StreamFeedFactoryInterface
      */
     public function create(
         array $json,
-        ?EntryEmbedMode $embedMode = null,
+        EntryEmbedMode $embedMode = EntryEmbedMode::NONE,
     ): StreamFeed;
 }

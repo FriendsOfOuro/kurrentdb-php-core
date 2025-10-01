@@ -32,23 +32,30 @@ class StreamFeedTest extends TestCase
 
     #[Test]
     #[DataProvider('modeProvider')]
-    public function event_embed_mode_is_returned_properly(?EntryEmbedMode $mode, EntryEmbedMode $expected): void
+    public function event_embed_mode_is_returned_properly(EntryEmbedMode $mode): void
     {
         $feed = $this->streamFeedFactory->create([], $mode);
 
-        $this->assertEquals($expected, $feed->getEntryEmbedMode());
+        $this->assertEquals($mode, $feed->getEntryEmbedMode());
+    }
+
+    #[Test]
+    public function event_embed_mode_defaults_to_none(): void
+    {
+        $feed = $this->streamFeedFactory->create([]);
+
+        $this->assertEquals(EntryEmbedMode::NONE, $feed->getEntryEmbedMode());
     }
 
     /**
-     * @return array{?EntryEmbedMode, EntryEmbedMode}[]
+     * @return array{EntryEmbedMode}[]
      */
     public static function modeProvider(): array
     {
         return [
-            [null, EntryEmbedMode::NONE],
-            [$eem = EntryEmbedMode::NONE, $eem],
-            [$eem = EntryEmbedMode::RICH, $eem],
-            [$eem = EntryEmbedMode::BODY, $eem],
+            [EntryEmbedMode::NONE],
+            [EntryEmbedMode::RICH],
+            [EntryEmbedMode::BODY],
         ];
     }
 
