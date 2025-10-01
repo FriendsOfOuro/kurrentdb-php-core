@@ -9,24 +9,18 @@ use KurrentDB\ValueObjects\StringLiteral\StringLiteral;
 use KurrentDB\ValueObjects\Util\Util;
 use KurrentDB\ValueObjects\ValueObjectInterface;
 use Ramsey\Uuid\Uuid as BaseUuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 
 final readonly class UUID extends StringLiteral
 {
     public function __construct(?string $value = null)
     {
-        $uuid_str = BaseUuid::uuid4();
-
-        if (null !== $value) {
-            $pattern = '/'.BaseUuid::VALID_PATTERN.'/';
-
-            if (!\preg_match($pattern, $value)) {
-                throw new InvalidNativeArgumentException($value, ['UUID string']);
-            }
-
-            $uuid_str = $value;
+        $validator = new GenericValidator();
+        if (is_string($value) && !$validator->validate($value)) {
+            throw new InvalidNativeArgumentException($value, ['UUID string']);
         }
 
-        $value = \strval($uuid_str);
+        $value ??= (string) BaseUuid::uuid4();
         parent::__construct($value);
     }
 
