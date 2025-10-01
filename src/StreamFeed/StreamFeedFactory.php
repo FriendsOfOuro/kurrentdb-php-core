@@ -10,7 +10,7 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
 {
     public function __construct(
         private UriFactoryInterface $uriFactory,
-        private EntryFactory $entryFactory,
+        private EntryFactoryInterface $entryFactory,
     ) {
     }
 
