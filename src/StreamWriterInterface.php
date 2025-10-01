@@ -12,10 +12,10 @@ interface StreamWriterInterface
     /**
      * Write one or more events to a stream.
      *
-     * @param string                $streamName        The stream name
-     * @param WritableToStream      $events            Single event or a collection of events
-     * @param int                   $expectedVersion   The expected version of the stream
-     * @param array<string, string> $additionalHeaders Additional HTTP headers
+     * @param string                  $streamName        The stream name
+     * @param WritableEventCollection $events            Collection of events
+     * @param int                     $expectedVersion   The expected version of the stream
+     * @param array<string, string>   $additionalHeaders Additional HTTP headers
      *
      * @throws Exception\BadRequestException
      * @throws Exception\ConnectionFailedException
@@ -25,7 +25,7 @@ interface StreamWriterInterface
      * @throws Exception\UnauthorizedException
      * @throws Exception\WrongExpectedVersionException
      */
-    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult;
+    public function writeToStream(string $streamName, WritableEventCollection $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult;
 
     /**
      * Delete a stream.

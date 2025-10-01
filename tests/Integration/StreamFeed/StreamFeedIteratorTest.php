@@ -10,6 +10,7 @@ use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\Tests\Integration\TestCase;
 use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 
 class StreamFeedIteratorTest extends TestCase
@@ -20,7 +21,7 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = uniqid();
 
         $event = WritableEvent::newInstance('SomethingHappened', ['foo' => 'bar']);
-        $this->es->writeToStream($streamName, $event);
+        $this->es->writeToStream($streamName, WritableEventCollection::of($event));
 
         $iterator = StreamFeedIterator::forward($this->es, $streamName);
 
@@ -37,7 +38,7 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = uniqid();
 
         $event = WritableEvent::newInstance('SomethingHappened', ['foo' => 'bar']);
-        $this->es->writeToStream($streamName, $event);
+        $this->es->writeToStream($streamName, WritableEventCollection::of($event));
 
         $iterator = StreamFeedIterator::backward($this->es, $streamName);
 

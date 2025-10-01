@@ -9,7 +9,7 @@ use KurrentDB\ValueObjects\Identity\UUID;
 /**
  * Class WritableEvent.
  */
-final readonly class WritableEvent implements WritableToStream
+final readonly class WritableEvent
 {
     /**
      * @param array<string, mixed> $data

@@ -59,7 +59,7 @@ final readonly class EventStore implements EventStoreInterface
 
     // StreamWriterInterface methods - delegate to StreamWriter
 
-    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
+    public function writeToStream(string $streamName, WritableEventCollection $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
     {
         return $this->streamWriter->writeToStream($streamName, $events, $expectedVersion, $additionalHeaders);
     }

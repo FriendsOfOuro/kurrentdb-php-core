@@ -55,7 +55,7 @@ class StreamWriterTest extends TestCase
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
-        $result = $this->streamWriter->writeToStream('test-stream', $event);
+        $result = $this->streamWriter->writeToStream('test-stream', WritableEventCollection::of($event));
 
         $this->assertEquals(0, $result->version);
     }
@@ -89,7 +89,7 @@ class StreamWriterTest extends TestCase
 
         $this->expectException(NoExtractableEventVersionException::class);
 
-        $this->streamWriter->writeToStream('test-stream', $event);
+        $this->streamWriter->writeToStream('test-stream', WritableEventCollection::of($event));
     }
 
     #[Test]
@@ -103,7 +103,7 @@ class StreamWriterTest extends TestCase
 
         $this->expectException(NoExtractableEventVersionException::class);
 
-        $this->streamWriter->writeToStream('test-stream', $event);
+        $this->streamWriter->writeToStream('test-stream', WritableEventCollection::of($event));
     }
 
     #[Test]

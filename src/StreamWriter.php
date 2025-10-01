@@ -60,12 +60,8 @@ final readonly class StreamWriter implements StreamWriterInterface
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
      */
-    public function writeToStream(string $streamName, WritableToStream $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
+    public function writeToStream(string $streamName, WritableEventCollection $events, int $expectedVersion = ExpectedVersion::ANY, array $additionalHeaders = []): StreamWriteResult
     {
-        if ($events instanceof WritableEvent) {
-            $events = new WritableEventCollection([$events]);
-        }
-
         $streamUri = $this->getStreamUrl($streamName);
         $request = $this
             ->requestFactory

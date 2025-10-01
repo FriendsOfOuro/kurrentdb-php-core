@@ -21,6 +21,7 @@ use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
+use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\UriInterface;
 
@@ -51,7 +52,7 @@ class EventStoreTest extends TestCase
     {
         $streamName = $this->prepareTestStream();
         $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
-        $result = $this->es->writeToStream($streamName, $event);
+        $result = $this->es->writeToStream($streamName, WritableEventCollection::of($event));
 
         $this->assertSame(1, $result->version);
     }
@@ -66,7 +67,7 @@ class EventStoreTest extends TestCase
         $event = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar']);
 
         $this->expectException(WrongExpectedVersionException::class);
-        $this->es->writeToStream($streamName, $event, 3);
+        $this->es->writeToStream($streamName, WritableEventCollection::of($event), 3);
     }
 
     /**
@@ -81,7 +82,7 @@ class EventStoreTest extends TestCase
         $this->assertEquals('204', $this->recordingHttpClient->getLastResponse()->getStatusCode());
 
         // we try to write to a soft deleted stream...
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['data' => 'bar']));
+        $this->es->writeToStream($streamName, WritableEventCollection::of(WritableEvent::newInstance('Foo_Event', ['data' => 'bar'])));
 
         // ..and we should expect a "201 Created" response
         $this->assertEquals('201', $this->recordingHttpClient->getLastResponse()->getStatusCode());
@@ -100,7 +101,7 @@ class EventStoreTest extends TestCase
 
         // we try to write to a hard deleted stream...
         $this->expectException(StreamGoneException::class);
-        $this->es->writeToStream($streamName, WritableEvent::newInstance('Foo_Event', ['data' => 'bar']));
+        $this->es->writeToStream($streamName, WritableEventCollection::of(WritableEvent::newInstance('Foo_Event', ['data' => 'bar'])));
     }
 
     /**
@@ -208,7 +209,7 @@ class EventStoreTest extends TestCase
         $streamName = $this->prepareTestStream(1);
 
         $event = new WritableEvent($eventId, 'Foo_Event', ['foo_data_key' => 'bar']);
-        $this->es->writeToStream($streamName, $event);
+        $this->es->writeToStream($streamName, WritableEventCollection::of($event));
 
         $feed = $this->es->openStreamFeed($streamName);
         [$entry] = $feed->getEntries();
