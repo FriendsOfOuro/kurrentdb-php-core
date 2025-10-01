@@ -13,9 +13,10 @@ final readonly class StreamFeed
 
     /**
      * @param Link[]               $links
+     * @param Entry[]              $entries
      * @param array<string, mixed> $json
      */
-    public function __construct(private array $links, private array $json, private EntryEmbedMode $entryEmbedMode, private EntryFactory $entryFactory)
+    public function __construct(private array $links, private array $entries, private array $json, private EntryEmbedMode $entryEmbedMode)
     {
     }
 
@@ -24,10 +25,7 @@ final readonly class StreamFeed
      */
     public function getEntries(): array
     {
-        return array_map(
-            fn (array $jsonEntry): Entry => $this->entryFactory->create($jsonEntry),
-            $this->json['entries']
-        );
+        return $this->entries;
     }
 
     public function getEntryEmbedMode(): EntryEmbedMode

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit;
 
-use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\LinkRelation;
 use KurrentDB\StreamFeed\StreamFeed;
@@ -63,13 +62,11 @@ class StreamIteratorFactoryTest extends TestCase
     #[Test]
     public function forward_iterator_uses_injected_stream_reader(): void
     {
-        $httpFactory = new HttpFactory();
-        $entryFactory = new \KurrentDB\StreamFeed\EntryFactory($httpFactory);
         $streamFeed = new StreamFeed(
+            [],
             [],
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $this->mockStreamReader->expects($this->once())
@@ -88,13 +85,11 @@ class StreamIteratorFactoryTest extends TestCase
     #[Test]
     public function backward_iterator_uses_injected_stream_reader(): void
     {
-        $httpFactory = new HttpFactory();
-        $entryFactory = new \KurrentDB\StreamFeed\EntryFactory($httpFactory);
         $streamFeed = new StreamFeed(
+            [],
             [],
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $this->mockStreamReader->expects($this->once())

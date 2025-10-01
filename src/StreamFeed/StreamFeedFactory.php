@@ -22,12 +22,13 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
         ?EntryEmbedMode $embedMode = null,
     ): StreamFeed {
         $links = $this->createLinks($json['links'] ?? []);
+        $entries = $this->createEntries($json['entries'] ?? []);
 
         return new StreamFeed(
             $links,
+            $entries,
             $json,
             $embedMode ?? EntryEmbedMode::NONE,
-            $this->entryFactory,
         );
     }
 
@@ -44,6 +45,19 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
                 $this->uriFactory->createUri($linkData['uri']),
             ),
             $linksData
+        );
+    }
+
+    /**
+     * @param array<array<string, mixed>> $entriesData
+     *
+     * @return Entry[]
+     */
+    private function createEntries(array $entriesData): array
+    {
+        return array_map(
+            fn (array $entryData): Entry => $this->entryFactory->create($entryData),
+            $entriesData
         );
     }
 }

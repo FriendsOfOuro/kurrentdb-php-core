@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\Link;
 use KurrentDB\StreamFeed\LinkRelation;
@@ -66,13 +65,11 @@ class StreamReaderTest extends TestCase
         $this->mockResponse->method('getStatusCode')->willReturn(200);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
-        $httpFactory = new HttpFactory();
-        $entryFactory = new EntryFactory($httpFactory);
         $expectedStreamFeed = new StreamFeed(
+            [],
             [],
             $jsonResponse,
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $this->mockStreamFeedFactory
@@ -89,13 +86,11 @@ class StreamReaderTest extends TestCase
     #[Test]
     public function navigate_stream_feed_returns_null_when_no_link(): void
     {
-        $httpFactory = new HttpFactory();
-        $entryFactory = new EntryFactory($httpFactory);
         $streamFeed = new StreamFeed(
+            [],
             [],
             ['entries' => [], 'links' => []],
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $result = $this->streamReader->navigateStreamFeed($streamFeed, LinkRelation::NEXT);
@@ -115,21 +110,19 @@ class StreamReaderTest extends TestCase
         $this->mockResponse->method('getStatusCode')->willReturn(200);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
-        $httpFactory = new HttpFactory();
-        $entryFactory = new EntryFactory($httpFactory);
         $link = new Link(LinkRelation::NEXT, new Uri('http://example.com/streams/test-stream/next'));
         $streamFeed = new StreamFeed(
             [$link],
+            [],
             ['entries' => [], 'links' => [['relation' => 'next', 'uri' => 'http://example.com/streams/test-stream/next']]],
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $expectedNextFeed = new StreamFeed(
             [],
+            [],
             $jsonResponse,
             EntryEmbedMode::NONE,
-            $entryFactory
         );
 
         $this->mockStreamFeedFactory
