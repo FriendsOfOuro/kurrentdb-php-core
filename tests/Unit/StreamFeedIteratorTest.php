@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit;
 
 use GuzzleHttp\Psr7\HttpFactory;
+use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\EntryFactory;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
+use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\StreamFeed;
-use KurrentDB\StreamFeed\StreamFeedFactory;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamReaderInterface;
 use KurrentDB\ValueObjects\Identity\UUID;
@@ -23,17 +24,16 @@ class StreamFeedIteratorTest extends TestCase
 {
     private StreamReaderInterface&MockObject $streamReader;
 
-    private HttpFactory $uriFactory;
-
-    private StreamFeedFactory $streamFeedFactory;
+    private StreamFeedDenormalizer $streamFeedDenormalizer;
 
     protected function setUp(): void
     {
         $this->streamReader = $this->createMock(StreamReaderInterface::class);
-        $this->uriFactory = new HttpFactory();
+        $uriFactory = new HttpFactory();
 
-        $entryFactory = new EntryFactory($this->uriFactory);
-        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
+        $linkDenormalizer = new LinkDenormalizer($uriFactory);
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
+        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
     }
 
     /**
@@ -293,7 +293,7 @@ class StreamFeedIteratorTest extends TestCase
             'links' => $links,
         ];
 
-        return $this->streamFeedFactory->create(
+        return $this->streamFeedDenormalizer->create(
             $json,
             EntryEmbedMode::NONE
         );

@@ -6,11 +6,11 @@ namespace KurrentDB\StreamFeed;
 
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-final readonly class StreamFeedDenormalizer implements DenormalizerInterface, StreamFeedFactoryInterface
+final readonly class StreamFeedDenormalizer implements DenormalizerInterface
 {
     public function __construct(
         private DenormalizerInterface $linkDenormalizer,
-        private EntryFactoryInterface $entryFactory,
+        private DenormalizerInterface $entryDenormalizer,
     ) {
     }
 
@@ -37,7 +37,7 @@ final readonly class StreamFeedDenormalizer implements DenormalizerInterface, St
         $entries = [];
         if (isset($data['entries']) && is_array($data['entries'])) {
             foreach ($data['entries'] as $entryData) {
-                $entries[] = $this->entryFactory->create($entryData);
+                $entries[] = $this->entryDenormalizer->denormalize($entryData, Entry::class);
             }
         }
 

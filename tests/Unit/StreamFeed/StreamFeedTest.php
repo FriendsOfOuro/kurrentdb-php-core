@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit\StreamFeed;
 
 use GuzzleHttp\Psr7\HttpFactory;
+use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\EntryFactory;
+use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
-use KurrentDB\StreamFeed\StreamFeedFactory;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -18,23 +19,21 @@ use PHPUnit\Framework\TestCase;
  */
 class StreamFeedTest extends TestCase
 {
-    private HttpFactory $uriFactory;
-
-    private StreamFeedFactory $streamFeedFactory;
+    private StreamFeedDenormalizer $streamFeedDenormalizer;
 
     protected function setUp(): void
     {
-        $this->uriFactory = new HttpFactory();
-
-        $entryFactory = new EntryFactory($this->uriFactory);
-        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
+        $uriFactory = new HttpFactory();
+        $linkDenormalizer = new LinkDenormalizer($uriFactory);
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
+        $this->streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
     }
 
     #[Test]
     #[DataProvider('modeProvider')]
     public function event_embed_mode_is_returned_properly(?EntryEmbedMode $mode, EntryEmbedMode $expected): void
     {
-        $feed = $this->streamFeedFactory->create([], $mode);
+        $feed = $this->streamFeedDenormalizer->create([], $mode);
 
         $this->assertEquals($expected, $feed->getEntryEmbedMode());
     }
@@ -58,7 +57,7 @@ class StreamFeedTest extends TestCase
     {
         $uri = 'http://sample.uri:12345/stream';
 
-        $feed = $this->streamFeedFactory->create(
+        $feed = $this->streamFeedDenormalizer->create(
             [
                 'links' => [
                     [
@@ -76,7 +75,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_true_on_matching_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
+        $feed = $this->streamFeedDenormalizer->create(
             [
                 'links' => [
                     [
@@ -94,7 +93,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function has_link_returns_false_on_missing_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
+        $feed = $this->streamFeedDenormalizer->create(
             [
                 'links' => [
                     [
@@ -112,7 +111,7 @@ class StreamFeedTest extends TestCase
     #[Test]
     public function get_link_url_returns_null_on_missing_url(): void
     {
-        $feed = $this->streamFeedFactory->create(
+        $feed = $this->streamFeedDenormalizer->create(
             [
                 'links' => [
                     [

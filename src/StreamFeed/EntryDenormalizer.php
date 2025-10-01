@@ -6,19 +6,11 @@ namespace KurrentDB\StreamFeed;
 
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-final readonly class EntryDenormalizer implements DenormalizerInterface, EntryFactoryInterface
+final readonly class EntryDenormalizer implements DenormalizerInterface
 {
     public function __construct(
         private DenormalizerInterface $linkDenormalizer,
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $json
-     */
-    public function create(array $json): Entry
-    {
-        return $this->denormalize($json, Entry::class);
     }
 
     /**
