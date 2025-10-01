@@ -55,7 +55,7 @@ class TestCase extends BaseTestCase
             $events[] = WritableEvent::newInstance('Foo_Event', ['foo_data_key' => 'bar'], $metadata);
         }
 
-        $collection = new WritableEventCollection($events);
+        $collection = WritableEventCollection::of(...$events);
         $this->es->writeToStream($streamName, $collection);
 
         return $streamName;

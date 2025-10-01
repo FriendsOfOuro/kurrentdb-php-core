@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit;
 
-use KurrentDB\Exception\InvalidWritableEventObjectException;
 use KurrentDB\Tests\SerializerFactory;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
@@ -26,7 +25,7 @@ class WritableEventCollectionTest extends TestCase
         $uuid2 = new UUID();
         $event2 = new WritableEvent($uuid2, 'Baz', ['data' => 'foo']);
 
-        $eventCollection = new WritableEventCollection([$event1, $event2]);
+        $eventCollection = WritableEventCollection::of($event1, $event2);
 
         $serializer = SerializerFactory::create();
         $serialized = $serializer->serialize($eventCollection->events, 'json');
@@ -47,13 +46,5 @@ class WritableEventCollectionTest extends TestCase
         ]);
 
         $this->assertEquals($expected, $serialized);
-    }
-
-    #[Test]
-    public function invalid_collection_throws_exception(): void
-    {
-        $this->expectException(InvalidWritableEventObjectException::class);
-        // @phpstan-ignore-next-line
-        new WritableEventCollection(['invalid']);
     }
 }

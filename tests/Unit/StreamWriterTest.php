@@ -70,10 +70,10 @@ class StreamWriterTest extends TestCase
         $this->mockResponse->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/1']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
-        $events = new WritableEventCollection([
+        $events = WritableEventCollection::of(
             new WritableEvent(new UUID(), 'TestEvent1', ['test' => 'data1']),
-            new WritableEvent(new UUID(), 'TestEvent2', ['test' => 'data2']),
-        ]);
+            new WritableEvent(new UUID(), 'TestEvent2', ['test' => 'data2'])
+        );
 
         $result = $this->streamWriter->writeToStream('test-stream', $events, ExpectedVersion::ANY);
 
