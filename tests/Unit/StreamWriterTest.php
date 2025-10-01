@@ -7,6 +7,7 @@ namespace KurrentDB\Tests\Unit;
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\Exception\NoExtractableEventVersionException;
+use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\ExpectedVersion;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamDeletion;
@@ -127,5 +128,16 @@ class StreamWriterTest extends TestCase
         ;
 
         $this->streamWriter->deleteStream('test-stream', StreamDeletion::HARD);
+    }
+
+    #[Test]
+    public function delete_stream_throws_stream_not_found_exception_on_404(): void
+    {
+        $this->mockResponse->method('getStatusCode')->willReturn(404);
+        $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
+
+        $this->expectException(StreamNotFoundException::class);
+
+        $this->streamWriter->deleteStream('nonexistent-stream', StreamDeletion::SOFT);
     }
 }

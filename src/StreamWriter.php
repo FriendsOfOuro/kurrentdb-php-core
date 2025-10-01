@@ -100,13 +100,15 @@ final readonly class StreamWriter implements StreamWriterInterface
      */
     public function deleteStream(string $streamName, StreamDeletion $mode): void
     {
-        $request = $this->requestFactory->createRequest('DELETE', $this->getStreamUrl($streamName));
+        $streamUri = $this->getStreamUrl($streamName);
+        $request = $this->requestFactory->createRequest('DELETE', $streamUri);
 
         if (StreamDeletion::HARD === $mode) {
             $request = $request->withHeader('Kurrent-HardDelete', 'true');
         }
 
-        $this->sendRequest($request);
+        $response = $this->sendRequest($request);
+        $this->errorHandler->handleStatusCode($streamUri, $response);
     }
 
     /**
