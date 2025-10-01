@@ -5,29 +5,45 @@ declare(strict_types=1);
 namespace KurrentDB\Tests\Unit\StreamFeed;
 
 use GuzzleHttp\Psr7\HttpFactory;
+use KurrentDB\StreamFeed\EntryDenormalizer;
 use KurrentDB\StreamFeed\EntryEmbedMode;
-use KurrentDB\StreamFeed\EntryFactory;
+use KurrentDB\StreamFeed\LinkDenormalizer;
 use KurrentDB\StreamFeed\LinkRelation;
+use KurrentDB\StreamFeed\StreamFeedDenormalizer;
 use KurrentDB\StreamFeed\StreamFeedFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class StreamFeedTest.
  */
 class StreamFeedTest extends TestCase
 {
-    private HttpFactory $uriFactory;
-
     private StreamFeedFactory $streamFeedFactory;
 
     protected function setUp(): void
     {
-        $this->uriFactory = new HttpFactory();
+        $uriFactory = new HttpFactory();
 
-        $entryFactory = new EntryFactory($this->uriFactory);
-        $this->streamFeedFactory = new StreamFeedFactory($this->uriFactory, $entryFactory);
+        $linkDenormalizer = new LinkDenormalizer($uriFactory);
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
+
+        $serializer = new Serializer(
+            [
+                $linkDenormalizer,
+                $entryDenormalizer,
+                $streamFeedDenormalizer,
+                new ObjectNormalizer(),
+            ],
+            [new JsonEncoder()]
+        );
+
+        $this->streamFeedFactory = new StreamFeedFactory($serializer);
     }
 
     #[Test]

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
-use Psr\Http\Message\UriFactoryInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
 {
     public function __construct(
-        private UriFactoryInterface $uriFactory,
-        private EntryFactory $entryFactory,
+        private DenormalizerInterface $denormalizer,
     ) {
     }
 
@@ -21,43 +20,10 @@ final readonly class StreamFeedFactory implements StreamFeedFactoryInterface
         array $json,
         EntryEmbedMode $embedMode = EntryEmbedMode::NONE,
     ): StreamFeed {
-        $links = $this->createLinks($json['links'] ?? []);
-        $entries = $this->createEntries($json['entries'] ?? []);
-
-        return new StreamFeed(
-            $links,
-            $entries,
+        return $this->denormalizer->denormalize(
             $json,
-            $embedMode,
-        );
-    }
-
-    /**
-     * @param array<array{relation: string, uri: string}> $linksData
-     *
-     * @return Link[]
-     */
-    private function createLinks(array $linksData): array
-    {
-        return array_map(
-            fn (array $linkData): Link => new Link(
-                LinkRelation::from($linkData['relation']),
-                $this->uriFactory->createUri($linkData['uri']),
-            ),
-            $linksData
-        );
-    }
-
-    /**
-     * @param array<array<string, mixed>> $entriesData
-     *
-     * @return Entry[]
-     */
-    private function createEntries(array $entriesData): array
-    {
-        return array_map(
-            fn (array $entryData): Entry => $this->entryFactory->create($entryData),
-            $entriesData
+            StreamFeed::class,
+            context: ['embedMode' => $embedMode]
         );
     }
 }

@@ -33,7 +33,9 @@
     "psr/http-factory-implementation": "*",
     "psr/http-message": "^2.0",
     "psr/http-message-implementation": "*",
-    "ramsey/uuid": "^4.9"
+    "ramsey/uuid": "^4.9",
+    "symfony/property-access": "^7.3 || ^8.0",
+    "symfony/serializer": "^7.3 || ^8.0"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.48",
