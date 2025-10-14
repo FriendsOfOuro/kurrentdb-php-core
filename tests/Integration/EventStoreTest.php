@@ -8,6 +8,7 @@ use FriendsOfOuro\Http\Batch\Guzzle\GuzzleHttpClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreFactory;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
@@ -23,10 +24,14 @@ use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\UriInterface;
 
 class EventStoreTest extends TestCase
 {
+    /**
+     * @throws ClientExceptionInterface
+     */
     #[Test]
     public function client_successfully_connects_to_event_store(): void
     {
@@ -34,6 +39,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -45,6 +54,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -58,6 +71,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -71,6 +88,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -89,6 +110,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -105,6 +130,9 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
@@ -119,6 +147,9 @@ class EventStoreTest extends TestCase
         $this->assertEquals($streamName, $json['streamId']);
     }
 
+    /**
+     * @throws ConnectionFailedException
+     */
     #[Test]
     public function unreacheable_event_store_throws_exception(): void
     {
@@ -130,6 +161,9 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
@@ -145,9 +179,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function event_stream_feed_head_returns_next_link(): void
@@ -162,8 +199,11 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function event_stream_feed_returns_entries(): void
@@ -177,9 +217,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function get_single_event_from_event_stream(): void
@@ -198,9 +241,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function get_single_event_with_provided_event_id(): void
@@ -220,8 +266,11 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function get_event_batch_from_event_stream(): void
@@ -247,9 +296,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function get_single_event_with_metadata_from_event_stream(): void
@@ -272,9 +324,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function navigate_stream_using_missing_link_returns_null(): void
@@ -287,6 +342,13 @@ class EventStoreTest extends TestCase
         $this->assertNull($next);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function unexistent_stream_should_throw_not_found_exception(): void
     {
@@ -295,8 +357,11 @@ class EventStoreTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
      * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function deleted_stream_should_throw_an_exception(): void
@@ -309,9 +374,12 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws UnauthorizedException
      * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
      */
     #[Test]
     public function fetching_event_of_a_deleted_stream_throws_an_exception(): void
@@ -328,6 +396,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -348,6 +420,10 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]
@@ -368,7 +444,11 @@ class EventStoreTest extends TestCase
     }
 
     /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
      * @throws ConnectionFailedException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     #[Test]

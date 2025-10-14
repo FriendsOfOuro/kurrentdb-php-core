@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace KurrentDB\StreamFeed;
 
+use KurrentDB\Exception\BadRequestException;
+use KurrentDB\Exception\StreamGoneException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\StreamReaderInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -68,6 +73,13 @@ final class StreamFeedIterator implements \Iterator
         return $this->innerIterator->current();
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     public function next(): void
     {
         $this->rewinded = false;
@@ -108,6 +120,13 @@ final class StreamFeedIterator implements \Iterator
         return $this->feed->getLinkUrl($this->navigationRelation);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     public function rewind(): void
     {
         if ($this->rewinded) {
@@ -131,6 +150,9 @@ final class StreamFeedIterator implements \Iterator
         $this->rewinded = true;
     }
 
+    /**
+     * @throws ClientExceptionInterface
+     */
     private function createInnerIterator(): void
     {
         $entries = $this->feed?->getEntries() ?: [];

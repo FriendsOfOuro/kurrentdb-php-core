@@ -11,6 +11,7 @@ use KurrentDB\Tests\SerializerFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -25,6 +26,9 @@ class StreamFeedTest extends TestCase
         $this->serializer = SerializerFactory::create();
     }
 
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function event_embed_mode_defaults_to_none(): void
     {
@@ -33,6 +37,9 @@ class StreamFeedTest extends TestCase
         $this->assertEquals(EntryEmbedMode::NONE, $feed->getEntryEmbedMode());
     }
 
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     #[DataProvider('relationProvider')]
     public function get_link_url_returns_proper_url(LinkRelation $relation): void
@@ -53,6 +60,9 @@ class StreamFeedTest extends TestCase
         $this->assertSame($uri, (string) $feed->getLinkUrl($relation));
     }
 
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function has_link_returns_true_on_matching_url(): void
     {
@@ -70,6 +80,9 @@ class StreamFeedTest extends TestCase
         $this->assertTrue($feed->hasLink(LinkRelation::LAST));
     }
 
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function has_link_returns_false_on_missing_url(): void
     {
@@ -87,6 +100,9 @@ class StreamFeedTest extends TestCase
         $this->assertFalse($feed->hasLink(LinkRelation::LAST));
     }
 
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function get_link_url_returns_null_on_missing_url(): void
     {

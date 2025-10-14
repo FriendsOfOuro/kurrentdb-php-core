@@ -8,6 +8,10 @@ use FriendsOfOuro\Http\Batch\ClientInterface;
 use FriendsOfOuro\Http\Batch\ResponseBatchInterface;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
+use KurrentDB\Exception\BadRequestException;
+use KurrentDB\Exception\StreamGoneException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\Event;
@@ -17,10 +21,13 @@ use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamReader;
 use KurrentDB\Tests\SerializerFactory;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 
 class StreamReaderTest extends TestCase
 {
@@ -29,6 +36,9 @@ class StreamReaderTest extends TestCase
     private StreamInterface&MockObject $mockBody;
     private StreamReader $streamReader;
 
+    /**
+     * @throws MockException
+     */
     protected function setUp(): void
     {
         $this->mockHttpClient = $this->createMock(ClientInterface::class);
@@ -50,6 +60,15 @@ class StreamReaderTest extends TestCase
         );
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function open_stream_feed_returns_stream_feed(): void
     {
@@ -69,6 +88,14 @@ class StreamReaderTest extends TestCase
         $this->assertEquals(EntryEmbedMode::NONE, $result->getEntryEmbedMode());
     }
 
+    /**
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function navigate_stream_feed_returns_null_when_no_link(): void
     {
@@ -84,6 +111,15 @@ class StreamReaderTest extends TestCase
         $this->assertNull($result);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function navigate_stream_feed_returns_stream_feed_when_link_exists(): void
     {
@@ -109,6 +145,15 @@ class StreamReaderTest extends TestCase
         $this->assertInstanceOf(StreamFeed::class, $result);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function read_event_returns_event(): void
     {
@@ -133,6 +178,15 @@ class StreamReaderTest extends TestCase
         $this->assertEquals(0, $result->getVersion());
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function read_event_batch_returns_events_array(): void
     {

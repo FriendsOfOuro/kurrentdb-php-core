@@ -6,6 +6,7 @@ namespace KurrentDB\Tests\Unit\ValueObjects\StringLiteral;
 
 use KurrentDB\ValueObjects\StringLiteral\BasicStringLiteral;
 use KurrentDB\ValueObjects\ValueObjectInterface;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 
 class StringLiteralTest extends TestCase
@@ -24,6 +25,9 @@ class StringLiteralTest extends TestCase
         $this->assertEquals('foo', $string->toNative());
     }
 
+    /**
+     * @throws MockException
+     */
     public function test_same_value_as(): void
     {
         $foo1 = new BasicStringLiteral('foo');

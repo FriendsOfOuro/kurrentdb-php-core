@@ -11,7 +11,10 @@ use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Psr7\HttpFactory;
 use KurrentDB\EventStoreFactory;
 use KurrentDB\EventStoreInterface;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\ConnectionFailedException;
+use KurrentDB\Exception\StreamGoneException;
+use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
@@ -44,6 +47,9 @@ class TestCase extends BaseTestCase
      *
      * @param array<string, mixed> $metadata
      *
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
      */
     protected function prepareTestStream(int $length = 1, array $metadata = []): string

@@ -99,6 +99,29 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 - Strict types declaration enforced in all PHP files
 - Chained method calls on new lines for better readability
 
+**PHPDoc @throws Tags:**
+- Use `use` clauses instead of Fully Qualified Names (FQN) in @throws tags
+- Sort @throws tags alphabetically by exception class name
+- For PHPUnit mock exceptions, use the `MockException` alias:
+  ```php
+  use PHPUnit\Framework\MockObject\Exception as MockException;
+  ```
+  Then in PHPDoc: `@throws MockException`
+- Example:
+  ```php
+  use KurrentDB\Exception\BadRequestException;
+  use KurrentDB\Exception\StreamNotFoundException;
+
+  /**
+   * @throws BadRequestException
+   * @throws StreamNotFoundException
+   */
+  public function someMethod(): void
+  {
+      // ...
+  }
+  ```
+
 **Pre-commit Workflow:**
 Always run `make before-push` before committing and pushing changes. This ensures:
 1. Code style is automatically fixed (cs-fixer)

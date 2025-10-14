@@ -30,6 +30,9 @@ class ConnectionCheckerTest extends TestCase
         $this->connectionChecker = new ConnectionChecker($httpFactory, $this->mockHttpClient);
     }
 
+    /**
+     * @throws MockException
+     */
     #[Test]
     public function check_connection_succeeds_with_successful_response(): void
     {
@@ -43,6 +46,9 @@ class ConnectionCheckerTest extends TestCase
         $this->connectionChecker->checkConnection();
     }
 
+    /**
+     * @throws MockException
+     */
     #[Test]
     public function check_connection_throws_connection_failed_exception_on_http_error(): void
     {
@@ -60,6 +66,9 @@ class ConnectionCheckerTest extends TestCase
         $this->connectionChecker->checkConnection();
     }
 
+    /**
+     * @throws MockException
+     */
     #[Test]
     public function check_connection_throws_connection_failed_exception_on_general_error(): void
     {

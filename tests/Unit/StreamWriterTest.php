@@ -6,8 +6,11 @@ namespace KurrentDB\Tests\Unit;
 
 use FriendsOfOuro\Http\Batch\ClientInterface;
 use GuzzleHttp\Psr7\HttpFactory;
+use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\NoExtractableEventVersionException;
+use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\ExpectedVersion;
 use KurrentDB\Http\HttpErrorHandler;
 use KurrentDB\StreamDeletion;
@@ -18,10 +21,13 @@ use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 
 class StreamWriterTest extends TestCase
 {
@@ -30,6 +36,9 @@ class StreamWriterTest extends TestCase
     private StreamInterface&MockObject $mockBody;
     private StreamWriter $streamWriter;
 
+    /**
+     * @throws MockException
+     */
     protected function setUp(): void
     {
         $this->mockHttpClient = $this->createMock(ClientInterface::class);
@@ -50,6 +59,15 @@ class StreamWriterTest extends TestCase
         );
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function write_to_stream_with_single_event_returns_write_result(): void
     {
@@ -63,6 +81,15 @@ class StreamWriterTest extends TestCase
         $this->assertEquals(0, $result->version);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function write_to_stream_with_event_collection_returns_write_result(): void
     {
@@ -81,6 +108,15 @@ class StreamWriterTest extends TestCase
         $this->assertEquals(1, $result->version);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function write_to_stream_throws_exception_when_no_location_header(): void
     {
@@ -95,6 +131,15 @@ class StreamWriterTest extends TestCase
         $this->streamWriter->writeToStream('test-stream', WritableEventCollection::of($event));
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function write_to_stream_throws_exception_when_malformed_location_header(): void
     {
@@ -109,6 +154,14 @@ class StreamWriterTest extends TestCase
         $this->streamWriter->writeToStream('test-stream', WritableEventCollection::of($event));
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function delete_stream_sends_delete_request(): void
     {
@@ -118,6 +171,14 @@ class StreamWriterTest extends TestCase
         $this->streamWriter->deleteStream('test-stream', StreamDeletion::SOFT);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function delete_stream_with_hard_mode_adds_header(): void
     {
@@ -133,6 +194,14 @@ class StreamWriterTest extends TestCase
         $this->streamWriter->deleteStream('test-stream', StreamDeletion::HARD);
     }
 
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function delete_stream_throws_stream_not_found_exception_on_404(): void
     {

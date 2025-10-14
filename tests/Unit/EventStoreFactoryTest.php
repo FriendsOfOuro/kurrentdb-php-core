@@ -32,6 +32,9 @@ class EventStoreFactoryTest extends TestCase
         $this->factory = new EventStoreFactory($this->httpFactory, $this->httpFactory, $this->mockHttpClient);
     }
 
+    /**
+     * @throws MockException
+     */
     #[Test]
     public function create_returns_event_store_when_connection_succeeds(): void
     {
@@ -47,6 +50,9 @@ class EventStoreFactoryTest extends TestCase
         $this->assertInstanceOf(EventStore::class, $eventStore);
     }
 
+    /**
+     * @throws MockException
+     */
     #[Test]
     public function create_throws_connection_failed_exception_when_connection_fails(): void
     {

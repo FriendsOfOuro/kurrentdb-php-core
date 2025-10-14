@@ -36,9 +36,11 @@ class HttpErrorHandlerTest extends TestCase
     /**
      * @param class-string<\Exception> $expectedException
      *
-     * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
+     * @throws BadRequestException
+     * @throws MockException
      * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     #[DataProvider('statusCodeProvider')]
@@ -52,6 +54,13 @@ class HttpErrorHandlerTest extends TestCase
         $this->errorHandler->handleStatusCode($this->uri, $response);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws MockException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function handle_status_code_throws_bad_request_for_400_with_other_reason(): void
     {
@@ -64,10 +73,11 @@ class HttpErrorHandlerTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
-     * @throws StreamGoneException
      * @throws BadRequestException
+     * @throws MockException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     #[TestWith([200, 'OK'])]
@@ -86,9 +96,11 @@ class HttpErrorHandlerTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
-     * @throws StreamGoneException
+     * @throws BadRequestException
      * @throws MockException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function handle_exception_with_response_delegates_to_handle_status_code(): void
@@ -113,6 +125,13 @@ class HttpErrorHandlerTest extends TestCase
         $this->errorHandler->handleException($this->uri, $exception);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws MockException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function handle_exception_without_response_throws_connection_failed(): void
     {
@@ -128,9 +147,11 @@ class HttpErrorHandlerTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
+     * @throws BadRequestException
+     * @throws MockException
      * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function handle_exception_with_null_response_throws_connection_failed(): void
@@ -150,9 +171,11 @@ class HttpErrorHandlerTest extends TestCase
     }
 
     /**
-     * @throws WrongExpectedVersionException
-     * @throws StreamNotFoundException
+     * @throws BadRequestException
+     * @throws MockException
      * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function handle_exception_without_get_response_method_throws_connection_failed(): void

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Integration\StreamFeed;
 
+use KurrentDB\Exception\BadRequestException;
+use KurrentDB\Exception\StreamGoneException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\StreamFeed\Entry;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
@@ -12,9 +16,17 @@ use KurrentDB\Tests\Integration\TestCase;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class StreamFeedIteratorTest extends TestCase
 {
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_iterate_single_event_asc(): void
     {
@@ -32,6 +44,13 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_iterate_single_event_desc(): void
     {
@@ -49,6 +68,13 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertInstanceOf(Entry::class, $events['0@'.$streamName]->getEntry());
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_iterate_the_second_page(): void
     {
@@ -62,6 +88,13 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertCount($streamLength, $events);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_be_sorted_asc(): void
     {
@@ -72,6 +105,13 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator));
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_be_sorted_desc(): void
     {
@@ -82,6 +122,13 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertEventSorted(iterator_to_array($iterator), -1);
     }
 
+    /**
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
     #[Test]
     public function it_should_optimize_http_call_on_rewind(): void
     {

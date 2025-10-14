@@ -7,6 +7,7 @@ namespace KurrentDB\Tests\Unit\ValueObjects\Identity;
 use KurrentDB\ValueObjects\Exception\InvalidNativeArgumentException;
 use KurrentDB\ValueObjects\Identity\UUID;
 use KurrentDB\ValueObjects\ValueObjectInterface;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 
 class UUIDTest extends TestCase
@@ -26,6 +27,9 @@ class UUIDTest extends TestCase
         $this->assertTrue($uuid1->sameValueAs($uuid2));
     }
 
+    /**
+     * @throws MockException
+     */
     public function test_same_value_as(): void
     {
         $uuid1 = new UUID();

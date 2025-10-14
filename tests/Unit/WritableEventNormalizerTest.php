@@ -9,12 +9,16 @@ use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventNormalizer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 
 /**
  * Class WritableEventNormalizerTest.
  */
 class WritableEventNormalizerTest extends TestCase
 {
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function it_normalizes_event_to_stream_data(): void
     {

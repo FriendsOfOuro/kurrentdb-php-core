@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace KurrentDB\Tests\Unit;
 
+use KurrentDB\Exception\BadRequestException;
+use KurrentDB\Exception\StreamGoneException;
+use KurrentDB\Exception\StreamNotFoundException;
+use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\StreamFeed\EntryWithEvent;
 use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeed;
@@ -12,9 +16,11 @@ use KurrentDB\StreamReaderInterface;
 use KurrentDB\Tests\SerializerFactory;
 use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class StreamFeedIteratorTest extends TestCase
@@ -23,6 +29,9 @@ class StreamFeedIteratorTest extends TestCase
 
     private SerializerInterface $serializer;
 
+    /**
+     * @throws MockException
+     */
     protected function setUp(): void
     {
         $this->streamReader = $this->createMock(StreamReaderInterface::class);
@@ -30,7 +39,8 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws MockException
+     * @throws SerializerExceptionInterface
      */
     #[Test]
     public function iterator_respects_page_limit(): void
@@ -81,7 +91,8 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws MockException
+     * @throws SerializerExceptionInterface
      */
     #[Test]
     public function iterator_stops_when_no_more_navigation_links(): void
@@ -120,7 +131,13 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function next_url_returns_correct_navigation_url(): void
@@ -152,7 +169,7 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws MockException
      */
     #[Test]
     public function next_url_returns_null_when_no_feed(): void
@@ -165,7 +182,8 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws MockException
+     * @throws SerializerExceptionInterface
      */
     #[Test]
     public function iterator_handles_empty_streams(): void
@@ -193,7 +211,13 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function iterator_key_returns_entry_title(): void
@@ -227,7 +251,13 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws BadRequestException
+     * @throws ClientExceptionInterface
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
      */
     #[Test]
     public function iterator_rewind_is_idempotent(): void
@@ -260,7 +290,11 @@ class StreamFeedIteratorTest extends TestCase
         $this->assertTrue($iterator->valid());
     }
 
-    /** @param array<array<string, mixed>> $entries */
+    /**
+     * @param array<array<string, mixed>> $entries
+     *
+     * @throws SerializerExceptionInterface
+     */
     private function createStreamFeed(array $entries, bool $hasNavigation): StreamFeed
     {
         $entriesData = array_map(fn (array $entry): array => [

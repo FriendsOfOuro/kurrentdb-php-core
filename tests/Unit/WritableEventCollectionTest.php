@@ -10,12 +10,16 @@ use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 
 /**
  * Class WritableEventCollectionTest.
  */
 class WritableEventCollectionTest extends TestCase
 {
+    /**
+     * @throws SerializerExceptionInterface
+     */
     #[Test]
     public function event_collection_is_serialized_to_stream_data(): void
     {
