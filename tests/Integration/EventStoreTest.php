@@ -29,9 +29,6 @@ use Psr\Http\Message\UriInterface;
 
 class EventStoreTest extends TestCase
 {
-    /**
-     * @throws ClientExceptionInterface
-     */
     #[Test]
     public function client_successfully_connects_to_event_store(): void
     {
@@ -40,7 +37,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -55,7 +51,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -72,7 +67,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -89,7 +83,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -111,7 +104,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -131,7 +123,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -162,7 +153,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -180,7 +170,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -200,7 +189,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -218,7 +206,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -242,7 +229,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -297,7 +283,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -325,7 +310,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -344,7 +328,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -358,7 +341,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -375,7 +357,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws UnauthorizedException
@@ -445,7 +426,6 @@ class EventStoreTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws ConnectionFailedException
      * @throws StreamGoneException
      * @throws StreamNotFoundException
