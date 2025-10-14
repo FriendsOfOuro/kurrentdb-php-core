@@ -1,6 +1,13 @@
 parameters:
     level: 7
     treatPhpDocTypesAsCertain: false
+    exceptions:
+        check:
+            missingCheckedExceptionInThrows: true
+            tooWideThrowType: true
+        uncheckedExceptionClasses:
+            - LogicException
+            - RuntimeException
     paths:
         - src
         - tests
