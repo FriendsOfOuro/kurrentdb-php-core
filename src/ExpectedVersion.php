@@ -9,8 +9,8 @@ namespace KurrentDB;
  */
 class ExpectedVersion
 {
-    public const ANY = -2;
-    public const NO_STREAM = -1;
+    public const int ANY = -2;
+    public const int NO_STREAM = -1;
 
     private function __construct()
     {
