@@ -6,6 +6,7 @@ parameters:
             missingCheckedExceptionInThrows: true
             tooWideThrowType: true
         uncheckedExceptionClasses:
+            - Error
             - LogicException
             - RuntimeException
     paths:
