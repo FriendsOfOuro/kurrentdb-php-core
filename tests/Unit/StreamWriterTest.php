@@ -72,7 +72,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_with_single_event_returns_write_result(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/0']);
+        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/0']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
@@ -94,7 +94,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_with_event_collection_returns_write_result(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/1']);
+        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/1']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $events = WritableEventCollection::of(
@@ -121,7 +121,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_throws_exception_when_no_location_header(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->method('getHeader')->with('Location')->willReturn([]);
+        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn([]);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
@@ -144,7 +144,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_throws_exception_when_malformed_location_header(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->method('getHeader')->with('Location')->willReturn(['http://example.com/invalid/path']);
+        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/invalid/path']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
