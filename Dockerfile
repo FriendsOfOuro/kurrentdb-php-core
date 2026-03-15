@@ -1,11 +1,15 @@
-ARG PHP_VERSION=8.4
+ARG PHP_VERSION=8.5
 FROM php:${PHP_VERSION}-cli
 
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    libicu-dev \
     libzip-dev \
-    && docker-php-ext-install zip \
+    && docker-php-ext-install \
+        bcmath \
+        intl \
+        zip \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && rm -rf /var/lib/apt/lists/*

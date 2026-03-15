@@ -24,7 +24,7 @@
     }
   ],
   "require": {
-    "php": "^8.4",
+    "php": "^8.5",
     "friendsofouro/http-batch-contract": "^3.0",
     "friendsofouro/http-batch-implementation": "^3.0",
     "psr/http-client": "^1.0",
@@ -44,7 +44,7 @@
     "guzzlehttp/guzzle": "^7.10",
     "maglnet/composer-require-checker": "^4.16",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^12.3",
+    "phpunit/phpunit": "^13.0",
     "rector/rector": "^2.1",
     "symfony/var-dumper": "^7.3"
   },
