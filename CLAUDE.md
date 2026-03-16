@@ -17,7 +17,7 @@ This project uses Docker Compose for development environment and Make for common
 - `make test-coverage` - Run tests with coverage report
 - `make cs-fixer` - Fix code style using PHP-CS-Fixer
 - `make cs-fixer-ci` - Check code style (dry-run with diff)
-- `make phpstan` - Run static analysis (level 5)
+- `make phpstan` - Run static analysis (level 7)
 - `make benchmark` - Run performance benchmarks
 - `make before-push` - **Run before pushing commits** - executes cs-fixer, test, and phpstan in sequence to ensure code quality
 
@@ -30,6 +30,11 @@ Examples:
 - `docker compose exec php bin/phpstan analyse src/EventStore.php` - Analyze specific file
 - `docker compose exec php bin/rector process src/EventStore.php --dry-run` - Preview Rector changes for a file
 
+### Additional Make Targets
+- `make rector` - Apply Rector refactoring to the codebase
+- `make bash` - Open a bash shell inside the PHP container
+- `make check-src-deps` - Verify all src dependencies are declared in composer.json
+
 ## Architecture Overview
 
 This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventStoreDB) HTTP API for event sourcing applications.
@@ -37,8 +42,8 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 ### Core Components
 
 **Main Entry Point:**
-- `EventStore` - Primary client class implementing `EventStoreInterface`
-- Configured with HTTP client and KurrentDB URL (default: `http://admin:changeit@127.0.0.1:2113`)
+- `EventStoreFactory` / `EventStoreFactoryInterface` - Creates a fully wired `EventStore` instance; checks connection and assembles Symfony Serializer with all denormalizers
+- `EventStore` - Facade implementing `EventStoreInterface` that delegates to three specialized services: `StreamReader`, `StreamWriter`, `StreamIteratorFactory`
 
 **Event Handling:**
 - `WritableEvent` - Events to be written to streams
@@ -68,17 +73,17 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 ### Key Patterns
 
 1. **Interface Segregation:** Core functionality split into focused interfaces:
-   - `StreamReaderInterface` - Stream reading operations
+   - `StreamReaderInterface` - Stream reading and event reading operations
    - `StreamWriterInterface` - Stream writing and deletion
-   - `EventReaderInterface` - Event reading and batch operations
    - `StreamIteratorFactoryInterface` - Stream iteration factories
-   - `HttpDiagnosticsInterface` - HTTP diagnostics
+   - `EventStoreInterface` - Combines all three interfaces above
 2. **PSR Compliance:** Uses PSR-7 (HTTP messages), PSR-18 (HTTP client), and PSR-17 (HTTP factories)
 3. **Optimistic Concurrency:** Stream operations include expected version checking
 4. **Batch Operations:** Support for reading multiple events efficiently via `ClientInterface::sendBatch()`
 5. **Stream Navigation:** AtomPub-style feed navigation with link relations
 6. **Error Handling:** Specific exceptions for common scenarios with dedicated handlers
 7. **Factory Pattern:** Dedicated factories for creating stream feeds and entries
+8. **Serialization:** Symfony Serializer with custom denormalizers (`StreamFeedDenormalizer`, `EntryDenormalizer`, `LinkDenormalizer`, `EventDenormalizer`) and `WritableEventNormalizer` for serializing outbound events
 
 ### Testing Environment
 
@@ -100,6 +105,7 @@ This is a PHP 8.4+ library that provides a client for KurrentDB (formerly EventS
 - Chained method calls on new lines for better readability
 
 **PHPDoc @throws Tags:**
+- PHPStan is configured with `missingCheckedExceptionInThrows: true` and `tooWideThrowType: true` — `@throws` tags must be exhaustive and precise
 - Use `use` clauses instead of Fully Qualified Names (FQN) in @throws tags
 - Sort @throws tags alphabetically by exception class name
 - For PHPUnit mock exceptions, use the `MockException` alias:
