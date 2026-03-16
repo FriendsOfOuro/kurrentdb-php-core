@@ -24,7 +24,7 @@
     }
   ],
   "require": {
-    "php": "^8.5",
+   "php": "^8.4",
     "friendsofouro/http-batch-contract": "^3.0",
     "friendsofouro/http-batch-implementation": "^3.0",
     "psr/http-client": "^1.0",
