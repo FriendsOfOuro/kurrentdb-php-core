@@ -1,0 +1,34 @@
+name: Composer Update
+
+on:
+  schedule:
+    - cron: '0 8 * * 6'  # Every Saturday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  composer-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Run composer update
+        run: composer update --no-interaction --prefer-dist
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'chore: composer update'
+          title: 'chore: composer update'
+          body: |
+            Automated `composer update` run.
+
+            This PR was created automatically by the Composer Update workflow.
+          branch: chore/composer-update
+          delete-branch: true
+          labels: dependencies
