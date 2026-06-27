@@ -223,7 +223,7 @@ class EventStoreTest extends TestCase
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertArraysAreIdentical(['foo_data_key' => 'bar'], $event->getData());
         $this->assertNull($event->getMetadata());
     }
 
@@ -276,7 +276,7 @@ class EventStoreTest extends TestCase
         foreach ($events as $event) {
             $this->assertSame($i--, $event->getVersion());
             $this->assertInstanceOf(Event::class, $event);
-            $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+            $this->assertArraysAreIdentical(['foo_data_key' => 'bar'], $event->getData());
             $this->assertNull($event->getMetadata());
         }
     }
@@ -304,7 +304,7 @@ class EventStoreTest extends TestCase
         $event = $this->es->readEvent($eventUrl);
 
         $this->assertSame(0, $event->getVersion());
-        $this->assertSame(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertArraysAreIdentical(['foo_data_key' => 'bar'], $event->getData());
         $this->assertSame($metadata, $event->getMetadata());
     }
 
@@ -397,7 +397,7 @@ class EventStoreTest extends TestCase
         $entryWithEvent = $iterator->current();
         $event = $entryWithEvent->getEvent();
         $this->assertEquals('Foo_Event', $event->getType());
-        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertArraysAreEqual(['foo_data_key' => 'bar'], $event->getData());
     }
 
     /**
@@ -421,7 +421,7 @@ class EventStoreTest extends TestCase
         $entryWithEvent = $iterator->current();
         $event = $entryWithEvent->getEvent();
         $this->assertEquals('Foo_Event', $event->getType());
-        $this->assertEquals(['foo_data_key' => 'bar'], $event->getData());
+        $this->assertArraysAreEqual(['foo_data_key' => 'bar'], $event->getData());
     }
 
     /**
