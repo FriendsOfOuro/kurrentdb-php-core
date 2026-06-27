@@ -35,6 +35,6 @@ class WritableEventNormalizerTest extends TestCase
             'metadata' => [],
         ];
 
-        $this->assertArraysAreEqual($expected, $normalized);
+        $this->assertArraysAreIdentical($expected, $normalized);
     }
 }
