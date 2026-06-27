@@ -20,8 +20,11 @@ final readonly class EventDenormalizer implements DenormalizerInterface
 
         $eventType = $content['eventType'];
         $version = (int) $content['eventNumber'];
-        $eventData = $content['data'];
-        $metadata = (empty($content['metadata'])) ? null : $content['metadata'];
+        $rawData = $content['data'] ?? null;
+        $rawMetadata = $content['metadata'] ?? null;
+
+        $eventData = $this->decodeField($rawData) ?? [];
+        $metadata = $this->decodeField($rawMetadata);
         $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
 
         return new Event($eventType, $version, $eventData, $metadata, $eventId);
@@ -43,7 +46,7 @@ final readonly class EventDenormalizer implements DenormalizerInterface
 
         $content = isset($data['content']) ? $data['content'] : $data;
 
-        return isset($content['eventType'], $content['eventNumber'], $content['data']);
+        return isset($content['eventType'], $content['eventNumber']);
     }
 
     public function getSupportedTypes(?string $format): array
@@ -51,5 +54,30 @@ final readonly class EventDenormalizer implements DenormalizerInterface
         return [
             Event::class => true,
         ];
+    }
+
+    /**
+     * Decodes a field that may be a JSON string, an array, or null.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function decodeField(mixed $value): ?array
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            // Non-array results (e.g. scalar JSON values) are treated as empty data
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return null;
     }
 }

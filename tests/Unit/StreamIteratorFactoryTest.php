@@ -18,7 +18,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientExceptionInterface;
 
 class StreamIteratorFactoryTest extends TestCase
 {
@@ -83,7 +82,6 @@ class StreamIteratorFactoryTest extends TestCase
     /**
      * @throws MockException
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -95,12 +93,12 @@ class StreamIteratorFactoryTest extends TestCase
             [],
             [],
             ['entries' => [], 'links' => []],
-            EntryEmbedMode::NONE,
+            EntryEmbedMode::BODY,
         );
 
         $this->mockStreamReader->expects($this->once())
             ->method('openStreamFeed')
-            ->with('test-stream')
+            ->with('test-stream', EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 
@@ -114,7 +112,6 @@ class StreamIteratorFactoryTest extends TestCase
     /**
      * @throws MockException
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -126,12 +123,12 @@ class StreamIteratorFactoryTest extends TestCase
             [],
             [],
             ['entries' => [], 'links' => []],
-            EntryEmbedMode::NONE,
+            EntryEmbedMode::BODY,
         );
 
         $this->mockStreamReader->expects($this->once())
             ->method('openStreamFeed')
-            ->with('test-stream')
+            ->with('test-stream', EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 

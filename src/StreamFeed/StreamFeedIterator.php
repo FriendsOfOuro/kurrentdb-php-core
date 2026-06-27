@@ -9,7 +9,6 @@ use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\WrongExpectedVersionException;
 use KurrentDB\StreamReaderInterface;
-use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -75,7 +74,6 @@ final class StreamFeedIterator implements \Iterator
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -122,7 +120,6 @@ final class StreamFeedIterator implements \Iterator
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -133,7 +130,7 @@ final class StreamFeedIterator implements \Iterator
             return;
         }
 
-        $this->feed = $this->streamReader->openStreamFeed($this->streamName);
+        $this->feed = $this->streamReader->openStreamFeed($this->streamName, EntryEmbedMode::BODY);
 
         if ($this->feed->hasLink($this->startingRelation)) {
             $this->feed = $this
@@ -150,9 +147,6 @@ final class StreamFeedIterator implements \Iterator
         $this->rewinded = true;
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     */
     private function createInnerIterator(): void
     {
         $entries = $this->feed?->getEntries() ?: [];
@@ -168,29 +162,22 @@ final class StreamFeedIterator implements \Iterator
             $entries
         );
 
-        $urls = array_filter(array_map(
-            fn (Entry $entry): ?UriInterface => $entry->getEventUrl(),
-            $entries
-        ));
-
         $this->innerIterator = new \ArrayIterator(
-            array_filter(
+            array_values(array_filter(
                 array_map(
-                    function (?Entry $entry, ?Event $event): ?EntryWithEvent {
-                        if (!$entry instanceof Entry || !$event instanceof Event) {
+                    static function (Entry $entry): ?EntryWithEvent {
+                        $event = $entry->getEmbeddedEvent();
+
+                        if (!$event instanceof Event) {
                             return null;
                         }
 
-                        return new EntryWithEvent(
-                            $entry,
-                            $event
-                        );
+                        return new EntryWithEvent($entry, $event);
                     },
-                    $entries,
-                    $this->streamReader->readEventBatch($urls)
+                    $entries
                 ),
-                fn (?EntryWithEvent $entryWithEvent): bool => $entryWithEvent instanceof EntryWithEvent
-            )
+                static fn (?EntryWithEvent $entryWithEvent): bool => $entryWithEvent instanceof EntryWithEvent
+            ))
         );
     }
 }

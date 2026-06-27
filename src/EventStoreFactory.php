@@ -40,9 +40,9 @@ final readonly class EventStoreFactory implements EventStoreFactoryInterface
 
         // Create Symfony Serializer with denormalizers and normalizers
         $linkDenormalizer = new LinkDenormalizer($this->uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
         $eventDenormalizer = new EventDenormalizer();
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer, $eventDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
         $writableEventNormalizer = new WritableEventNormalizer();
 
         $serializer = new Serializer(
