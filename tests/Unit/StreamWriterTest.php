@@ -210,6 +210,36 @@ class StreamWriterTest extends TestCase
     /**
      * @throws MockException
      * @throws ClientExceptionInterface
+     * @throws SerializerExceptionInterface
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
+    #[Test]
+    public function stream_name_is_url_encoded_in_request_uri(): void
+    {
+        $this->mockResponse->method('getStatusCode')->willReturn(201);
+        $this->mockResponse->method('getHeader')->willReturn(['http://example.com/streams/x/0']);
+
+        $mockHttpClient = $this->createMock(ClientInterface::class);
+        $mockHttpClient->expects($this->once())->method('sendRequest')
+            ->with($this->callback(function ($request): bool {
+                $uri = $request->getUri();
+
+                // "?two" must stay part of the stream name, not become a query string
+                return '/streams/name%3Ftwo' === $uri->getPath() && '' === $uri->getQuery();
+            }))
+            ->willReturn($this->mockResponse)
+        ;
+
+        $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
+        $this->makeStreamWriter($mockHttpClient)->writeToStream('name?two', WritableEventCollection::of($event));
+    }
+
+    /**
+     * @throws MockException
+     * @throws ClientExceptionInterface
      * @throws BadRequestException
      * @throws StreamGoneException
      * @throws StreamNotFoundException

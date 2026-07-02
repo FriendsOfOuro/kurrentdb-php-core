@@ -29,7 +29,9 @@ trait HttpClientTrait
 
     protected function getStreamUrl(string $streamName): UriInterface
     {
-        return $this->getUriFactory()->createUri("/streams/{$streamName}");
+        // Encode everything, including "/": KurrentDB expects %2F for stream
+        // names containing slashes and rejects the raw form with a 400.
+        return $this->getUriFactory()->createUri('/streams/'.rawurlencode($streamName));
     }
 
     protected function getJsonRequest(UriInterface $uri): RequestInterface
