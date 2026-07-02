@@ -286,6 +286,105 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     */
+    #[Test]
+    public function iterator_continues_past_page_with_only_unresolved_entries(): void
+    {
+        $streamName = '$streams';
+
+        $page1 = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event2', 'eventType' => 'EventB', 'eventNumber' => 1],
+        ], true);
+        // A page made entirely of unresolved linkTos (e.g. hard-deleted streams in $streams)
+        $page2 = $this->createStreamFeedFromRawEntries([
+            ['title' => '5@deleted-a'],
+            ['title' => '3@deleted-b'],
+        ], true);
+        $page3 = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'EventA', 'eventNumber' => 0],
+        ], false);
+
+        $this->streamReader
+            ->expects($this->once())
+            ->method('openStreamFeed')
+            ->with($streamName, EntryEmbedMode::BODY)
+            ->willReturn($page1)
+        ;
+
+        $this->streamReader
+            ->method('navigateStreamFeed')
+            ->willReturnOnConsecutiveCalls($page2, $page3, null)
+        ;
+
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
+        $entriesWithEvents = array_values(iterator_to_array($iterator));
+
+        $this->assertCount(2, $entriesWithEvents);
+    }
+
+    /**
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     */
+    #[Test]
+    public function rewind_advances_past_leading_page_without_events(): void
+    {
+        $streamName = '$streams';
+
+        $page1 = $this->createStreamFeedFromRawEntries([
+            ['title' => '7@deleted-c'],
+        ], true);
+        $page2 = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'EventA', 'eventNumber' => 0],
+        ], false);
+
+        $this->streamReader
+            ->expects($this->once())
+            ->method('openStreamFeed')
+            ->with($streamName, EntryEmbedMode::BODY)
+            ->willReturn($page1)
+        ;
+
+        $this->streamReader
+            ->method('navigateStreamFeed')
+            ->willReturnOnConsecutiveCalls($page2, null)
+        ;
+
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
+        $entriesWithEvents = array_values(iterator_to_array($iterator));
+
+        $this->assertCount(1, $entriesWithEvents);
+    }
+
+    /**
+     * Builds a feed page whose entries lack embedded event fields, as KurrentDB
+     * returns for unresolved linkTos (e.g. links into hard-deleted streams).
+     *
+     * @param array<array<string, mixed>> $entriesData
+     *
+     * @throws SerializerExceptionInterface
+     */
+    private function createStreamFeedFromRawEntries(array $entriesData, bool $hasNavigation): StreamFeed
+    {
+        $links = [];
+        if ($hasNavigation) {
+            $links[] = [
+                'uri' => 'http://127.0.0.1:2113/streams/test-stream/next',
+                'relation' => 'previous',
+            ];
+        }
+
+        return $this->serializer->deserialize(
+            json_encode(['entries' => $entriesData, 'links' => $links]),
+            StreamFeed::class,
+            'json',
+            ['embedMode' => EntryEmbedMode::BODY]
+        );
+    }
+
+    /**
      * @param array<array<string, mixed>> $entries
      *
      * @throws SerializerExceptionInterface

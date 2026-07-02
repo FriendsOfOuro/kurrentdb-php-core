@@ -83,20 +83,7 @@ final class StreamFeedIterator implements \Iterator
         $this->rewinded = false;
         $this->innerIterator->next();
 
-        if (!$this->innerIterator->valid() && $this->pagesLeft > 0) {
-            $this->feed = $this
-                ->streamReader
-                ->navigateStreamFeed(
-                    $this->feed,
-                    $this->navigationRelation
-                )
-            ;
-
-            if ($this->feed instanceof StreamFeed) {
-                --$this->pagesLeft;
-                $this->createInnerIterator();
-            }
-        }
+        $this->advanceToPageWithEvents();
     }
 
     public function key(): string
@@ -143,8 +130,38 @@ final class StreamFeedIterator implements \Iterator
         }
 
         $this->createInnerIterator();
+        $this->advanceToPageWithEvents();
 
         $this->rewinded = true;
+    }
+
+    /**
+     * Keeps navigating while the current page yields no events, e.g. pages of
+     * $streams made entirely of linkTos into hard-deleted streams.
+     *
+     * @throws BadRequestException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
+    private function advanceToPageWithEvents(): void
+    {
+        while (!$this->innerIterator->valid() && $this->pagesLeft > 0 && $this->feed instanceof StreamFeed) {
+            $this->feed = $this
+                ->streamReader
+                ->navigateStreamFeed(
+                    $this->feed,
+                    $this->navigationRelation
+                )
+            ;
+
+            if (!$this->feed instanceof StreamFeed) {
+                return;
+            }
+
+            --$this->pagesLeft;
+            $this->createInnerIterator();
+        }
     }
 
     private function createInnerIterator(): void
