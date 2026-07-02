@@ -36,7 +36,7 @@ class ConnectionCheckerTest extends TestCase
     #[Test]
     public function check_connection_succeeds_with_successful_response(): void
     {
-        $mockResponse = $this->createMock(ResponseInterface::class);
+        $mockResponse = $this->createStub(ResponseInterface::class);
         $this->mockHttpClient
             ->expects($this->once())
             ->method('sendRequest')

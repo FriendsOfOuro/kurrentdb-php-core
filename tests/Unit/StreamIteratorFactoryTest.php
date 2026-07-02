@@ -16,12 +16,12 @@ use KurrentDB\StreamIteratorFactory;
 use KurrentDB\StreamReaderInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class StreamIteratorFactoryTest extends TestCase
 {
-    private StreamReaderInterface&MockObject $mockStreamReader;
+    private StreamReaderInterface&Stub $mockStreamReader;
     private StreamIteratorFactory $streamIteratorFactory;
 
     /**
@@ -29,7 +29,7 @@ class StreamIteratorFactoryTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockStreamReader = $this->createMock(StreamReaderInterface::class);
+        $this->mockStreamReader = $this->createStub(StreamReaderInterface::class);
         $this->streamIteratorFactory = new StreamIteratorFactory($this->mockStreamReader);
     }
 
@@ -96,13 +96,14 @@ class StreamIteratorFactoryTest extends TestCase
             EntryEmbedMode::BODY,
         );
 
-        $this->mockStreamReader->expects($this->once())
+        $mockStreamReader = $this->createMock(StreamReaderInterface::class);
+        $mockStreamReader->expects($this->once())
             ->method('openStreamFeed')
             ->with('test-stream', EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 
-        $iterator = $this->streamIteratorFactory->forwardStreamFeedIterator('test-stream');
+        $iterator = (new StreamIteratorFactory($mockStreamReader))->forwardStreamFeedIterator('test-stream');
 
         // Trigger rewind to verify stream reader is used
         $iterator->rewind();
@@ -126,13 +127,14 @@ class StreamIteratorFactoryTest extends TestCase
             EntryEmbedMode::BODY,
         );
 
-        $this->mockStreamReader->expects($this->once())
+        $mockStreamReader = $this->createMock(StreamReaderInterface::class);
+        $mockStreamReader->expects($this->once())
             ->method('openStreamFeed')
             ->with('test-stream', EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 
-        $iterator = $this->streamIteratorFactory->backwardStreamFeedIterator('test-stream');
+        $iterator = (new StreamIteratorFactory($mockStreamReader))->backwardStreamFeedIterator('test-stream');
 
         // Trigger rewind to verify stream reader is used
         $iterator->rewind();

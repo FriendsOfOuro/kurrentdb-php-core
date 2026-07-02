@@ -148,6 +148,8 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'test-stream';
 
+        $this->streamReader->expects($this->never())->method('openStreamFeed');
+
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
         $this->assertNull($iterator->nextUrl());

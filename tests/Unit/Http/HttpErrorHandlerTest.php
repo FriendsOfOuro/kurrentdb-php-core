@@ -46,7 +46,7 @@ class HttpErrorHandlerTest extends TestCase
     #[DataProvider('statusCodeProvider')]
     public function handle_status_code_throws_correct_exception(int $statusCode, string $expectedException, ?string $reasonPhrase = null): void
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn($statusCode);
         $response->method('getReasonPhrase')->willReturn($reasonPhrase ?? '');
 
@@ -64,7 +64,7 @@ class HttpErrorHandlerTest extends TestCase
     #[Test]
     public function handle_status_code_throws_bad_request_for_400_with_other_reason(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(400);
         $response->method('getReasonPhrase')->willReturn('Bad Request');
 
@@ -87,7 +87,7 @@ class HttpErrorHandlerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn($statusCode);
         $response->method('getReasonPhrase')->willReturn($reasonPhrase);
 
@@ -105,7 +105,7 @@ class HttpErrorHandlerTest extends TestCase
     #[Test]
     public function handle_exception_with_response_delegates_to_handle_status_code(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(ResponseCode::HTTP_NOT_FOUND);
 
         // Create concrete exception with response

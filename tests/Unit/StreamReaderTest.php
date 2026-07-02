@@ -22,7 +22,7 @@ use KurrentDB\StreamReader;
 use KurrentDB\Tests\SerializerFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -31,9 +31,9 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExcep
 
 class StreamReaderTest extends TestCase
 {
-    private ClientInterface&MockObject $mockHttpClient;
-    private ResponseInterface&MockObject $mockResponse;
-    private StreamInterface&MockObject $mockBody;
+    private ClientInterface&Stub $mockHttpClient;
+    private ResponseInterface&Stub $mockResponse;
+    private StreamInterface&Stub $mockBody;
     private StreamReader $streamReader;
 
     /**
@@ -41,9 +41,9 @@ class StreamReaderTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockHttpClient = $this->createMock(ClientInterface::class);
-        $this->mockResponse = $this->createMock(ResponseInterface::class);
-        $this->mockBody = $this->createMock(StreamInterface::class);
+        $this->mockHttpClient = $this->createStub(ClientInterface::class);
+        $this->mockResponse = $this->createStub(ResponseInterface::class);
+        $this->mockBody = $this->createStub(StreamInterface::class);
 
         $this->mockResponse->method('getBody')->willReturn($this->mockBody);
 
@@ -198,12 +198,12 @@ class StreamReaderTest extends TestCase
             'eventId' => '12345678-1234-1234-1234-123456789012',
         ];
 
-        $response1 = $this->createMock(ResponseInterface::class);
-        $body1 = $this->createMock(StreamInterface::class);
+        $response1 = $this->createStub(ResponseInterface::class);
+        $body1 = $this->createStub(StreamInterface::class);
         $body1->method('__toString')->willReturn(json_encode(['content' => $eventContent]));
         $response1->method('getBody')->willReturn($body1);
 
-        $mockBatch = $this->createMock(ResponseBatchInterface::class);
+        $mockBatch = $this->createStub(ResponseBatchInterface::class);
         $mockBatch->method('hasAnyFailures')->willReturn(false);
         $mockBatch->method('getResponses')->willReturn([$response1]);
 

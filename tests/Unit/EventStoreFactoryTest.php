@@ -38,7 +38,7 @@ class EventStoreFactoryTest extends TestCase
     #[Test]
     public function create_returns_event_store_when_connection_succeeds(): void
     {
-        $mockResponse = $this->createMock(ResponseInterface::class);
+        $mockResponse = $this->createStub(ResponseInterface::class);
         $this->mockHttpClient
             ->expects($this->once())
             ->method('sendRequest')

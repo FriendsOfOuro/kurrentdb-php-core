@@ -22,18 +22,22 @@ use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class StreamWriterTest extends TestCase
 {
-    private ClientInterface&MockObject $mockHttpClient;
-    private ResponseInterface&MockObject $mockResponse;
-    private StreamInterface&MockObject $mockBody;
+    private ClientInterface&Stub $mockHttpClient;
+    private ResponseInterface&Stub $mockResponse;
+    private StreamInterface&Stub $mockBody;
+    private HttpFactory $httpFactory;
+    private HttpErrorHandler $httpErrorHandler;
+    private SerializerInterface $serializer;
     private StreamWriter $streamWriter;
 
     /**
@@ -41,21 +45,26 @@ class StreamWriterTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockHttpClient = $this->createMock(ClientInterface::class);
-        $this->mockResponse = $this->createMock(ResponseInterface::class);
-        $this->mockBody = $this->createMock(StreamInterface::class);
+        $this->mockHttpClient = $this->createStub(ClientInterface::class);
+        $this->mockResponse = $this->createStub(ResponseInterface::class);
+        $this->mockBody = $this->createStub(StreamInterface::class);
 
         $this->mockResponse->method('getBody')->willReturn($this->mockBody);
 
-        $httpFactory = new HttpFactory();
-        $httpErrorHandler = new HttpErrorHandler();
-        $serializer = SerializerFactory::create($httpFactory);
-        $this->streamWriter = new StreamWriter(
-            $httpFactory,
-            $httpFactory,
-            $this->mockHttpClient,
-            $httpErrorHandler,
-            $serializer
+        $this->httpFactory = new HttpFactory();
+        $this->httpErrorHandler = new HttpErrorHandler();
+        $this->serializer = SerializerFactory::create($this->httpFactory);
+        $this->streamWriter = $this->makeStreamWriter($this->mockHttpClient);
+    }
+
+    private function makeStreamWriter(ClientInterface $client): StreamWriter
+    {
+        return new StreamWriter(
+            $this->httpFactory,
+            $this->httpFactory,
+            $client,
+            $this->httpErrorHandler,
+            $this->serializer
         );
     }
 
@@ -72,7 +81,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_with_single_event_returns_write_result(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/0']);
+        $this->mockResponse->method('getHeader')->willReturn(['http://example.com/streams/test-stream/0']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
@@ -94,7 +103,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_with_event_collection_returns_write_result(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/streams/test-stream/1']);
+        $this->mockResponse->method('getHeader')->willReturn(['http://example.com/streams/test-stream/1']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $events = WritableEventCollection::of(
@@ -121,7 +130,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_throws_exception_when_no_location_header(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn([]);
+        $this->mockResponse->method('getHeader')->willReturn([]);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
@@ -144,7 +153,7 @@ class StreamWriterTest extends TestCase
     public function write_to_stream_throws_exception_when_malformed_location_header(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(201);
-        $this->mockResponse->expects($this->once())->method('getHeader')->with('Location')->willReturn(['http://example.com/invalid/path']);
+        $this->mockResponse->method('getHeader')->willReturn(['http://example.com/invalid/path']);
         $this->mockHttpClient->method('sendRequest')->willReturn($this->mockResponse);
 
         $event = new WritableEvent(new UUID(), 'TestEvent', ['test' => 'data']);
@@ -166,9 +175,11 @@ class StreamWriterTest extends TestCase
     public function delete_stream_sends_delete_request(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(204);
-        $this->mockHttpClient->expects($this->once())->method('sendRequest')->willReturn($this->mockResponse);
 
-        $this->streamWriter->deleteStream('test-stream', StreamDeletion::SOFT);
+        $mockHttpClient = $this->createMock(ClientInterface::class);
+        $mockHttpClient->expects($this->once())->method('sendRequest')->willReturn($this->mockResponse);
+
+        $this->makeStreamWriter($mockHttpClient)->deleteStream('test-stream', StreamDeletion::SOFT);
     }
 
     /**
@@ -183,7 +194,9 @@ class StreamWriterTest extends TestCase
     public function delete_stream_with_hard_mode_adds_header(): void
     {
         $this->mockResponse->method('getStatusCode')->willReturn(204);
-        $this->mockHttpClient->expects($this->once())->method('sendRequest')
+
+        $mockHttpClient = $this->createMock(ClientInterface::class);
+        $mockHttpClient->expects($this->once())->method('sendRequest')
             ->with($this->callback(function ($request) {
                 return $request->hasHeader('Kurrent-HardDelete')
                        && 'true' === $request->getHeaderLine('Kurrent-HardDelete');
@@ -191,7 +204,7 @@ class StreamWriterTest extends TestCase
             ->willReturn($this->mockResponse)
         ;
 
-        $this->streamWriter->deleteStream('test-stream', StreamDeletion::HARD);
+        $this->makeStreamWriter($mockHttpClient)->deleteStream('test-stream', StreamDeletion::HARD);
     }
 
     /**
