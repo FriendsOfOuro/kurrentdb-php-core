@@ -39,6 +39,7 @@ final class StreamFeedIterator implements \Iterator
     ) {
         $this->arraySortingFunction = $arraySortingFunction(...);
         $this->pagesLeft = max(0, $pageLimit - 1); // Reserve one for initial page
+        $this->innerIterator = new \ArrayIterator([]);
     }
 
     public static function forward(StreamReaderInterface $streamReader, string $streamName, int $pageLimit = PHP_INT_MAX): self

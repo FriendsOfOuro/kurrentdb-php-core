@@ -359,6 +359,19 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
+     * @throws MockException
+     */
+    #[Test]
+    public function valid_returns_false_before_rewind(): void
+    {
+        $this->streamReader->expects($this->never())->method('openStreamFeed');
+
+        $iterator = StreamFeedIterator::forward($this->streamReader, 'test-stream');
+
+        $this->assertFalse($iterator->valid());
+    }
+
+    /**
      * Builds a feed page whose entries lack embedded event fields, as KurrentDB
      * returns for unresolved linkTos (e.g. links into hard-deleted streams).
      *
