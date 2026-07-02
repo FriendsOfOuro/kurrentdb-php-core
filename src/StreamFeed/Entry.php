@@ -20,6 +20,7 @@ final readonly class Entry
     public function __construct(
         private array $links,
         private array $json,
+        private ?Event $embeddedEvent = null,
     ) {
     }
 
@@ -31,6 +32,11 @@ final readonly class Entry
     public function getTitle(): string
     {
         return $this->json['title'];
+    }
+
+    public function getEmbeddedEvent(): ?Event
+    {
+        return $this->embeddedEvent;
     }
 
     protected function getLinks(): array

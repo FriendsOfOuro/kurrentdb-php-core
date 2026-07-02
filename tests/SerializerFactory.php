@@ -23,9 +23,9 @@ final class SerializerFactory
         $uriFactory ??= new HttpFactory();
 
         $linkDenormalizer = new LinkDenormalizer($uriFactory);
-        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer);
-        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
         $eventDenormalizer = new EventDenormalizer();
+        $entryDenormalizer = new EntryDenormalizer($linkDenormalizer, $eventDenormalizer);
+        $streamFeedDenormalizer = new StreamFeedDenormalizer($linkDenormalizer, $entryDenormalizer);
         $writableEventNormalizer = new WritableEventNormalizer();
 
         return new Serializer(

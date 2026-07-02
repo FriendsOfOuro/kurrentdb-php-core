@@ -16,13 +16,11 @@ use KurrentDB\Tests\Integration\TestCase;
 use KurrentDB\WritableEvent;
 use KurrentDB\WritableEventCollection;
 use PHPUnit\Framework\Attributes\Test;
-use Psr\Http\Client\ClientExceptionInterface;
 
 class StreamFeedIteratorTest extends TestCase
 {
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -46,7 +44,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -70,7 +67,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -90,7 +86,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -107,7 +102,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException
@@ -124,7 +118,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws StreamGoneException
      * @throws StreamNotFoundException
      * @throws WrongExpectedVersionException

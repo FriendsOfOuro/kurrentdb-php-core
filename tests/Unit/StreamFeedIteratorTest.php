@@ -8,18 +8,16 @@ use KurrentDB\Exception\BadRequestException;
 use KurrentDB\Exception\StreamGoneException;
 use KurrentDB\Exception\StreamNotFoundException;
 use KurrentDB\Exception\WrongExpectedVersionException;
+use KurrentDB\StreamFeed\EntryEmbedMode;
 use KurrentDB\StreamFeed\EntryWithEvent;
-use KurrentDB\StreamFeed\Event;
 use KurrentDB\StreamFeed\StreamFeed;
 use KurrentDB\StreamFeed\StreamFeedIterator;
 use KurrentDB\StreamReaderInterface;
 use KurrentDB\Tests\SerializerFactory;
-use KurrentDB\ValueObjects\Identity\UUID;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -48,23 +46,19 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = 'test-stream';
         $pageLimit = 2;
 
-        $streamFeed1 = $this->createStreamFeed([
-            ['title' => 'event1'],
-            ['title' => 'event2'],
+        $streamFeed1 = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'event1', 'eventNumber' => 0],
+            ['title' => 'event2', 'eventType' => 'event2', 'eventNumber' => 1],
         ], true);
-        $streamFeed2 = $this->createStreamFeed([
-            ['title' => 'event3'],
-            ['title' => 'event4'],
+        $streamFeed2 = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event3', 'eventType' => 'event3', 'eventNumber' => 2],
+            ['title' => 'event4', 'eventType' => 'event4', 'eventNumber' => 3],
         ], true);
-        $this->createStreamFeed([
-            ['title' => 'event5'],
-            ['title' => 'event6'],
-        ], false);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed1)
         ;
 
@@ -72,15 +66,6 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->exactly(1))
             ->method('navigateStreamFeed')
             ->willReturn($streamFeed2)
-        ;
-
-        $this->streamReader
-            ->expects($this->exactly(2))
-            ->method('readEventBatch')
-            ->willReturn([
-                $this->createEvent('event1', 0),
-                $this->createEvent('event2', 1),
-            ])
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName, $pageLimit);
@@ -99,14 +84,14 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'test-stream';
 
-        $streamFeed = $this->createStreamFeed([
-            ['title' => 'event1'],
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'event1', 'eventNumber' => 0],
         ], false);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 
@@ -114,12 +99,6 @@ class StreamFeedIteratorTest extends TestCase
             ->expects($this->once())
             ->method('navigateStreamFeed')
             ->willReturn(null)
-        ;
-
-        $this->streamReader
-            ->expects($this->once())
-            ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)])
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
@@ -132,7 +111,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws MockException
      * @throws SerializerExceptionInterface
      * @throws StreamGoneException
@@ -145,21 +123,15 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = 'test-stream';
         $expectedUrl = 'http://127.0.0.1:2113/streams/test-stream/next';
 
-        $streamFeed = $this->createStreamFeed([
-            ['title' => 'event1'],
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'event1', 'eventNumber' => 0],
         ], true);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
-        ;
-
-        $this->streamReader
-            ->expects($this->once())
-            ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)])
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
@@ -176,6 +148,8 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'test-stream';
 
+        $this->streamReader->expects($this->never())->method('openStreamFeed');
+
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
 
         $this->assertNull($iterator->nextUrl());
@@ -190,12 +164,12 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'empty-stream';
 
-        $streamFeed = $this->createStreamFeed([], false);
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([], false);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
         ;
 
@@ -212,7 +186,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws MockException
      * @throws SerializerExceptionInterface
      * @throws StreamGoneException
@@ -225,19 +198,15 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = 'test-stream';
         $expectedTitle = 'event-title-123';
 
-        $streamFeed = $this->createStreamFeed([['title' => $expectedTitle]], false);
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => $expectedTitle, 'eventType' => 'TestEvent', 'eventNumber' => 0],
+        ], false);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
-        ;
-
-        $this->streamReader
-            ->expects($this->once())
-            ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)])
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
@@ -252,7 +221,6 @@ class StreamFeedIteratorTest extends TestCase
 
     /**
      * @throws BadRequestException
-     * @throws ClientExceptionInterface
      * @throws MockException
      * @throws SerializerExceptionInterface
      * @throws StreamGoneException
@@ -264,21 +232,15 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = 'test-stream';
 
-        $streamFeed = $this->createStreamFeed([
-            ['title' => 'event1'],
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => 'event1', 'eventType' => 'event1', 'eventNumber' => 0],
         ], false);
 
         $this->streamReader
             ->expects($this->once())
             ->method('openStreamFeed')
-            ->with($streamName)
+            ->with($streamName, EntryEmbedMode::BODY)
             ->willReturn($streamFeed)
-        ;
-
-        $this->streamReader
-            ->expects($this->once())
-            ->method('readEventBatch')
-            ->willReturn([$this->createEvent('event1', 0)])
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
@@ -291,14 +253,51 @@ class StreamFeedIteratorTest extends TestCase
     }
 
     /**
+     * @throws MockException
+     * @throws SerializerExceptionInterface
+     */
+    #[Test]
+    public function iterator_handles_system_events_with_null_data(): void
+    {
+        $streamName = '$all';
+
+        // Atom feeds return entries newest-first; the forward iterator reverses them.
+        $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
+            ['title' => '1@test-stream', 'eventType' => 'UserCreated', 'eventNumber' => 1, 'data' => '{"name":"test"}'],
+            ['title' => '0@$projections-$all', 'eventType' => '$ProjectionCreated', 'eventNumber' => 0, 'data' => null],
+        ], false);
+
+        $this->streamReader
+            ->expects($this->once())
+            ->method('openStreamFeed')
+            ->with($streamName, EntryEmbedMode::BODY)
+            ->willReturn($streamFeed)
+        ;
+
+        $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
+        $entriesWithEvents = array_values(iterator_to_array($iterator));
+
+        $this->assertCount(2, $entriesWithEvents);
+
+        // Forward iterator reverses feed order (newest-first → oldest-first), so $ProjectionCreated is at index 0
+        $systemEvent = $entriesWithEvents[0];
+        $this->assertEquals('$ProjectionCreated', $systemEvent->getEvent()->getType());
+        $this->assertEquals([], $systemEvent->getEvent()->getData());
+    }
+
+    /**
      * @param array<array<string, mixed>> $entries
      *
      * @throws SerializerExceptionInterface
      */
-    private function createStreamFeed(array $entries, bool $hasNavigation): StreamFeed
+    private function createStreamFeedWithEmbeddedEvents(array $entries, bool $hasNavigation): StreamFeed
     {
         $entriesData = array_map(fn (array $entry): array => [
             'title' => $entry['title'],
+            'eventType' => $entry['eventType'],
+            'eventNumber' => $entry['eventNumber'],
+            'data' => array_key_exists('data', $entry) ? $entry['data'] : '{"test":"data"}',
+            'eventId' => $entry['eventId'] ?? 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
             'links' => [
                 [
                     'uri' => "http://127.0.0.1:2113/streams/test-stream/{$entry['title']}",
@@ -323,18 +322,8 @@ class StreamFeedIteratorTest extends TestCase
         return $this->serializer->deserialize(
             json_encode($json),
             StreamFeed::class,
-            'json'
-        );
-    }
-
-    private function createEvent(string $type, int $version): Event
-    {
-        return new Event(
-            $type,
-            $version,
-            ['test' => 'data'],
-            null,
-            new UUID()
+            'json',
+            ['embedMode' => EntryEmbedMode::BODY]
         );
     }
 }

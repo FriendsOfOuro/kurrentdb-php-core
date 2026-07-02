@@ -38,7 +38,7 @@ class StringLiteralTest extends TestCase
         $this->assertTrue($foo2->sameValueAs($foo1));
         $this->assertFalse($foo1->sameValueAs($bar));
 
-        $mock = $this->createMock(ValueObjectInterface::class);
+        $mock = $this->createStub(ValueObjectInterface::class);
         $this->assertFalse($foo1->sameValueAs($mock));
     }
 

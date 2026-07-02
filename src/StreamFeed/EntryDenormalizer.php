@@ -10,6 +10,7 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
 {
     public function __construct(
         private DenormalizerInterface $linkDenormalizer,
+        private DenormalizerInterface $eventDenormalizer,
     ) {
     }
 
@@ -25,9 +26,15 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
             }
         }
 
+        $embeddedEvent = null;
+        if (EntryEmbedMode::BODY === ($context['embedMode'] ?? null) && $this->eventDenormalizer->supportsDenormalization($data, Event::class, $format, $context)) {
+            $embeddedEvent = $this->eventDenormalizer->denormalize($data, Event::class, $format, $context);
+        }
+
         return new Entry(
             $links,
             $data,
+            $embeddedEvent,
         );
     }
 

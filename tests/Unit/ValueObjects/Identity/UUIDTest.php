@@ -39,7 +39,7 @@ class UUIDTest extends TestCase
         $this->assertTrue($uuid1->sameValueAs($uuid2));
         $this->assertFalse($uuid1->sameValueAs($uuid3));
 
-        $mock = $this->createMock(ValueObjectInterface::class);
+        $mock = $this->createStub(ValueObjectInterface::class);
         $this->assertFalse($uuid1->sameValueAs($mock));
     }
 
