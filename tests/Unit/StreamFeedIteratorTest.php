@@ -259,6 +259,7 @@ class StreamFeedIteratorTest extends TestCase
     {
         $streamName = '$all';
 
+        // Atom feeds return entries newest-first; the forward iterator reverses them.
         $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
             ['title' => '1@test-stream', 'eventType' => 'UserCreated', 'eventNumber' => 1, 'data' => '{"name":"test"}'],
             ['title' => '0@$projections-$all', 'eventType' => '$ProjectionCreated', 'eventNumber' => 0, 'data' => null],

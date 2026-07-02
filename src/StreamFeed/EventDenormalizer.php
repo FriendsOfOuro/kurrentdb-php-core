@@ -68,14 +68,16 @@ final readonly class EventDenormalizer implements DenormalizerInterface
         }
 
         if (is_array($value)) {
-            return $value;
+            return [] === $value ? null : $value;
         }
 
         if (is_string($value)) {
             $decoded = json_decode($value, true);
 
-            // Non-array results (e.g. scalar JSON values) are treated as empty data
-            return is_array($decoded) ? $decoded : [];
+            // Non-array results (e.g. scalar JSON values) are treated as empty
+            $array = is_array($decoded) ? $decoded : [];
+
+            return [] === $array ? null : $array;
         }
 
         return null;
