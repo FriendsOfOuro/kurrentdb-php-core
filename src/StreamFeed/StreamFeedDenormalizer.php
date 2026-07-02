@@ -29,7 +29,7 @@ final readonly class StreamFeedDenormalizer implements DenormalizerInterface
         $entries = [];
         if (isset($data['entries']) && is_array($data['entries'])) {
             foreach ($data['entries'] as $entryData) {
-                $entries[] = $this->entryDenormalizer->denormalize($entryData, Entry::class);
+                $entries[] = $this->entryDenormalizer->denormalize($entryData, Entry::class, $format, $context);
             }
         }
 

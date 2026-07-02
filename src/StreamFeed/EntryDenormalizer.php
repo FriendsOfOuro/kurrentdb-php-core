@@ -27,7 +27,7 @@ final readonly class EntryDenormalizer implements DenormalizerInterface
         }
 
         $embeddedEvent = null;
-        if ($this->eventDenormalizer->supportsDenormalization($data, Event::class, $format, $context)) {
+        if (EntryEmbedMode::BODY === ($context['embedMode'] ?? null) && $this->eventDenormalizer->supportsDenormalization($data, Event::class, $format, $context)) {
             $embeddedEvent = $this->eventDenormalizer->denormalize($data, Event::class, $format, $context);
         }
 

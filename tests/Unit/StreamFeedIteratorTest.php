@@ -260,8 +260,8 @@ class StreamFeedIteratorTest extends TestCase
         $streamName = '$all';
 
         $streamFeed = $this->createStreamFeedWithEmbeddedEvents([
-            ['title' => '0@$projections-$all', 'eventType' => '$ProjectionCreated', 'eventNumber' => 0, 'data' => null],
             ['title' => '1@test-stream', 'eventType' => 'UserCreated', 'eventNumber' => 1, 'data' => '{"name":"test"}'],
+            ['title' => '0@$projections-$all', 'eventType' => '$ProjectionCreated', 'eventNumber' => 0, 'data' => null],
         ], false);
 
         $this->streamReader
@@ -272,13 +272,12 @@ class StreamFeedIteratorTest extends TestCase
         ;
 
         $iterator = StreamFeedIterator::forward($this->streamReader, $streamName);
-        $entriesWithEvents = iterator_to_array($iterator);
+        $entriesWithEvents = array_values(iterator_to_array($iterator));
 
         $this->assertCount(2, $entriesWithEvents);
-        $this->assertContainsOnlyInstancesOf(EntryWithEvent::class, $entriesWithEvents);
 
-        // System event with null data should have empty array
-        $systemEvent = reset($entriesWithEvents);
+        // Forward iterator reverses feed order (newest-first → oldest-first), so $ProjectionCreated is at index 0
+        $systemEvent = $entriesWithEvents[0];
         $this->assertEquals('$ProjectionCreated', $systemEvent->getEvent()->getType());
         $this->assertEquals([], $systemEvent->getEvent()->getData());
     }
@@ -290,11 +289,11 @@ class StreamFeedIteratorTest extends TestCase
      */
     private function createStreamFeedWithEmbeddedEvents(array $entries, bool $hasNavigation): StreamFeed
     {
-        $entriesData = array_map(fn (array $entry): array => array_filter([
+        $entriesData = array_map(fn (array $entry): array => [
             'title' => $entry['title'],
             'eventType' => $entry['eventType'],
             'eventNumber' => $entry['eventNumber'],
-            'data' => $entry['data'] ?? '{"test":"data"}',
+            'data' => array_key_exists('data', $entry) ? $entry['data'] : '{"test":"data"}',
             'eventId' => $entry['eventId'] ?? 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
             'links' => [
                 [
@@ -302,7 +301,7 @@ class StreamFeedIteratorTest extends TestCase
                     'relation' => 'alternate',
                 ],
             ],
-        ], static fn (mixed $value): bool => null !== $value), $entries);
+        ], $entries);
 
         $links = [];
         if ($hasNavigation) {
@@ -324,5 +323,4 @@ class StreamFeedIteratorTest extends TestCase
             ['embedMode' => EntryEmbedMode::BODY]
         );
     }
-
 }

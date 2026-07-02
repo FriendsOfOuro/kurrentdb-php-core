@@ -21,10 +21,10 @@ final readonly class EventDenormalizer implements DenormalizerInterface
         $eventType = $content['eventType'];
         $version = (int) $content['eventNumber'];
         $rawData = $content['data'] ?? null;
-        $rawMetadata = $content['metadata'] ?? null;
+        $rawMetadata = $content['metadata'] ?? $content['metaData'] ?? null;
 
         $eventData = $this->decodeField($rawData) ?? [];
-        $metadata = $this->decodeField($rawMetadata);
+        $metadata = $this->decodeField($rawMetadata) ?: null;
         $eventId = (empty($content['eventId']) ? null : UUID::fromNative($content['eventId']));
 
         return new Event($eventType, $version, $eventData, $metadata, $eventId);
