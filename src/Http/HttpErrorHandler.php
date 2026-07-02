@@ -33,8 +33,12 @@ final class HttpErrorHandler
 
         switch ($statusCode) {
             case ResponseCode::HTTP_BAD_REQUEST:
-                // KurrentDB returns 400 for version conflicts with specific reason phrase
-                if ('Wrong expected EventNumber' === $reasonPhrase) {
+                // KurrentDB signals version conflicts with a specific reason
+                // phrase, but reason phrases do not exist in HTTP/2 — the
+                // Kurrent-CurrentVersion header is sent in either case.
+                if ('Wrong expected EventNumber' === $reasonPhrase
+                    || $response->hasHeader('Kurrent-CurrentVersion')
+                    || $response->hasHeader('ES-CurrentVersion')) {
                     throw new WrongExpectedVersionException();
                 }
                 throw new BadRequestException(\sprintf('Bad request for stream %s', $uri));

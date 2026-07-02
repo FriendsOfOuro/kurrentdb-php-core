@@ -55,6 +55,30 @@ class HttpErrorHandlerTest extends TestCase
     }
 
     /**
+     * HTTP/2 has no reason phrases: a version conflict must still be detected
+     * via the Kurrent-CurrentVersion header the server sends alongside it.
+     *
+     * @throws BadRequestException
+     * @throws MockException
+     * @throws StreamGoneException
+     * @throws StreamNotFoundException
+     * @throws WrongExpectedVersionException
+     */
+    #[Test]
+    public function handle_status_code_detects_version_conflict_without_reason_phrase(): void
+    {
+        $response = $this->createStub(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(400);
+        $response->method('getReasonPhrase')->willReturn('');
+        $response->method('hasHeader')->willReturnCallback(
+            static fn (string $name): bool => 'Kurrent-CurrentVersion' === $name
+        );
+
+        $this->expectException(WrongExpectedVersionException::class);
+        $this->errorHandler->handleStatusCode($this->uri, $response);
+    }
+
+    /**
      * @throws BadRequestException
      * @throws MockException
      * @throws StreamGoneException
