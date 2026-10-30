@@ -32,3 +32,4 @@ jobs:
           branch: chore/composer-update
           delete-branch: true
           labels: dependencies
+          reviewers: dbellettini
