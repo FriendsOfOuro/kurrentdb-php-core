@@ -24,7 +24,7 @@
     }
   ],
   "require": {
-   "php": "^8.4",
+    "php": "^8.4",
     "friendsofouro/http-batch-contract": "^3.0",
     "friendsofouro/http-batch-implementation": "^3.0",
     "psr/http-client": "^1.0",
@@ -38,7 +38,7 @@
     "symfony/serializer": "^7.3 || ^8.0"
   },
   "require-dev": {
-    "ergebnis/composer-normalize": "^2.48",
+    "ergebnis/composer-normalize": "^2.56",
     "friendsofouro/http-batch-guzzle": "^3.1",
     "friendsofphp/php-cs-fixer": "^3.87",
     "guzzlehttp/guzzle": "^7.10",
